@@ -7,4 +7,4 @@ EDL Simulator v1 HTML File
 - Sample image of execution below:
 
 <img width="971" height="1153" alt="image" src="https://github.com/user-attachments/assets/d1a3a0e2-cd55-45dd-854e-badcd1769deb" />
-
+A market simulation model where trader strategies (parameterized by adversarialness a) determine stability — below α=1 the system converges to equilibrium, above it diverges into chaos — currently validated at α=0.45. Next steps are adding dealer policy mechanics and formal stability theorems to better predict the direction of market chaos.
