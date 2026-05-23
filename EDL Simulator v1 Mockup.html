@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Endogenous Distribution Learning — OTC Bond Market Simulator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f5f4f0; --bg3: #eeece6;
+  --text: #1a1917; --text2: #5c5b56; --text3: #8c8b85;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+  --blue: #378ADD; --teal: #1D9E75; --amber: #EF9F27;
+  --coral: #D85A30; --purple: #8B7DD8; --red: #E24B4A;
+  --radius: 8px; --radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1917; --bg2: #252420; --bg3: #2e2d2a;
+    --text: #e8e6df; --text2: #c2c0b6; --text3: #888780;
+    --border: rgba(255,255,255,0.09); --border2: rgba(255,255,255,0.16);
+    --blue: #5BA8F5; --teal: #3BC896; --amber: #F5B84A;
+    --coral: #F0784A; --purple: #A89AEF; --red: #F06060;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 28px 32px; max-width: 900px; margin: 0 auto; font-size: 14px; line-height: 1.5; }
+h1 { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+.layout { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+.panel-label { font-size: 11px; font-weight: 500; letter-spacing: .06em; color: var(--text3); text-transform: uppercase; margin-bottom: 14px; }
+.ctrl { margin-bottom: 16px; }
+.ctrl-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.ctrl-label { font-size: 12px; color: var(--text2); }
+.ctrl-val { font-size: 12px; font-weight: 500; font-family: monospace; }
+input[type=range] { width: 100%; accent-color: var(--blue); }
+.ctrl-hint { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-top: 2px; }
+.run-btn {
+  width: 100%; padding: 9px 0; font-size: 13px; cursor: pointer;
+  background: transparent; border: 0.5px solid var(--border2);
+  border-radius: var(--radius); color: var(--text); margin-bottom: 14px;
+  transition: background .15s;
+}
+.run-btn:hover { background: var(--bg2); }
+.info-box { background: var(--bg2); border-radius: var(--radius); padding: 11px 13px; font-size: 11px; color: var(--text2); line-height: 1.8; }
+.chart-section { }
+.chart-note { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
+.legend { display: flex; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
+.leg-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text2); }
+.leg-line { width: 14px; height: 2px; display: inline-block; }
+.leg-box { width: 9px; height: 9px; display: inline-block; border-radius: 1px; }
+.chart-wrap { position: relative; height: 240px; }
+.sum-row { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 0; }
+.sum-card { background: var(--bg2); border-radius: var(--radius); padding: 11px 14px; }
+.sum-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
+.sum-val { font-size: 22px; font-weight: 500; }
+.sim-section { display: none; margin-top: 16px; }
+.sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.sim-chart-wrap { position: relative; height: 155px; }
+.divider { border: none; border-top: 0.5px solid var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<h1>Endogenous Distribution Learning</h1>
+<p class="subtitle">OTC corporate bond market-making — retraining loop convergence analysis</p>
+
+<div class="layout">
+  <div>
+    <p class="panel-label">Controls</p>
+
+    <div class="ctrl">
+      <div class="ctrl-row">
+        <span class="ctrl-label">Adversarialness <em>α</em></span>
+        <span class="ctrl-val" id="av">0.50</span>
+      </div>
+      <input type="range" id="sla" min="0" max="1.4" step="0.05" value="0.5"
+        oninput="document.getElementById('av').textContent=parseFloat(this.value).toFixed(2);onA(parseFloat(this.value))">
+      <div class="ctrl-hint"><span>passive</span><span style="color:var(--red)">adversarial</span></div>
+    </div>
+
+    <div class="ctrl">
+      <div class="ctrl-row">
+        <span class="ctrl-label">Initial policy <em>θ</em>₀</span>
+        <span class="ctrl-val" id="t0v">3.0</span>
+      </div>
+      <input type="range" id="slt0" min="0.5" max="8" step="0.5" value="3"
+        oninput="document.getElementById('t0v').textContent=parseFloat(this.value).toFixed(1)">
+    </div>
+
+    <div class="ctrl">
+      <div class="ctrl-row">
+        <span class="ctrl-label">Iterations <em>T</em></span>
+        <span class="ctrl-val" id="itv">30</span>
+      </div>
+      <input type="range" id="slit" min="10" max="80" step="5" value="30"
+        oninput="document.getElementById('itv').textContent=this.value">
+    </div>
+
+    <button class="run-btn" onclick="runSim()">Run retraining loop →</button>
+
+    <div class="info-box">
+      <strong>Model (linear-quadratic):</strong><br>
+      R(θ; τ) = (q<sub>max</sub> − βθ)(θ − cτ)<br>
+      θ*(τ) = q<sub>max</sub>/2β + cτ/2<br>
+      τ(θ,α) = τ₀ + α·max(θ − θ<sub>f</sub>, 0)<br><br>
+      <strong>Fixed point:</strong><br>
+      θ* = (2.6 − 0.5α)/(1 − α)<br>
+      <strong>Converges iff α &lt; α<sub>c</sub> = 1</strong>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <p class="chart-note">Theoretical steady-state equilibrium as a function of adversarialness</p>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-line" style="background:var(--blue)"></span>Spread θ* (left axis)</span>
+      <span class="leg-item"><span class="leg-line" style="border-top:2px dashed var(--teal);height:0"></span>P&amp;L* (right axis)</span>
+      <span class="leg-item"><span class="leg-box" style="background:rgba(226,75,74,.1);border:.5px solid rgba(226,75,74,.5)"></span>Divergent region</span>
+      <span class="leg-item"><span style="width:2px;height:12px;background:var(--purple);display:inline-block"></span>Current α</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="phaseC" role="img" aria-label="Phase diagram: equilibrium spread and P&L vs adversarialness. Spread diverges and P&L collapses at alpha = 1.">Phase diagram — equilibrium spread diverges and P&L collapses at alpha = 1.</canvas>
+    </div>
+  </div>
+</div>
+
+<div class="sum-row" id="sumrow">
+  <div class="sum-card">
+    <p class="sum-label">Equilibrium θ*</p>
+    <p class="sum-val" id="sfp" style="color:var(--blue)">—</p>
+  </div>
+  <div class="sum-card">
+    <p class="sum-label">Convergence</p>
+    <p class="sum-val" style="font-size:15px" id="scv">—</p>
+  </div>
+  <div class="sum-card">
+    <p class="sum-label">Equilibrium P&amp;L</p>
+    <p class="sum-val" id="spl" style="color:var(--teal)">—</p>
+  </div>
+  <div class="sum-card">
+    <p class="sum-label">Decay α¹⁰</p>
+    <p class="sum-val" id="srt">—</p>
+  </div>
+</div>
+
+<div class="sim-section" id="simsec">
+  <hr class="divider">
+  <div class="legend" style="margin-bottom:8px">
+    <span class="leg-item"><span class="leg-line" style="background:var(--blue)"></span>Noisy retraining</span>
+    <span class="leg-item"><span class="leg-line" style="border-top:1.5px dashed rgba(55,138,221,.5);height:0"></span>Noiseless theory</span>
+    <span class="leg-item"><span class="leg-line" style="border-top:1.5px dashed rgba(130,130,130,.4);height:0"></span>Fixed point</span>
+  </div>
+  <div class="sim-grid">
+    <div class="sim-chart-wrap"><canvas id="cth" role="img" aria-label="Policy theta over iterations">Policy trajectory.</canvas></div>
+    <div class="sim-chart-wrap"><canvas id="cta" role="img" aria-label="Toxicity tau over iterations">Toxicity trajectory.</canvas></div>
+    <div class="sim-chart-wrap"><canvas id="cpl" role="img" aria-label="P&L over iterations">P&L trajectory.</canvas></div>
+    <div class="sim-chart-wrap"><canvas id="cdd" role="img" aria-label="Distribution distance over iterations">Distribution distance — convergence metric.</canvas></div>
+  </div>
+</div>
+
+<script>
+// ── Model ────────────────────────────────────────────────────────────────────
+const M = { qMax: 10, beta: 2, c: 2, tauBase: 0.1, thF: 0.5, sig: 0.15 };
+
+function rn() {
+  let u = 0, v = 0;
+  while (!u) u = Math.random();
+  while (!v) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function oTh(tau) { return (M.qMax + M.beta * M.c * tau) / (2 * M.beta); }
+function eTau(th, a) { return M.tauBase + a * Math.max(0, th - M.thF); }
+function cPnL(th, tau) { return Math.max(0, M.qMax - M.beta * th) * (th - M.c * tau); }
+function fpCalc(a) { return a < 0.998 ? (2.6 - 0.5 * a) / (1 - a) : null; }
+
+// ── Chart registry ───────────────────────────────────────────────────────────
+const CH = {};
+let CA = 0.5;
+
+function gColors() {
+  const d = matchMedia('(prefers-color-scheme:dark)').matches;
+  return {
+    t: d ? '#c2c0b6' : '#3d3d3a',
+    g: d ? '#2e2d2a' : '#e8e5dd',
+    blue: d ? '#5BA8F5' : '#378ADD',
+    teal: d ? '#3BC896' : '#1D9E75',
+    amber: d ? '#F5B84A' : '#EF9F27',
+    coral: d ? '#F0784A' : '#D85A30',
+    purple: d ? '#A89AEF' : '#8B7DD8',
+    red: d ? '#F06060' : '#E24B4A',
+  };
+}
+
+// ── Phase diagram ─────────────────────────────────────────────────────────────
+function phData() {
+  return Array.from({ length: 100 }, (_, i) => {
+    const a = i * 1.4 / 99;
+    const f = fpCalc(a);
+    if (!f || f > 12.5) return { x: +a.toFixed(4), th: null, pl: null };
+    const tau = eTau(f, a);
+    return { x: +a.toFixed(4), th: +f.toFixed(3), pl: +Math.max(0, cPnL(f, tau)).toFixed(3) };
+  });
+}
+
+function initPhase() {
+  if (CH.ph) CH.ph.destroy();
+  const cl = gColors(), d = phData();
+
+  const divPlugin = {
+    id: 'dp', afterDraw(c) {
+      if (!c.scales.x) return;
+      const { ctx: cx, chartArea: ca, scales: sc } = c;
+      const x1 = sc.x.getPixelForValue(1.0);
+      if (x1 >= ca.right) return;
+      cx.save();
+      cx.fillStyle = 'rgba(226,75,74,.06)';
+      cx.fillRect(x1, ca.top, ca.right - x1, ca.bottom - ca.top);
+      cx.setLineDash([4, 3]); cx.strokeStyle = 'rgba(226,75,74,.45)'; cx.lineWidth = 1;
+      cx.beginPath(); cx.moveTo(x1, ca.top); cx.lineTo(x1, ca.bottom); cx.stroke();
+      cx.setLineDash([]);
+      cx.fillStyle = 'rgba(226,75,74,.7)'; cx.font = '11px sans-serif'; cx.textAlign = 'left';
+      cx.fillText('α_c = 1', x1 + 4, ca.top + 14); cx.restore();
+    }
+  };
+
+  const amPlugin = {
+    id: 'am', afterDraw(c) {
+      if (!c.scales.x) return;
+      const { ctx: cx, chartArea: ca, scales: sc } = c;
+      const x = sc.x.getPixelForValue(CA);
+      cx.save(); cx.strokeStyle = cl.purple; cx.lineWidth = 1.5;
+      cx.beginPath(); cx.moveTo(x, ca.top); cx.lineTo(x, ca.bottom); cx.stroke();
+      cx.fillStyle = cl.purple;
+      cx.beginPath(); cx.arc(x, ca.bottom - 4, 3, 0, 2 * Math.PI); cx.fill();
+      cx.restore();
+    }
+  };
+
+  CH.ph = new Chart(document.getElementById('phaseC').getContext('2d'), {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          data: d.map(p => ({ x: p.x, y: p.th })), yAxisID: 'yL',
+          borderColor: cl.blue, borderWidth: 2.5, fill: false,
+          pointRadius: 0, tension: .3, parsing: false, spanGaps: false
+        },
+        {
+          data: d.map(p => ({ x: p.x, y: p.pl })), yAxisID: 'yR',
+          borderColor: cl.teal, borderWidth: 1.5, borderDash: [5, 3], fill: false,
+          pointRadius: 0, tension: .3, parsing: false, spanGaps: false
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: its => `α = ${parseFloat(its[0].parsed.x).toFixed(2)}`,
+            label: it => it.datasetIndex === 0
+              ? `θ* = ${it.parsed.y?.toFixed(2) ?? '∞'}`
+              : it.parsed.y !== null ? `P&L* = ${it.parsed.y?.toFixed(1)}` : '—'
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', min: 0, max: 1.4,
+          title: { display: true, text: 'Adversarialness α', color: cl.t, font: { size: 12 } },
+          ticks: { color: cl.t, maxTicksLimit: 8, callback: v => v.toFixed(1) },
+          grid: { color: cl.g }
+        },
+        yL: {
+          type: 'linear', position: 'left',
+          title: { display: true, text: 'Equilibrium spread θ*', color: cl.blue, font: { size: 12 } },
+          ticks: { color: cl.blue, maxTicksLimit: 6 },
+          grid: { color: cl.g }, min: 0, max: 13
+        },
+        yR: {
+          type: 'linear', position: 'right',
+          title: { display: true, text: 'Equilibrium P&L', color: cl.teal, font: { size: 12 } },
+          ticks: { color: cl.teal, maxTicksLimit: 6 },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    },
+    plugins: [divPlugin, amPlugin]
+  });
+}
+
+function onA(a) {
+  CA = a;
+  if (CH.ph) CH.ph.update('none');
+}
+
+// ── Simulation ────────────────────────────────────────────────────────────────
+function runSim() {
+  const a = parseFloat(document.getElementById('sla').value);
+  const t0 = parseFloat(document.getElementById('slt0').value);
+  const T = parseInt(document.getElementById('slit').value);
+
+  let th = t0, tTh = t0;
+  const h = [{ i: 0, th, tau: eTau(th, a), pnl: cPnL(th, eTau(th, a)), dd: 0, tTh }];
+
+  for (let t = 1; t <= T; t++) {
+    const tau = eTau(th, a);
+    const nTh = Math.max(0.5, Math.min(15, oTh(Math.max(0, tau + M.sig * rn()))));
+    const nTTh = Math.max(0.5, Math.min(15, oTh(eTau(tTh, a))));
+    h.push({
+      i: t, th: nTh, tau: eTau(nTh, a),
+      pnl: cPnL(nTh, eTau(nTh, a)),
+      dd: Math.abs(eTau(nTh, a) - tau),
+      tTh: nTTh
+    });
+    th = nTh; tTh = nTTh;
+  }
+
+  const fv = fpCalc(a);
+  const last = h[h.length - 1];
+  const conv = fv !== null && Math.abs(last.th - fv) < 1.0;
+  const fpTau = fv !== null ? eTau(fv, a) : null;
+  const fpPnL = fv !== null ? cPnL(fv, fpTau) : null;
+  const rate = a < 1 ? Math.pow(a, 10) : null;
+
+  document.getElementById('sumrow').style.display = 'grid';
+  document.getElementById('sfp').textContent = fv !== null && fv < 13 ? fv.toFixed(2) : '∞';
+
+  const cv = document.getElementById('scv');
+  if (a >= 1) { cv.textContent = 'Diverged ✗'; cv.style.color = 'var(--red)'; }
+  else if (conv) { cv.textContent = 'Converged ✓'; cv.style.color = 'var(--teal)'; }
+  else { cv.textContent = 'Converging…'; cv.style.color = 'var(--amber)'; }
+
+  document.getElementById('spl').textContent = fpPnL !== null && fpPnL > 0.01 ? fpPnL.toFixed(2) : '~0';
+  document.getElementById('srt').textContent = rate !== null
+    ? (rate < 0.001 ? '<0.001' : rate.toFixed(3))
+    : a >= 1 ? '∞' : '—';
+
+  document.getElementById('simsec').style.display = 'block';
+
+  const cl = gColors();
+  const it = h.map(d => d.i);
+  mkLC('cth', 'Policy θ', cl.blue, it,
+    h.map(d => +d.th.toFixed(3)),
+    h.map(d => +d.tTh.toFixed(3)),
+    fv && fv < 13 ? fv : null, cl);
+  mkLC('cta', 'Toxicity τ', cl.amber, it,
+    h.map(d => +d.tau.toFixed(3)), null,
+    fpTau && fpTau < 20 ? fpTau : null, cl);
+  mkLC('cpl', 'P&L', cl.teal, it,
+    h.map(d => +d.pnl.toFixed(2)), null,
+    fpPnL && fpPnL > 0 ? fpPnL : null, cl);
+  mkLC('cdd', '‖D_t − D_{t−1}‖', cl.coral, it,
+    h.map(d => +d.dd.toFixed(4)), null, 0, cl);
+}
+
+function mkLC(id, yLabel, col, labels, v1, v2, rv, cl) {
+  if (CH[id]) CH[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  const ds = [{
+    data: v1, borderColor: col, borderWidth: 1.5,
+    fill: false, pointRadius: 0, tension: .15
+  }];
+  if (v2) ds.push({
+    data: v2,
+    borderColor: col.length === 7 ? col + '66' : 'rgba(55,138,221,.42)',
+    borderWidth: 1, borderDash: [4, 2],
+    fill: false, pointRadius: 0, tension: .15
+  });
+
+  const plugins = [];
+  if (rv !== null && rv !== undefined) {
+    const rvCopy = rv;
+    plugins.push({
+      id: 'rl', afterDraw(c) {
+        if (!c.scales.y) return;
+        const { ctx: cx, chartArea: ca, scales: sc } = c;
+        if (rvCopy < sc.y.min || rvCopy > sc.y.max) return;
+        const y = sc.y.getPixelForValue(rvCopy);
+        cx.save(); cx.setLineDash([5, 3]);
+        cx.strokeStyle = 'rgba(130,130,130,.4)'; cx.lineWidth = 1.2;
+        cx.beginPath(); cx.moveTo(ca.left, y); cx.lineTo(ca.right, y); cx.stroke();
+        cx.restore();
+      }
+    });
+  }
+
+  CH[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          title: { display: true, text: 'Iteration', color: cl.t, font: { size: 11 } },
+          ticks: { color: cl.t, maxTicksLimit: 6, font: { size: 11 } },
+          grid: { color: cl.g }
+        },
+        y: {
+          title: { display: true, text: yLabel, color: cl.t, font: { size: 11 } },
+          ticks: { color: cl.t, maxTicksLimit: 5, font: { size: 11 } },
+          grid: { color: cl.g }
+        }
+      }
+    },
+    plugins
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+initPhase();
+</script>
+</body>
+</html>
