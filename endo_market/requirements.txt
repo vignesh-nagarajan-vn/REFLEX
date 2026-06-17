@@ -1,0 +1,12 @@
+# Core dependencies. For CPU-only torch you may prefer:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.1
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
+pyyaml>=6.0
+tqdm>=4.65
+pytest>=7.4
+
+# Optional, config-gated and OFF by default:
+# wandb>=0.16

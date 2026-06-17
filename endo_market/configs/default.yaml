@@ -1,0 +1,83 @@
+# Default configuration: small + CPU-friendly. A single RRM run should finish
+# in a couple of minutes on one CPU core. Scale up purely via this file.
+seed: 0
+device: cpu
+dtype: float32
+
+bonds:
+  n_bonds: 8
+  n_sectors: 2
+  global_factor: 0.25
+  within_sector_corr: 0.45
+
+clients:
+  alpha: 0.15            # adversariality knob in [0, 1]; low => benign market
+  base_arrival_rate: 1.0
+  demand_elasticity: 1.5
+  info_signal_noise: 0.6
+  info_intensity: 1.4
+  info_cap: 2.5          # saturation cap on informed notional (bounds toxicity, stops blowups)
+  toxicity_feedback: 0.22 # gain of toxicity<-spread feedback (scales epsilon with alpha)
+  spread_ref: 0.5
+
+simulator:
+  horizon: 48
+  fundamental_vol: 0.10
+  impact: 0.30
+  mid_noise: 0.02
+  mid_reversion: 0.10
+  mid_move_cap: 4.0
+  init_mispricing_vol: 0.3
+  liq_mean: 1.0
+  liq_reversion: 0.15
+  liq_vol: 0.05
+  liq_flow_boost: 0.10
+  liq_overtighten_decay: 0.20
+  liq_coupling: 0.30
+
+operator:
+  hidden: 64
+  head_type: gaussian   # gaussian | gaussian_diag | mixture
+  n_mixture: 3
+  lr: 0.001
+  epochs: 50
+  batch_size: 256
+  weight_decay: 0.00001
+  val_fraction: 0.2
+  patience: 8
+
+policy:
+  type: linear          # linear | mlp
+  hidden: 32
+  lr: 0.03
+  inner_steps: 50
+  rollout_horizon: 16
+  n_rollouts: 16
+  init_half_spread: 0.8
+  max_half_spread: 6.0
+  reinforce: false
+
+reward:
+  inv_risk_weight: 0.05
+  pnl_scale: 1.0
+
+stability:
+  entropy_w: 0.0
+  hhi_w: 0.0
+  toxicity_w: 0.0
+  lipschitz_w: 0.0
+  lipschitz_eps: 0.05
+
+rrm:
+  max_iters: 15
+  tol: 0.001
+  n_episodes: 20
+  collection_jitter: 0.05
+  eval_episodes: 12
+  warm_start_policy: true
+  refit_window: 1
+
+logging:
+  outdir: outputs
+  use_wandb: false
+  verbose: true
