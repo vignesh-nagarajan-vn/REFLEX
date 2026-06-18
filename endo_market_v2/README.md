@@ -1,4 +1,4 @@
-# endo_market
+# endo_market_v2 (6-17-26)
 
 **Performative prediction in an endogenous OTC corporate-bond market-making
 environment.** A dealer's quoting policy `phi` induces the data distribution
