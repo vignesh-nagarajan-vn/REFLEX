@@ -33,5 +33,7 @@ response function, trained in a retraining loop that updates on data generated
 by new *and* revised policies.
 
 ## Goals
+- [ ] Reformulate research question, adding more technical depth and novel machine learing components.
+- [ ] Look into existing literature to understand the mathematical background, and what exactly we can do to integrate that in a novel method, including LEAN as an evaluation/validation metric.
 - [ ] Secure a research placement at a top AI lab (with affiliation).
-- [ ] Submit to [ICAIF 2026](https://icaif25.org/) (ACM Intl. Conference on AI in Finance).
+- [ ] Submit to [ICAIF 2026](https://icaif25.org/) (ACM Intl. Conference on AI in Finance) or another main-track workshop/publciation.
