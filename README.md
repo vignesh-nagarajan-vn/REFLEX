@@ -27,13 +27,80 @@ under repeated interaction with that same policy.
 Characterize **when the policy/market loop converges to a stable equilibrium
 vs. fails to converge**, as a function of how adversarial the market is.
 
-## Setup
-Simulated OTC bond market + dealer policy (linear / MLP) + parameterized market
-response function, trained in a retraining loop that updates on data generated
-by new *and* revised policies.
+## Repository layout
+
+    REFLEX/
+    |- README.md                    ← this file
+    |- literature/                  ← ten foundational papers + reading map
+    |  |- README.md                 ← full reading map & per-paper notes
+    |  |- references.bib            ← BibTeX for all ten papers
+    |  |- download_pdfs.sh          ← fetches all ten open-access PDFs from arXiv
+    |  \- pdfs/                     ← PDFs land here after running download_pdfs.sh
+    |- endo_market_v2/              ← current experiment (see § Experiments below)
+    |  |- README.md                 ← full methodology, headline results, caveats
+    |  |- configs/                  ← default.yaml | sweep_feedback.yaml | sweep_adversariality.yaml
+    |  |- endo_market/              ← core library (env, policy, operator, equilibrium, analysis)
+    |  |- experiments/              ← run_single.py | run_sweep.py
+    |  |- outputs/                  ← phase diagram PNG + sweep CSV written here
+    |  \- tests/                    ← 21 tests (20 fast + 1 slow end-to-end)
+    \- EDL Simulator v1/            ← earlier prototype (superseded by endo_market_v2)
+
+## Experiments
+
+### `REFLEX/endo_market_v2` — Performative Prediction in an Endogenous OTC Bond Market
+
+The current main experiment. A dealer's quoting policy `φ` induces the data
+distribution `D(φ)`: tighter quotes summon more informed ("toxic") flow that
+picks the dealer off. Under **repeated retraining (RRM)**, when does the
+policy↔distribution loop converge vs. diverge?
+
+**Headline result** — sweeping the performative-feedback gain `ε`
+(`clients.toxicity_feedback` config knob), the best-response contraction
+modulus `m` crosses the stability boundary `m = 1` near `ε* ≈ 1.3`,
+reproducing the theoretical `ε < γ/β` condition from performative-prediction
+theory (Perdomo et al., ICML 2020):
+
+| ε    | 0.0  | 2.0   | 3.0   | 4.0   | 6.0   | 8.0  |
+|-----:|-----:|------:|------:|------:|------:|-----:|
+| median modulus `m` | 0.51 | 1.25 | 1.27 | 1.25 | 1.26 | 1.60 |
+| fraction unstable  | 0%   | 100% | 100% | 100% | 100% | 67%  |
+
+Results at `REFLEX/endo_market_v2/outputs/phase_diagram_toxicity_feedback.png`
+and `REFLEX/endo_market_v2/outputs/sweep_toxicity_feedback_results.csv`.
+
+See `REFLEX/endo_market_v2/README.md` for the full mechanism write-up,
+methodology, locked P&L identity, honest caveats, and install/run instructions.
+
+## Literature
+
+`REFLEX/literature/` collects ten papers at the intersection of **performative
+prediction / decision-dependent stochastic optimization** and **optimal OTC
+market making**. Each paper maps to a specific component of the codebase and
+points at a concrete extension.
+
+| # | Paper | Project component |
+|---|-------|-------------------|
+| 1 | Perdomo et al. — *Performative Prediction* (ICML 2020) | `ε < γ/β` boundary; RRM loop |
+| 2 | Mendler-Dünner et al. — *Stochastic Optimization for PP* (NeurIPS 2020) | Effective convexity `γ − εβ` |
+| 3 | Miller et al. — *Outside the Echo Chamber* (ICML 2021) | Stable≠optimal gap; defensive widening |
+| 4 | Izzo et al. — *Performative Gradient Descent* (ICML 2021) | Fixing operator blind to `dD/dφ` |
+| 5 | Drusvyatskiy & Xiao — *Decision-Dependent Distributions* (MOR 2023) | Rigorous convergence; vanishing-bias view |
+| 6 | Jagadeesan et al. — *Regret Minimization w/ Performative Feedback* (ICML 2022) | Making `ε` explorable |
+| 7 | Li & Wai — *State-Dependent Performative Prediction* (AISTATS 2022) | Inventory carryover `q_after` |
+| 8 | Guéant, Lehalle, Fernández-Tapia — *Inventory Risk* (2013) | `exp(−decay·h)` intensity; deriving `γ` |
+| 9 | Bergault & Guéant — *Size Matters for OTC MMs* (2021) | Scale to 100+ bonds; factor reduction |
+| 10 | Barzykin, Bergault, Guéant, Lemmel — *Adverse Selection & Price Reading* (arXiv 2025) | Toxic-flow channel from first principles |
+
+PDFs for all ten papers (open-access arXiv preprints) live at
+`REFLEX/literature/pdfs/` after running `REFLEX/literature/download_pdfs.sh`.
+Full BibTeX is at `REFLEX/literature/references.bib`.
+
+The detailed reading map — including per-paper summaries, connections to the
+codebase, and a five-step mathematical roadmap for the next version — is in
+`REFLEX/literature/README.md`.
 
 ## Goals
-- [ ] Reformulate research question, adding more technical depth and novel machine learing components.
-- [ ] Look into existing literature to understand the mathematical background, and what exactly we can do to integrate that in a novel method, including LEAN as an evaluation/validation metric.
+- [ ] Reformulate research question, adding more technical depth and novel machine learning components.
+- [ ] Integrate literature to extend `endo_market_v2`: predictive boundary `εβ/γ`, PerfGD-corrected loop, adaptive `ε` exploration, inventory-stateful convergence, and 100+-bond phase diagram.
 - [ ] Secure a research placement at a top AI lab (with affiliation).
-- [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track workshop/publciation.
+- [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track workshop/publication.
