@@ -27,15 +27,50 @@ under repeated interaction with that same policy.
 Characterize **when the policy/market loop converges to a stable equilibrium
 vs. fails to converge**, as a function of how adversarial the market is.
 
+## Model lineage
+
+Three generations of the same idea — *an endogenous market whose stability is
+governed by a single feedback parameter* — each more structural than the last:
+
+```mermaid
+flowchart LR
+    A["edl_simulator_v1<br/>(HTML/JS mockup)<br/>analytical LQ model"]
+      --> B["endo_market<br/>(Python / PyTorch)<br/>learned operator + RRM"]
+      --> C["endo_market_v2<br/>(Python / PyTorch)<br/>refined, result reproduced"]
+```
+
+|                       | **edl_simulator_v1** | **endo_market** | **endo_market_v2** |
+|-----------------------|----------------------|-----------------|--------------------|
+| **Role**              | Earliest prototype   | Legacy iteration | **Current** |
+| **Implementation**    | HTML/JS browser mockup | Python (PyTorch, CPU) | Python (PyTorch, CPU) |
+| **Market model**      | Analytical linear-quadratic OTC bond | Structural multi-bond simulator (uninformed + toxic flow) | Structural OTC simulator + latent liquidity field |
+| **Learner**           | Closed-form fixed point | Learned operator `T_θ` + RRM loop | Same, refined |
+| **Control parameter** | Adversarialness `α`  | Adversariality `α ∈ [0,1]` | Feedback gain `ε` (`α` found to be confounded) |
+| **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` |
+| **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | **Result reproduced**: `m` crosses 1 at `ε* ≈ 1.3`, then saturates |
+| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 21 tests + phase-diagram PNG & sweep CSV |
+
+The progression: `edl_simulator_v1` proved the *concept* (one parameter flips a
+market between convergence and chaos) analytically; `endo_market` rebuilt it as a
+learned-operator performative-prediction loop but couldn't cleanly tune the
+transition; `endo_market_v2` identified `ε` (not `α`) as the clean control and
+reproduced the `ε < γ/β` stability boundary.
+
 ## Repository layout
 
     REFLEX/
     |- README.md                    ← this file
-    |- literature/                  ← ten foundational papers + reading map
-    |  |- README.md                 ← full reading map & per-paper notes
-    |  |- references.bib            ← BibTeX for all ten papers
-    |  |- download_pdfs.sh          ← fetches all ten open-access PDFs from arXiv
-    |  \- pdfs/                     ← PDFs land here after running download_pdfs.sh
+    |- CLAUDE.md                    ← orientation & conventions for AI coding agents
+    |- literature/                  ← two curated literature collections
+    |  |- literature-vignesh/       ← Vignesh's set: 10 foundational papers + reading map
+    |  |  |- README.md              ← reading map & per-paper notes (10 papers)
+    |  |  |- references.bib         ← BibTeX for the 10 papers
+    |  |  |- download_pdfs.sh       ← fetches the 10 open-access PDFs from arXiv
+    |  |  \- pdfs/                  ← PDFs land here after running download_pdfs.sh
+    |  \- literature-raghav/        ← Raghav's set: same core papers + deeper critical notes
+    |     |- README.md              ← expanded reading map, critical notes & research roadmap
+    |     |- references.bib         ← BibTeX
+    |     \- download_pdfs.sh       ← fetches the open-access PDFs into pdfs/
     |- endo_market_v2/              ← current experiment (see § Experiments below)
     |  |- README.md                 ← full methodology, headline results, caveats
     |  |- configs/                  ← default.yaml | sweep_feedback.yaml | sweep_adversariality.yaml
@@ -43,7 +78,8 @@ vs. fails to converge**, as a function of how adversarial the market is.
     |  |- experiments/              ← run_single.py | run_sweep.py
     |  |- outputs/                  ← phase diagram PNG + sweep CSV written here
     |  \- tests/                    ← 21 tests (20 fast + 1 slow end-to-end)
-    \- EDL Simulator v1/            ← earlier prototype (superseded by endo_market_v2)
+    |- endo_market/                 ← earlier Python iteration (superseded by endo_market_v2)
+    \- edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
 
 ## Experiments
 
@@ -73,10 +109,21 @@ methodology, locked P&L identity, honest caveats, and install/run instructions.
 
 ## Literature
 
-`REFLEX/literature/` collects ten papers at the intersection of **performative
-prediction / decision-dependent stochastic optimization** and **optimal OTC
-market making**. Each paper maps to a specific component of the codebase and
-points at a concrete extension.
+`REFLEX/literature/` holds **two curated collections** at the intersection of
+**performative prediction / decision-dependent stochastic optimization** and
+**optimal OTC market making**. Each paper maps to a specific component of the
+codebase and points at a concrete extension.
+
+- **`literature-vignesh/`** — the original **10 foundational papers** and the
+  reading map that ties each one to a piece of the codebase (the RRM loop, the
+  operator `T_θ`, the BR-slope modulus, the toxic-flow gate, inventory state,
+  the scale-up caveats). PDFs are already downloaded under `pdfs/`.
+- **`literature-raghav/`** — the same foundational core, expanded with deeper
+  per-paper "critical reading notes" and a more opinionated research roadmap
+  (specific theorems to prove, experiments to run, venues to target). Run its
+  `download_pdfs.sh` to fetch the PDFs.
+
+### Shared core (in both collections)
 
 | # | Paper | Project component |
 |---|-------|-------------------|
@@ -91,13 +138,20 @@ points at a concrete extension.
 | 9 | Bergault & Guéant — *Size Matters for OTC MMs* (2021) | Scale to 100+ bonds; factor reduction |
 | 10 | Barzykin, Bergault, Guéant, Lemmel — *Adverse Selection & Price Reading* (arXiv 2025) | Toxic-flow channel from first principles |
 
-PDFs for all ten papers (open-access arXiv preprints) live at
-`REFLEX/literature/pdfs/` after running `REFLEX/literature/download_pdfs.sh`.
-Full BibTeX is at `REFLEX/literature/references.bib`.
+**The throughline:** Perdomo's theorem (#1) says repeated retraining converges
+iff `ε < γ/β`. Papers #2–#7 sharpen, generalize, and make that loop stateful
+and explorable; papers #8–#10 supply the market-microstructure control theory
+that lets `γ`, `β`, and the toxic slope be *derived* from first principles
+rather than tuned. `endo_market_v2` is the bridge that realizes #1 structurally
+inside an OTC bond market.
 
-The detailed reading map — including per-paper summaries, connections to the
-codebase, and a five-step mathematical roadmap for the next version — is in
-`REFLEX/literature/README.md`.
+`literature-raghav/` additionally carries deeper per-paper "critical reading
+notes" and a more opinionated research roadmap — see that folder's `README.md`
+for the full discussion.
+
+Full per-paper notes and BibTeX live in each collection's `README.md` and
+`references.bib`. PDFs land in each collection's `pdfs/` after running its
+`download_pdfs.sh`.
 
 ## Goals
 - [ ] Reformulate research question, adding more technical depth and novel machine learning components.
