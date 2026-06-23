@@ -169,6 +169,7 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [ ] Tune Sinkhorn entropic regularization strength
 - [ ] Tune ambiguity-set radius for robust stability point
 - [ ] Report median + IQR bands (not single-seed point estimates) for all phase diagrams
+- [ ] Include LEAN validation (justification for all mathematical proofs)
 
 ### ICAIF-specific submission requirements
 - [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references
