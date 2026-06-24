@@ -148,17 +148,23 @@ theory (Perdomo et al., ICML 2020):
 | median modulus `m` | 0.51 | 1.25 | 1.27 | 1.25 | 1.26 | 1.60 |
 | fraction unstable  | 0%   | 100% | 100% | 100% | 100% | 67%  |
 
-#### Results
+### Results
 
 <p align="center">
-  <img src="endo_market_v2/outputs/phase_diagram_toxicity_feedback.png" width="49%" alt="Phase diagram: modulus m vs feedback gain epsilon">
-  <img src="endo_market_v2/outputs/rrm_trajectory_a0.5_eps5.0_s0.png" width="49%" alt="RRM trajectory at alpha=0.5, epsilon=5.0">
+  <img src="endo_market_v2/outputs/phase_diagram_toxicity_feedback.png" width="70%" alt="Phase diagram: modulus m vs feedback gain epsilon">
 </p>
 
-*Left:* the phase diagram, modulus `m` against the feedback gain `ε`, crossing
-the stability boundary `m = 1`. *Right:* a representative RRM iterate trajectory
-in the unstable regime (`α = 0.5`, `ε = 5.0`), showing the loop failing to
-settle to a fixed point. Raw sweep data is in
+*The phase diagram: modulus `m` against the feedback gain `ε`, crossing the
+stability boundary `m = 1`.*
+
+<p align="center">
+  <img src="endo_market_v2/outputs/rrm_trajectory_a0.5_eps5.0_s0.png" width="70%" alt="RRM trajectory at alpha=0.5, epsilon=5.0">
+</p>
+
+*A representative RRM iterate trajectory in the unstable regime (`α = 0.5`,
+`ε = 5.0`), showing the loop failing to settle to a fixed point.*
+
+Raw sweep data is in
 `endo_market_v2/outputs/sweep_toxicity_feedback_results.csv`.
 
 See `REFLEX/endo_market_v2/README.md` for the full mechanism write-up,
