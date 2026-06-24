@@ -12,6 +12,47 @@ REFLEX reframes learning as solving for a **self-consistent equilibrium**: a
 fixed point where the market dynamics induced by a trading policy are stable
 under repeated interaction with that same policy.
 
+## Tech Stack
+
+<!--- ML / scientific computing --->
+<p align="center"><sub><b>AI / ML & Scientific Computing:</b></sub></p>
+<p align="center">
+  <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white">
+  <img src="https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white">
+  <img src="https://img.shields.io/badge/SciPy-%230C55A5.svg?style=for-the-badge&logo=scipy&logoColor=white">
+  <img src="https://img.shields.io/badge/Matplotlib-%23ffffff.svg?style=for-the-badge&logo=Matplotlib&logoColor=black">
+  <img src="https://img.shields.io/badge/tqdm-%23FFC107.svg?style=for-the-badge&logo=tqdm&logoColor=black">
+  <img src="https://img.shields.io/badge/Weights_&_Biases-%23FFBE00.svg?style=for-the-badge&logo=weightsandbiases&logoColor=black">
+  <img src="https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white">
+</p>
+
+<!--- Language, config & testing --->
+<p align="center"><sub><b>Language, Config & Testing:</b></sub></p>
+<p align="center">
+  <img src="https://img.shields.io/badge/python%203.11+-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
+  <img src="https://img.shields.io/badge/yaml-%23ffffff.svg?style=for-the-badge&logo=yaml&logoColor=151515">
+  <img src="https://img.shields.io/badge/pytest-%230A9EDC.svg?style=for-the-badge&logo=pytest&logoColor=white">
+</p>
+
+<!--- Tooling & docs --->
+<p align="center"><sub><b>Tooling & Docs:</b></sub></p>
+<p align="center">
+  <img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/GNU%20Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white">
+  <img src="https://img.shields.io/badge/cURL-073551?style=for-the-badge&logo=curl&logoColor=white">
+  <img src="https://img.shields.io/badge/Mermaid-FF3670?style=for-the-badge&logo=mermaid&logoColor=white">
+  <img src="https://img.shields.io/badge/BibTeX-008080?style=for-the-badge&logo=latex&logoColor=white">
+</p>
+
+<!--- Initial prototype (edl_simulator_v1) --->
+<p align="center"><sub><b>Initial Prototype (edl_simulator_v1):</b></sub></p>
+<p align="center">
+  <img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white">
+  <img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white">
+  <img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E">
+  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white">
+</p>
+
 ## What it does
 - **Endogenous Distribution Learning:** replaces exogenous data `D_{t+1} = P(·|D_t)`
   with a policy-dependent system `D_{t+1} = T(D_t, π_θ)`.
@@ -78,49 +119,14 @@ reproduced the `ε < γ/β` stability boundary.
     |  |- experiments/              ← run_single.py | run_sweep.py
     |  |- outputs/                  ← phase diagram PNG + sweep CSV written here
     |  \- tests/                    ← 21 tests (20 fast + 1 slow end-to-end)
+    |- new-methodology/             ← forward-looking research roadmap (methodology + To-Do)
+    |  |- README.md                 ← full methodology write-up and the To-Do checklist
+    |  |- theory/                   ← (placeholder) analytic boundary and proofs
+    |  |- simulator/                ← (placeholder) operator, multi-dealer, estimators
+    |  |- experiments/              ← (placeholder) sweeps and phase diagrams
+    |  \- results/                  ← (placeholder) figures and tables
     |- endo_market/                 ← earlier Python iteration (superseded by endo_market_v2)
     \- edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
-
-## Tech Stack
-
-<!--- ML / scientific computing --->
-<p align="center"><sub><b>AI / ML & Scientific Computing:</b></sub></p>
-<p align="center">
-  <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white">
-  <img src="https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white">
-  <img src="https://img.shields.io/badge/SciPy-%230C55A5.svg?style=for-the-badge&logo=scipy&logoColor=white">
-  <img src="https://img.shields.io/badge/Matplotlib-%23ffffff.svg?style=for-the-badge&logo=Matplotlib&logoColor=black">
-  <img src="https://img.shields.io/badge/tqdm-%23FFC107.svg?style=for-the-badge&logo=tqdm&logoColor=black">
-  <img src="https://img.shields.io/badge/Weights_&_Biases-%23FFBE00.svg?style=for-the-badge&logo=weightsandbiases&logoColor=black">
-  <img src="https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white">
-</p>
-
-<!--- Language, config & testing --->
-<p align="center"><sub><b>Language, Config & Testing:</b></sub></p>
-<p align="center">
-  <img src="https://img.shields.io/badge/python%203.11+-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
-  <img src="https://img.shields.io/badge/yaml-%23ffffff.svg?style=for-the-badge&logo=yaml&logoColor=151515">
-  <img src="https://img.shields.io/badge/pytest-%230A9EDC.svg?style=for-the-badge&logo=pytest&logoColor=white">
-</p>
-
-<!--- Tooling & docs --->
-<p align="center"><sub><b>Tooling & Docs:</b></sub></p>
-<p align="center">
-  <img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white">
-  <img src="https://img.shields.io/badge/GNU%20Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white">
-  <img src="https://img.shields.io/badge/cURL-073551?style=for-the-badge&logo=curl&logoColor=white">
-  <img src="https://img.shields.io/badge/Mermaid-FF3670?style=for-the-badge&logo=mermaid&logoColor=white">
-  <img src="https://img.shields.io/badge/BibTeX-008080?style=for-the-badge&logo=latex&logoColor=white">
-</p>
-
-<!--- Prototype (edl_simulator_v2) --->
-<p align="center"><sub><b>Initial Prototype (edl_simulator_v1):</b></sub></p>
-<p align="center">
-  <img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white">
-  <img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white">
-  <img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E">
-  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white">
-</p>
 
 ## Experiments
 
@@ -142,8 +148,18 @@ theory (Perdomo et al., ICML 2020):
 | median modulus `m` | 0.51 | 1.25 | 1.27 | 1.25 | 1.26 | 1.60 |
 | fraction unstable  | 0%   | 100% | 100% | 100% | 100% | 67%  |
 
-Results at `REFLEX/endo_market_v2/outputs/phase_diagram_toxicity_feedback.png`
-and `REFLEX/endo_market_v2/outputs/sweep_toxicity_feedback_results.csv`.
+#### Results
+
+<p align="center">
+  <img src="endo_market_v2/outputs/phase_diagram_toxicity_feedback.png" width="49%" alt="Phase diagram: modulus m vs feedback gain epsilon">
+  <img src="endo_market_v2/outputs/rrm_trajectory_a0.5_eps5.0_s0.png" width="49%" alt="RRM trajectory at alpha=0.5, epsilon=5.0">
+</p>
+
+*Left:* the phase diagram, modulus `m` against the feedback gain `ε`, crossing
+the stability boundary `m = 1`. *Right:* a representative RRM iterate trajectory
+in the unstable regime (`α = 0.5`, `ε = 5.0`), showing the loop failing to
+settle to a fixed point. Raw sweep data is in
+`endo_market_v2/outputs/sweep_toxicity_feedback_results.csv`.
 
 See `REFLEX/endo_market_v2/README.md` for the full mechanism write-up,
 methodology, locked P&L identity, honest caveats, and install/run instructions.
@@ -195,7 +211,20 @@ Full per-paper notes and BibTeX live in each collection's `README.md` and
 `download_pdfs.sh`.
 
 ## Goals
-- [ ] Reformulate research question, adding more technical depth and novel machine learning components.
-- [ ] Integrate literature to extend `endo_market_v2`: predictive boundary `εβ/γ`, PerfGD-corrected loop, adaptive `ε` exploration, inventory-stateful convergence, and 100+-bond phase diagram.
+
+The research program targets one novelty claim: derive the performativity
+stability boundary analytically from microstructure primitives instead of
+sweeping it by hand. In priority order (full checklist in
+[`new-methodology/README.md`](new-methodology/README.md#to-do)):
+
+- [ ] **Analytic boundary (P1):** derive `γ`, `β`, and the toxic slope `dτ/dh` in closed form (GLFT/Avellaneda-Stoikov + Barzykin adverse selection), then triangulate `ε` three ways (BR-slope, Sinkhorn/Wasserstein, CKS informed-flow).
+- [ ] **Un-blind the operator (P2):** PerfGD-corrected loop using the analytic `dD/dφ`; measure the echo-chamber (stable-vs-optimal) gap.
+- [ ] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N·β)` and its mean-field (`N → ∞`) limit.
+- [ ] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`.
+- [ ] **Scale and calibrate (P5):** 100+ correlated bonds via factor-model reduction, calibrated to TRACE-derived or synthetic microstructure.
 - [ ] Secure a research placement at a top AI lab (with affiliation).
-- [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track workshop/publication.
+- [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance; deadline Aug 2, 2026) or another main-track venue.
+
+See the [To-Do section of `new-methodology/README.md`](new-methodology/README.md#to-do)
+for the full task breakdown across math, data, preprocessing, architecture,
+training, and ICAIF submission requirements.
