@@ -1,0 +1,376 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+% 1.2 - Un-blinding the Operator: the PerfGD-Corrected Loop
+% LaTeX companion to 02-perfgd-correction.md (REFLEX / math-theory).
+% Self-contained and compilable with pdflatex. Builds on 01-*.tex.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\gbar}{\bar g}
+\newcommand{\href}{h_{\mathrm{ref}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\hSP}{h_{\mathrm{SP}}}
+\newcommand{\hPO}{h_{\mathrm{PO}}}
+\newcommand{\gPO}{\gamma_{\mathrm{PO}}}
+
+\title{\textbf{1.2 - Un-blinding the Operator:\\ the PerfGD-Corrected Loop}}
+\author{REFLEX project - \code{math-theory}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{STATUS: DONE (Priority 2, derivation/theorem).} This document
+discharges the mathematical content of methodology target \textbf{1.2}. It builds
+on the closed forms of \code{01-analytic-stability-boundary} to derive the
+Performative Gradient Descent (PerfGD) correction in closed form, prove it
+converges to the \emph{performative optimum} (PO) rather than the \emph{stable
+point} (SP), show it remains stable for $\eps$ beyond the RRM boundary
+$\eps^*=\gamma/\beta$, and quantify the echo-chamber gap. The remaining code task
+- wiring this gradient into a training loop as \code{equilibrium/perfgd\_loop.py}
+- is called out in \S8 and is out of scope for the math-theory deliverable.
+
+\paragraph{One-line thesis.}
+Blind RRM finds the spread that is its own best response given the induced flow
+- the stable point. It is blind to the fact that its own quoting moves that
+flow. PerfGD adds exactly the missing term $(\partial J/\partial T)(d\tau/dh)$,
+which 1.1 already gives in closed form, so no estimation is needed. The corrected
+loop optimises the true objective and is governed by the objective's own
+curvature $\gPO$, not by the cobweb modulus $\eps\beta/\gamma$ - which is why it
+converges where RRM oscillates and diverges.
+
+% ===========================================================================
+\section{Carry-over and new notation}
+
+From \code{01-analytic-stability-boundary} we reuse the expected one-step
+objective at frozen toxic level $T$,
+%
+\begin{equation*}
+  J(h;T) = P\,\big[\, h A e^{-kh}\rho + hT - \psi T - w(h-\href)^2 - \lambda_q \,\big],
+  \qquad P=\code{pnl\_scale},
+\end{equation*}
+%
+and the three closed-form constants
+%
+\begin{align*}
+  \gamma   &= -\frac{\partial^2 J}{\partial h^2}
+            = P\,\big[\,2w + A\rho k e^{-kh}(2-kh) + \lambda_q\,\big]
+            && \text{(strong convexity)},\\
+  \beta    &= \Big|\frac{\partial^2 J}{\partial h\,\partial T}\Big| = P
+            && \text{(joint smoothness)},\\
+  \eps     &= \Big|\frac{d\tau}{dh}\Big| = \rho\gbar\alpha f I c_t e^{-c_t h}
+            && \text{(distribution sensitivity)},
+\end{align*}
+%
+with $\tau(h)=\rho\gbar(I_b+\alpha f I e^{-c_t h})=C_0+C_1 e^{-c_t h}$,
+$C_0=\rho\gbar I_b$, $C_1=\rho\gbar\alpha f I$, and $\eps(h)=c_t C_1 e^{-c_t h}$.
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+New symbol & Reading & Definition \\
+\midrule
+$\Phi(h)$ & performative objective (maximise) & $\Phi(h)=J(h;\tau(h))=\mathbb{E}_{D(h)}[\text{obj}]$ \\
+$\mathrm{PR}(h)$ & performative risk (minimise) & $\mathrm{PR}(h)=-\Phi(h)$ \\
+$\hSP$ & stable point (RRM fixed point) & zero of the blind gradient, \S2 \\
+$\hPO$ & performative optimum & maximiser of $\Phi$, \S2 \\
+$G(h)$ & blind / decoupled gradient & $G(h)=\partial_1 J(h;\tau(h))$ \\
+$\Delta(h)$ & performative correction & $\Delta(h)=\partial_T J\cdot(d\tau/dh)$ \\
+$\gPO$ & objective curvature at the PO & $\gPO=-\Phi''(\hPO)$, \S4 \\
+$\psi$ & per-unit adverse severity & $\psi=\sigma_s u\,a(u)/\gbar(u)>0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===========================================================================
+\section{Two solution concepts}
+
+\paragraph{Stable point $\hSP$ (what RRM finds).}
+The dealer best-responds to the frozen distribution, then redeploys. A fixed
+point zeroes the blind gradient - the derivative of $J$ in its first (decision)
+argument only, then evaluated self-consistently at $T=\tau(h)$:
+%
+\begin{equation}\label{eq:blind}
+  G(h) := \partial_1 J(h;\tau(h))
+  = P\,\big[\, A\rho e^{-kh}(1-kh) + \tau(h) - 2w(h-\href) \,\big],
+  \qquad G(\hSP)=0.
+\end{equation}
+%
+This is the FOC of 1.1; $\hSP$ is the $h^*$ of that document.
+
+\paragraph{Performative optimum $\hPO$ (what we want).}
+The maximiser of $\Phi(h)=J(h;\tau(h))$, whose stationarity uses the total
+derivative:
+%
+\begin{equation}\label{eq:total}
+  \Phi'(h) = G(h) + \Delta(h),\qquad
+  \Delta(h):=\partial_T J(h;\tau(h))\cdot\frac{d\tau}{dh},\qquad
+  \Phi'(\hPO)=0.
+\end{equation}
+%
+The only difference between the two FOCs is $\Delta$, and 1.1 already gives every
+piece of it.
+
+% ===========================================================================
+\section{The analytic performative gradient (no estimation)}
+
+\paragraph{(a) Marginal value of toxic flow.}
+The toxic spread-capture term $hT$ contributes $+h$; the adverse term $-\psi T$
+contributes $-\psi$ (constant in $h$, but not in $T$, so it returns here):
+%
+\begin{equation*}
+  \partial_T J = P\,(h-\psi).
+\end{equation*}
+%
+A marginal unit of toxic flow earns half-spread $h$ but costs $\psi$ to adverse
+selection; net value $h-\psi$. Toxic flow is net profitable where $h>\psi$.
+
+\paragraph{(b) Flow response $d\tau/dh=-\eps(h)$ (from 1.1).}
+Hence
+%
+\begin{equation}\label{eq:Delta}
+  \Delta(h) = \partial_T J\cdot\frac{d\tau}{dh}
+  = P(h-\psi)\big(-\eps(h)\big) = -P(h-\psi)\,\eps(h),
+\end{equation}
+%
+and the full PerfGD ascent direction is
+%
+\begin{equation}\label{eq:perfgrad}
+  \Phi'(h) = G(h)+\Delta(h)
+  = P\,\big[\, A\rho e^{-kh}(1-kh) + \tau(h) - 2w(h-\href) - (h-\psi)\eps(h) \,\big].
+\end{equation}
+%
+Every term is closed-form in the config and $h$. No finite-difference probing of
+$dD/d\phi$ is required - the contrast with Izzo et al.\ (2021), who estimate the
+distribution-response and inherit its bias and variance. Here 1.1 supplies it
+exactly.
+
+% ===========================================================================
+\section{The PerfGD update and its convergence}
+
+\begin{equation}\label{eq:update}
+  \text{PerfGD:}\qquad h_{k+1} = h_k + \eta\,\Phi'(h_k)
+  \quad\text{(gradient ascent on the true objective).}
+\end{equation}
+%
+Contrast the two loops:
+%
+\begin{align*}
+  \text{RRM / blind:}\quad & h_{k+1}=h_k+\eta\,G(h_k) && \to\ \hSP \ \ (\text{if } \eps<\gamma/\beta),\\
+  \text{PerfGD:}\quad & h_{k+1}=h_k+\eta\,[G(h_k)+\Delta(h_k)] && \to\ \hPO \ \ (\text{under \S4.3}).
+\end{align*}
+%
+The only added work is the scalar $\Delta(h_k)=-P(h_k-\psi)\eps(h_k)$, so PerfGD
+costs the same per step as RRM.
+
+\subsection{The objective curvature $\gPO$}
+Differentiate $\Phi(h)=J(h;\tau(h))$ twice, using $\tau'=-\eps$,
+$\tau''=c_t\eps$:
+%
+\begin{align*}
+  \text{uninformed:}\;& \tfrac{d^2}{dh^2}[hA\rho e^{-kh}] = -A\rho k e^{-kh}(2-kh),\\
+  \text{toxic capture:}\;& \tfrac{d^2}{dh^2}[h\tau(h)] = 2\tau'+h\tau'' = \eps(c_t h-2),\\
+  \text{adverse:}\;& \tfrac{d^2}{dh^2}[-\psi\tau(h)] = -\psi c_t\eps,\\
+  \text{quoting cost:}\;& \tfrac{d^2}{dh^2}[-w(h-\href)^2] = -2w.
+\end{align*}
+%
+Summing and multiplying by $P$,
+%
+\begin{equation*}
+  \Phi''(h) = -\gamma + \beta\eps\,(c_t h - 2 - c_t\psi),
+\end{equation*}
+%
+so the objective curvature at the optimum is
+%
+\begin{equation}\label{eq:gPO}
+  \boxed{\;
+  \gPO := -\Phi''(\hPO) = \gamma + \beta\eps\,(2 + c_t\psi - c_t\hPO).
+  \;}
+\end{equation}
+
+\subsection{Rate}
+If $\Phi$ is $L$-smooth ($|\Phi''|\le L$) and concave, gradient ascent with
+$\eta\le 1/L$ gives the standard convex rate on the value gap,
+%
+\begin{equation*}
+  \Phi(\hPO)-\Phi(h_k) \le \frac{(h_0-\hPO)^2}{2\eta k} = O(1/k),
+\end{equation*}
+%
+matching the stated $O(1/k)$. If additionally $\gPO>0$ (\S4.3), the rate upgrades
+to linear:
+%
+\begin{equation*}
+  |h_k-\hPO| \le (1-\eta\gPO)^k\,|h_0-\hPO|,\qquad \eta\le 1/L.
+\end{equation*}
+
+\subsection{When is $\Phi$ strongly concave?}
+From \eqref{eq:gPO}, $\Phi$ is strongly concave at the optimum iff
+$\gamma+\beta\eps(2+c_t\psi-c_t\hPO)>0$. A clean sufficient condition is
+%
+\begin{equation*}
+  c_t\hPO < 2 + c_t\psi,
+\end{equation*}
+%
+under which $\gPO>\gamma>0$ for every $\eps$ (the correction only adds curvature).
+
+% ===========================================================================
+\section{Headline: PerfGD is stable beyond the RRM boundary}
+
+\begin{theorem}[stability beyond $\eps^*$]\label{thm:beyond}
+The two stability conditions are governed by different quantities:
+%
+\begin{align*}
+  \text{RRM stable} &\iff m=\eps\beta/\gamma<1 \iff \eps<\eps^*:=\gamma/\beta,\\
+  \text{PerfGD stable} &\iff \gPO>0 \text{ and } \eta<2/L.
+\end{align*}
+%
+Under the condition $c_t\hPO<2+c_t\psi$ of \S4.3,
+$\gPO=\gamma+(\text{positive})\cdot\eps>0$ for all $\eps\ge 0$, so PerfGD converges
+for arbitrarily large $\eps$, including $\eps$ well beyond $\eps^*$ where RRM has
+already diverged.
+\end{theorem}
+%
+Intuition: RRM diverges not because the objective lost its optimum but because
+the fixed-point iteration overshoots it (a negative-slope cobweb, 1.1 \S3.3);
+PerfGD descends the objective directly and never iterates the cobweb, so the
+cobweb modulus is irrelevant to it.
+
+% ===========================================================================
+\section{The echo-chamber gap (stable vs.\ optimal)}
+
+Linearise the PO FOC about the SP. With $G(\hSP)=0$ and
+$G'(\hSP)=\partial_1\partial_1 J + \partial_1\partial_T J\cdot\tau'
+= -\gamma-\beta\eps = -(\gamma+\beta\eps)$:
+%
+\begin{equation*}
+  0 = G(\hPO)+\Delta(\hPO)
+  \approx -(\gamma+\beta\eps)(\hPO-\hSP) + \Delta(\hSP).
+\end{equation*}
+%
+With $\Delta(\hSP)=-\beta\eps(\hSP-\psi)$,
+%
+\begin{equation}\label{eq:decisiongap}
+  \boxed{\;
+  \hSP - \hPO = \frac{\beta\eps(\hSP-\psi)}{\gamma+\beta\eps} = O(\eps).
+  \;}
+\end{equation}
+%
+When toxic flow is net profitable at the stable spread ($\hSP>\psi$), the stable
+point quotes strictly wider than the optimum: the dealer over-defends because,
+blind to $dD/d\phi$, it never credits itself for the flow its own tightening
+would summon. The value loss is quadratically smaller, since $\Phi'(\hPO)=0$:
+%
+\begin{equation}\label{eq:valuegap}
+  \boxed{\;
+  \Phi(\hPO)-\Phi(\hSP) \approx \tfrac12\gPO(\hSP-\hPO)^2
+  = \tfrac12\gPO\Big[\tfrac{\beta\eps(\hSP-\psi)}{\gamma+\beta\eps}\Big]^2 = O(\eps^2).
+  \;}
+\end{equation}
+
+\paragraph{Reconciliation.}
+The methodology README quotes the echo-chamber gap as $O(\eps^2)$. That is the
+value gap \eqref{eq:valuegap} - the standard performative-prediction
+suboptimality result. The raw spread inflation \eqref{eq:decisiongap} is
+$O(\eps)$ to leading order. We report both and label which is which; conflating
+them is a common slip.
+
+% ===========================================================================
+\section{Corollaries}
+
+\begin{corollary}[the correction is self-financing at $h=\psi$]
+$\Delta(h)=-\beta(h-\psi)\eps(h)$ vanishes at $h=\psi$: when the quoted
+half-spread equals the adverse severity, toxic flow is value-neutral and PerfGD
+and RRM momentarily agree. The correction flips sign there - pulling toward
+tighter quotes when $h>\psi$ (chase profitable summoned flow) and wider when
+$h<\psi$ (suppress toxic summoned flow).
+\end{corollary}
+
+\begin{corollary}[gap scales linearly in adversariality]
+Since $\eps\propto\alpha f$, the decision gap \eqref{eq:decisiongap} obeys
+$\hSP-\hPO\approx(\alpha f)\,\rho\gbar I c_t e^{-c_t\hSP}(\hSP-\psi)/\gamma$ to
+leading order: the echo chamber widens linearly as the market gets more
+adversarial.
+\end{corollary}
+
+\begin{corollary}[PerfGD vs.\ RRM curvature, side by side]
+\begin{equation*}
+  \gamma_{\mathrm{eff}}^{\mathrm{RRM}} = \gamma-\beta\eps,
+  \qquad
+  \gPO = \gamma + \beta\eps(2+c_t\psi-c_t\hPO).
+\end{equation*}
+The $\eps$-coefficients differ in sign and size: RRM loses curvature as feedback
+grows, PerfGD (in the operating regime) gains it. This is the formal statement of
+``un-blinding stabilises the loop''.
+\end{corollary}
+
+% ===========================================================================
+\section{Validation protocol and the remaining code task}
+
+\paragraph{Validation.} With the same harness as 1.1 \S7:
+\begin{enumerate}[leftmargin=*]
+\item Compute $\hSP$ (1.1 fixed point) and $\hPO$ (root of $\Phi'$ in
+  \eqref{eq:perfgrad}), then the gaps \eqref{eq:decisiongap}, \eqref{eq:valuegap},
+  across \code{sweep\_feedback.yaml}.
+\item Run RRM and PerfGD from a common start; confirm RRM diverges and PerfGD
+  converges for $\eps$ just above $\eps^*=\gamma/\beta$.
+\item Confirm measured $\hSP-\hPO$ matches \eqref{eq:decisiongap} ($O(\eps)$) and
+  the performative-risk gap matches \eqref{eq:valuegap} ($O(\eps^2)$), with
+  cross-seed IQR bands.
+\end{enumerate}
+
+\paragraph{Remaining code task (out of scope here).}
+Implement \code{equilibrium/perfgd\_loop.py}: identical to the RRM loop but adding
+the scalar correction $\Delta(h_k)=-P(h_k-\psi)\eps(h_k)$ to the policy gradient,
+with $\eps(h)$ and $\psi$ imported from a shared analytic module (the
+\code{analytic\_boundary.py} of 1.1 \S7). The math here fixes that module's
+formulas completely; no estimator is needed.
+
+% ===========================================================================
+\section{Honest caveats}
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{$\gPO>0$ is conditional (\S4.3).} In the defensive wide-spread
+  regime $c_t\hPO>2+c_t\psi$ the performative second-order term turns
+  destabilising and $\gPO$ can fall below $\gamma$; PerfGD then needs a smaller
+  step or a trust region. The ``stable beyond $\eps^*$'' claim carries this
+  condition.
+\item \textbf{$\partial_T J=P(h-\psi)$ assumes the frozen-$T$ objective of 1.1
+  (A3).} This is the first-order un-blinding (the leading $dD/d\phi$ term PerfGD
+  targets); higher-order self-consistency (the full implicit $D=T(D,\phi)$ solve)
+  is a further step.
+\item \textbf{Single bond, zero skew, reference-state $\psi,\gbar,\lambda_q$} -
+  same scope limits as 1.1; the gap is a per-state quantity reported as a band
+  over the reference-state distribution.
+\item \textbf{Linearised gap.} \eqref{eq:decisiongap}/\eqref{eq:valuegap} are
+  leading-order in $\eps$; for large $\eps$ solve the two FOCs exactly (both are
+  1-D root-finds).
+\end{itemize}
+
+% ===========================================================================
+\section*{References}
+\begin{itemize}[leftmargin=*]
+\item J.\ Perdomo, T.\ Zrnic, C.\ Mendler-D\"unner, M.\ Hardt.
+  \emph{Performative Prediction.} ICML 2020. - stable point vs.\ performative
+  optimum; the $O(\eps^2)$ suboptimality of the stable point.
+\item Z.\ Izzo, L.\ Ying, J.\ Zou. \emph{How to Learn when Data Reacts to Your
+  Model: Performative Gradient Descent.} ICML 2021. - the PerfGD algorithm, here
+  run with the exact analytic $dD/d\phi$ from 1.1 instead of an estimated one.
+\item C.\ Mendler-D\"unner, J.\ Perdomo, T.\ Zrnic, M.\ Hardt. \emph{Stochastic
+  Optimization for Performative Prediction.} NeurIPS 2020. - convergence rates
+  for the corrected dynamics.
+\item Builds on \code{01-analytic-stability-boundary}; see \code{../references.bib}
+  and \code{literature/literature-raghav/README.md} for the full citation map.
+\end{itemize}
+
+\end{document}

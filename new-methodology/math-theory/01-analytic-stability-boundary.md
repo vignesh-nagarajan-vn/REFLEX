@@ -1,4 +1,4 @@
-# 1.1 — Analytic Stability Boundary for a Performative Market Maker
+# 1.1 - Analytic Stability Boundary for a Performative Market Maker
 
 **STATUS: DONE (Priority 1).** This document discharges methodology target
 **1.1** in [`../README.md`](../README.md). It derives, in closed form, the
@@ -11,7 +11,7 @@ policy-distribution loop directly from the microstructure primitives of the
 ```
 
 with **`gamma`, `beta`, and `epsilon` each given as a closed-form function of the
-model parameters** — none swept, none tuned. The result is then turned into a
+model parameters** - none swept, none tuned. The result is then turned into a
 falsifiable cross-check against the existing model-free estimator in
 [`analysis/response_modulus.py`](../../endo_market_v2/endo_market/analysis/response_modulus.py).
 
@@ -22,7 +22,7 @@ falsifiable cross-check against the existing model-free estimator in
 > loss*. For a structural market-making model these constants are not free: they
 > are pinned by the fill-intensity curve, the adverse-selection channel, and the
 > quoting-cost friction. We compute them. The deliverable is an **a-priori
-> stability boundary** — predict whether a given bond/dealer configuration
+> stability boundary** - predict whether a given bond/dealer configuration
 > converges *before running a single RRM loop*, then verify the prediction
 > against the model-free best-response (BR) slope probe. That predict-then-verify
 > loop is the ICAIF-grade evidentiary bar.
@@ -58,7 +58,7 @@ the table in §7.
 
 ## 1. Setup and assumptions
 
-We analyse the loop at the level of the **central half-spread** `h` — the bias
+We analyse the loop at the level of the **central half-spread** `h` - the bias
 coordinate `b_h` of the dealer policy
 ([`policy/dealer_policy.py`](../../endo_market_v2/endo_market/policy/dealer_policy.py)),
 which the convergence study identifies as the dominant coordinate of the
@@ -81,7 +81,7 @@ analytic and empirical moduli measure the same object.
   response it sees the *toxic-flow environment* as fixed at the level induced by
   the **deployed** spread `h_dep` (write `T = tau(h_dep)`), while the benign
   demand-elasticity channel still responds to its candidate `h`. The performative
-  feedback enters only *across* deployments — exactly the cobweb the loop
+  feedback enters only *across* deployments - exactly the cobweb the loop
   iterates. Made precise in §3.
 - **A4 (saturation non-binding).** The informed-flow cap
   `info_cap * tanh(. / info_cap)` (`clients.py`) is in its linear regime at the
@@ -195,7 +195,7 @@ Gaussian integrals in `u` alone:
 
 Both `gbar` and `a` are smooth, bounded, monotone-in-`|u|` integrals evaluated by
 1-D quadrature (or, for the half-normal moments, in terms of `erf`). They are
-*state* constants — they do not depend on `h` — so they pass through every
+*state* constants - they do not depend on `h` - so they pass through every
 `h`-derivative untouched. This is what makes the boundary a clean function of `h`.
 
 ### 2.6 Assembled objective
@@ -213,8 +213,8 @@ Substituting 2.2–2.5 into 2.1 and writing the toxic level as the frozen
 
 **Key structural fact.** The adverse term `- psi*T` is *constant in `h`* (the
 toxic level is frozen within a deployment), so it drops out of every
-`h`-derivative below. It sets the *level* of profit — the "echo-chamber gap" of
-Priority 1.2 — but **adverse selection does not enter the stability boundary**,
+`h`-derivative below. It sets the *level* of profit - the "echo-chamber gap" of
+Priority 1.2 - but **adverse selection does not enter the stability boundary**,
 only the optimal-vs-stable profit gap. This is itself a clean, reportable result.
 
 ---
@@ -236,7 +236,7 @@ The RRM iteration is `h_{k+1} = BR(h_k)`. Linearising at a fixed point `h*`,
    h_{k+1} - h*  ~  BR'(h*) * (h_k - h*) ,
 ```
 
-so the loop contracts iff the **modulus** `m := |BR'(h*)| < 1` — precisely the
+so the loop contracts iff the **modulus** `m := |BR'(h*)| < 1` - precisely the
 object `response_modulus.py` estimates by common-random-number finite
 differences.
 
@@ -286,7 +286,7 @@ adverse term `-psi*T` contributes nothing to `dJ/dh`:
    ==>  beta := | d^2 J / dh dT | = P = pnl_scale .                            (**)
 ```
 
-The smoothness constant *is* the global P&L scale — the cleanest possible
+The smoothness constant *is* the global P&L scale - the cleanest possible
 identification.
 
 **(iii) Sensitivity of the distribution to the deployed spread (gives
@@ -298,8 +298,8 @@ identification.
    ==>  epsilon := | d tau / d h | = rho * gbar * alpha * f * I * c_t * exp(-c_t*h) . (***)
 ```
 
-`epsilon` is the slope of the toxic-flow response to the deployed spread —
-**tighter quotes summon more toxic flow** — and is *linear in `alpha` and in
+`epsilon` is the slope of the toxic-flow response to the deployed spread -
+**tighter quotes summon more toxic flow** - and is *linear in `alpha` and in
 `toxicity_feedback` `f`*, confirming the `clients.py` design claim that `f` is
 "the explicit gain of toxicity-vs-spread feedback (~epsilon scaler)".
 
@@ -321,7 +321,7 @@ with `F_h = d^2 J/dh^2 = -gamma`, `F_T = d^2 J/dh dT = +beta`,
                   = - beta * epsilon / gamma .
 ```
 
-So `BR'(h_dep) = - beta*epsilon/gamma` — **negative slope**. The cobweb is
+So `BR'(h_dep) = - beta*epsilon/gamma` - **negative slope**. The cobweb is
 *oscillatory*: deploying wider invites a narrower best response and vice versa.
 
 ### 3.4 The modulus and the boundary
@@ -366,7 +366,7 @@ toxic level evaluated self-consistently at the same `h`:
 
 This is a smooth scalar equation; solve by Newton or bisection on
 `[0, max_half_spread]`. A unique interior root exists wherever `gamma(h) > 0` on
-the operating range (strict concavity of `J` in `h`) — which is exactly the
+the operating range (strict concavity of `J` in `h`) - which is exactly the
 stability condition holding with room to spare.
 
 ---
@@ -374,8 +374,8 @@ stability condition holding with room to spare.
 ## 5. Orientation of the performative coupling (honest treatment)
 
 The *magnitude* `m = epsilon*beta/gamma` and the boundary `epsilon < gamma/beta`
-are unambiguous (§3). The *sign/orientation* of the coupling — whether feedback
-damps or amplifies a given update rule — deserves an honest statement, because
+are unambiguous (§3). The *sign/orientation* of the coupling - whether feedback
+damps or amplifies a given update rule - deserves an honest statement, because
 the codebase itself documents that "the [modulus's] sign isn't robust to universe
 size" (CLAUDE.md).
 
@@ -433,7 +433,7 @@ crosses the boundary, *before the sweep is run*.
 ### 6.2 Lazy-deploy raises effective curvature
 Taking `K` gradient steps before redeploying compounds the per-step contraction
 `|M'|^K` against a fixed environment, so larger `K` enlarges the stable region in
-`(eta)` — the `gamma_eff = gamma - beta*epsilon` mechanism of §5, now derived
+`(eta)` - the `gamma_eff = gamma - beta*epsilon` mechanism of §5, now derived
 from `M'`.
 
 ### 6.3 The modulus saturates rather than blows up (documented gotcha, explained)
@@ -446,7 +446,7 @@ approaches a finite plateau,
    m_inf  ~  epsilon(h*) / (2*w)        (wide-spread regime, gamma at its floor),
 ```
 
-rather than diverging — the analytic explanation of the empirically observed
+rather than diverging - the analytic explanation of the empirically observed
 "modulus saturates (~1.25) past the boundary" behaviour noted in `CLAUDE.md`.
 (Note the GLFT term even turns *negative* once `k*h* > 2`, lowering `gamma`; this
 is the defensive-widening low-curvature region.)
@@ -454,7 +454,7 @@ is the defensive-widening low-curvature region.)
 ### 6.4 Why `epsilon` (not `alpha`) is the clean control variable
 Sweeping `alpha` moves *both* `epsilon` (numerator, proportional to `alpha`) and
 `h*` (the dealer widens), which feeds back through `exp(-c_t*h*)` and the `gamma`
-curvature term — so the net `m(alpha)` is confounded and its sign is not robust
+curvature term - so the net `m(alpha)` is confounded and its sign is not robust
 to universe size. Sweeping `toxicity_feedback` `f` at a fixed structural regime
 moves `epsilon` *linearly* with `h*` far less perturbed, isolating the
 performative channel. This re-derives, from the closed form, the `CLAUDE.md`
@@ -479,7 +479,7 @@ instruction to use `sweep_feedback.yaml` for the headline result.
 | `P = pnl_scale` | global P&L scale (= `beta`) | `reward.pnl_scale` | 1.0 |
 | `lambda_q` | inventory-risk curvature (proportional to `inv_risk_weight`) | `reward.inv_risk_weight` | 0.05 |
 | `rho` | liquidity ratio at reference | state (`liquidity/liq_mean`) | ~1 |
-| `gbar`, `psi` | gate mean / adverse severity | derived Gaussian integrals in `u = g/sigma_s` (§2.5) | — |
+| `gbar`, `psi` | gate mean / adverse severity | derived Gaussian integrals in `u = g/sigma_s` (§2.5) | - |
 
 ---
 
@@ -504,7 +504,7 @@ The check requires **no new infrastructure**:
 
 A reference implementation of steps 1–3 belongs in
 `endo_market_v2/endo_market/analysis/` as `analytic_boundary.py` (a pure function
-of `Config`), reusing `response_modulus.py` for step 2 — the recommended next
+of `Config`), reusing `response_modulus.py` for step 2 - the recommended next
 code task now that this derivation is accepted.
 
 ---
@@ -525,7 +525,7 @@ code task now that this derivation is accepted.
   over the reference-state distribution, not a single number.
 - **The cap (A4) is assumed slack.** Deep in the unstable regime
   `info_cap*tanh` engages and re-convexifies the problem; the analytic modulus is
-  valid up to, and slightly past, the boundary — exactly the region of interest —
+  valid up to, and slightly past, the boundary - exactly the region of interest -
   but not arbitrarily far into divergence.
 - **Single bond, zero skew (A1).** The scalar boundary is the base case; the
   factor-model lift to `gamma_joint` (Priority 1.5) and the multi-dealer
@@ -536,11 +536,11 @@ code task now that this derivation is accepted.
 ## References
 
 - J. Perdomo, T. Zrnic, C. Mendler-Dünner, M. Hardt. *Performative Prediction.*
-  ICML 2020. — the `m = epsilon*beta/gamma` contraction criterion this work makes
+  ICML 2020. - the `m = epsilon*beta/gamma` contraction criterion this work makes
   structural.
 - M. Avellaneda, S. Stoikov. *High-frequency trading in a limit-order book.*
   Quant. Finance 2008; O. Guéant, C.-A. Lehalle, J. Fernández-Tapia (GLFT),
-  2013. — the exponential fill intensity `lambda(delta) = A*exp(-k*delta)`
+  2013. - the exponential fill intensity `lambda(delta) = A*exp(-k*delta)`
   underlying `gamma`.
 - See [`../references.bib`](../references.bib) and
   `literature/literature-raghav/README.md` for the full citation map (Barzykin
