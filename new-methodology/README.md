@@ -28,7 +28,7 @@ This section lays out, in order, every component of the research program: the ma
 
 The project's novelty claim is that the performativity stability boundary for a structural market model can be derived analytically from microstructure primitives, rather than assumed or empirically swept. This decomposes into five concrete mathematical targets, ordered by priority.
 
-**1.1 — Analytic stability boundary (Priority 1) — ✅ DERIVED.** The closed-form
+**1.1 — Analytic stability boundary (Priority 1) — STATUS: DONE.** The closed-form
 derivation of `γ`, `β`, `ε` and the boundary `ε < γ/β` is complete and written up
 in [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md).
 It reduces the performative contraction modulus `m = εβ/γ` to the simulator's
