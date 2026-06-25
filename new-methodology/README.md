@@ -50,7 +50,16 @@ where `γ` (strong convexity) and `β` (smoothness) are derived in closed form f
 - Derive `dτ/dh` (the toxic-flow feedback slope) from the Barzykin et al. (2025) perturbation expansion, replacing the current heuristic `toxicity_feedback` knob.
 - Triangulate `ε` three independent ways — best-response (BR) slope, Sinkhorn/Wasserstein-based estimation, and the Cont–Kukanov–Stoikov informed-flow derivative — and report agreement across all three as the evidentiary bar for the theorem.
 
-**1.2 — Un-blinding the operator: PerfGD correction (Priority 2)**
+**1.2 — Un-blinding the operator: PerfGD correction (Priority 2) — STATUS: DONE
+(derivation).** The closed-form PerfGD correction, its convergence to the
+performative optimum, its stability beyond the RRM boundary `ε*`, and the
+echo-chamber gap are derived in
+[`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md). The
+correction term is `Δ = (∂J/∂T)·(dτ/dh) = −β(h−ψ)ε`, built entirely from 1.1's
+closed forms (no estimation). PerfGD is governed by the objective curvature
+`γ_PO = γ + βε(2 + c_t·ψ − c_t·h_PO)`, not the cobweb modulus, so it converges
+where RRM diverges. The remaining *code* task — `equilibrium/perfgd_loop.py` — is
+not yet implemented.
 
 Target theorem: under GLFT microstructure, a Performative Gradient Descent (PerfGD)–corrected loop, using the analytic `dD/dφ` from 1.1, converges to the performative optimum (PO) at rate `O(1/k)` and remains stable for `ε` beyond the repeated-risk-minimization (RRM) boundary `ε*`.
 
@@ -136,9 +145,9 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [ ] Build CKS-implied informed-flow slope estimator for `ε`
 - [ ] Verify agreement across all three `ε` estimators (triangulation)
 - [x] Prove the analytic stability boundary theorem (Priority 1) — [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.4
-- [ ] Implement PerfGD using the analytic `dD/dφ`
-- [ ] Prove PerfGD convergence rate to the performative optimum (Priority 2)
-- [ ] Measure the echo-chamber (stable-vs-optimal) gap as a function of `ε`
+- [ ] Implement PerfGD using the analytic `dD/dφ` — closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; `equilibrium/perfgd_loop.py` code still pending
+- [x] Prove PerfGD convergence rate to the performative optimum (Priority 2) — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §4–5 (`O(1/k)`, linear at `1−η·γ_PO`, stable beyond `ε*`)
+- [x] Derive the echo-chamber (stable-vs-optimal) gap as a function of `ε` — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §6 (`O(ε)` decision gap, `O(ε²)` value gap); empirical measurement pending
 - [ ] Extend simulator to `N` dealers with shared induced distribution
 - [ ] Prove PSNE existence for `N`-dealer competition (Priority 3)
 - [ ] Prove joint convergence rate under variational stability
