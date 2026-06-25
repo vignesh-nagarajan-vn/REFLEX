@@ -1,0 +1,460 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+% 1.1 - Analytic Stability Boundary for a Performative Market Maker
+% LaTeX companion to 01-analytic-stability-boundary.md (REFLEX / math-theory).
+% Self-contained and compilable with pdflatex.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+
+% Convenience macros matching the project's notation.
+\newcommand{\eps}{\varepsilon}
+\newcommand{\gbar}{\bar g}
+\newcommand{\hdep}{h_{\mathrm{dep}}}
+\newcommand{\href}{h_{\mathrm{ref}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\BR}{\mathrm{BR}}
+
+\title{\textbf{1.1 - Analytic Stability Boundary\\ for a Performative Market Maker}}
+\author{REFLEX project - \code{math-theory}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{STATUS: DONE (Priority 1).} This document discharges
+methodology target \textbf{1.1}. It derives, in closed form, the
+performative-prediction contraction modulus $m$ of the REFLEX
+policy--distribution loop directly from the microstructure primitives of the
+\code{endo\_market\_v2} simulator, and obtains the stability boundary
+%
+\begin{equation*}
+  \text{stable} \quad\Longleftrightarrow\quad
+  m = \frac{\eps\,\beta}{\gamma} < 1
+  \quad\Longleftrightarrow\quad
+  \eps < \frac{\gamma}{\beta},
+\end{equation*}
+%
+with $\gamma$, $\beta$, and $\eps$ each given as a closed-form function of the
+model parameters - none swept, none tuned. The result is then turned into a
+falsifiable cross-check against the existing model-free estimator in
+\code{analysis/response\_modulus.py}.
+
+\paragraph{Why this is the headline contribution.}
+Perdomo et al.\ (ICML 2020) prove that the repeated-retraining map contracts iff
+$\eps < \gamma/\beta$, but treat $\gamma$ (strong convexity), $\beta$ (joint
+smoothness) and $\eps$ (distribution sensitivity) as abstract Lipschitz
+constants of an unspecified loss. For a structural market-making model these
+constants are not free: they are pinned by the fill-intensity curve, the
+adverse-selection channel, and the quoting-cost friction. We compute them. The
+deliverable is an \emph{a-priori} stability boundary: predict whether a given
+bond/dealer configuration converges before running a single RRM loop, then
+verify the prediction against the model-free best-response (BR) slope probe.
+
+% ===========================================================================
+\section{Notation}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Symbol & Reading & Definition / source \\
+\midrule
+$h$       & central half-spread (the policy coordinate) & bias $b_h$ of \code{LinearPolicy} \\
+$h^*$     & self-consistent fixed-point half-spread     & root of the FOC, \S4 \\
+$\hdep$   & deployed half-spread setting the toxic env. & \S1, A3 \\
+$J(h;T)$  & expected one-step dealer objective          & \S2 \\
+$\tau(h)$ & expected informed (toxic) notional          & \S2 \\
+$T$       & frozen toxic level in one deployment, $T=\tau(\hdep)$ & \S1, A3 \\
+$\eps$    & distribution sensitivity, $=|d\tau/dh|$     & \S3.1 \\
+$\beta$   & joint smoothness, $=|\partial^2 J/\partial h\,\partial T|$ & \S3.2 \\
+$\gamma$  & strong convexity, $=-\partial^2 J/\partial h^2$ & \S3.3 \\
+$m$       & contraction modulus $=|\BR'(h^*)|=\eps\beta/\gamma$ & \S3.4 \\
+$\rho$    & liquidity ratio \code{liquidity/liq\_mean}  & A2 \\
+$g,\,u$   & mispricing $v-m$, standardized $u=g/\sigma_s$ & \S2 \\
+$\gbar(u)$& gate mean (a 1-D Gaussian integral)         & \S2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===========================================================================
+\section{Setup and assumptions}
+
+We analyse the loop at the level of the \textbf{central half-spread} $h$ - the
+bias coordinate $b_h$ of the dealer policy, which the convergence study
+identifies as the dominant coordinate of the policy-to-distribution iterate map.
+The model-free probe \code{response\_modulus.py} deploys constant-$h$, zero-skew
+policies; we adopt the same restriction so the analytic and empirical moduli
+measure the same object.
+
+\begin{assumption}[single representative bond, zero skew]
+One bond, $\mathrm{skew}=0$. The cross-sectional factor structure rescales but
+does not change the scalar boundary; the multi-bond lift is Priority 1.5.
+\end{assumption}
+
+\begin{assumption}[reference state]
+Curvature is evaluated at the probe's reference state $s_0=\code{simulator.reset}$
+with inventory $q_0\approx 0$, mispricing $g=v-m$, and liquidity ratio
+$\rho=\code{liquidity}/\code{liq\_mean}$. Expectations below are over the
+client-flow noise at that state.
+\end{assumption}
+
+\begin{assumption}[frozen-environment best response]
+This is the structural content of ``the operator is blind to $dD/d\phi$''. Within
+a single deployment the learned operator $T_\theta$ conditions on a frozen
+policy summary of the deployed regime. So when the dealer computes its best
+response it sees the toxic-flow environment as fixed at the level induced by the
+deployed spread $\hdep$ (write $T=\tau(\hdep)$), while the benign
+demand-elasticity channel still responds to its candidate $h$. The performative
+feedback enters only across deployments - exactly the cobweb the loop iterates.
+\end{assumption}
+
+\begin{assumption}[saturation non-binding]
+The informed-flow cap $\code{info\_cap}\cdot\tanh(\cdot/\code{info\_cap})$ is in
+its linear regime at the operating point. We carry the uncapped form and flag
+the saturated regime as a documented corollary (\S5.3).
+\end{assumption}
+
+% ===========================================================================
+\section{The expected single-step objective \texorpdfstring{$J(h)$}{J(h)}}
+
+\subsection{Components from the simulator}
+At zero skew, with $S$ = dealer sells (clients lift the ask), $B$ = dealer buys
+(clients hit the bid), $q_{\mathrm{after}}=q_0+B-S$, $v$ = fundamental,
+$v'$ = next fundamental, $m$ = mid:
+%
+\begin{align*}
+  \text{spread\_capture}         &= (S+B)\,h, \\
+  \text{inventory\_pnl}          &= q_{\mathrm{after}}\,(v'-v), \\
+  \text{adverse\_selection\_loss}&= (B-S)\,(m-v).
+\end{align*}
+%
+The dealer objective is
+%
+\begin{equation*}
+  J = P\,\big[\, \text{spread\_capture} + \text{inventory\_pnl}
+      - \text{adverse\_selection\_loss}
+      - \code{inv\_risk\_weight}\cdot q_{\mathrm{after}}^2
+      - w\,(h-\href)^2 \,\big],
+\end{equation*}
+%
+with $w=\code{quote\_anchor\_weight}$, $\href=\code{quote\_anchor\_ref}$, and
+$P:=\code{pnl\_scale}$.
+
+\subsection{Uninformed (benign) flow}
+Benign notional has the Gu\'eant--Lehalle--Fern\'andez-Tapia / Avellaneda--Stoikov
+exponential fill intensity
+%
+\begin{equation*}
+  U(h) = A\,e^{-kh}\,\rho,\qquad A=\code{base\_arrival\_rate},\;\; k=\code{demand\_elasticity},
+\end{equation*}
+%
+split roughly $50/50$ into buys/sells with a zero-mean idiosyncratic imbalance,
+so $\mathbb{E}[S_{\mathrm{uninf}}]=\mathbb{E}[B_{\mathrm{uninf}}]=\tfrac12 U(h)$
+and $\mathbb{E}[S_{\mathrm{uninf}}-B_{\mathrm{uninf}}]=0$.
+
+\subsection{Informed (toxic) flow}
+With $\mathrm{signal}=g+\sigma_s\eta$, $\eta\sim N(0,1)$,
+$\sigma_s=\code{info\_signal\_noise}$, the gate is
+$\mathrm{gate}=\tanh(|\mathrm{signal}|/\sigma_s)$. The informed notional is
+%
+\begin{equation*}
+  \tau(h) = \rho\,\gbar\,\big(I_b + \alpha f I\,e^{-c_t h}\big),
+\end{equation*}
+%
+with $I_b=\code{info\_base\_intensity}$, $I=\code{info\_intensity}$,
+$\alpha=\code{alpha}$, $f=\code{toxicity\_feedback}$,
+$c_t=\code{info\_spread\_decay}$, and
+$\gbar=\mathbb{E}_\eta[\tanh(|g+\sigma_s\eta|/\sigma_s)]$ the gate mean. Informed
+traders pick the dealer off, so $\mathbb{E}[(B-S)_{\mathrm{inf}}]=-\tau(h)\,\mathrm{sign}(g)$
+and the expected adverse-selection loss is
+%
+\begin{equation*}
+  \mathbb{E}[\text{adverse}] = \psi\,\tau(h),\qquad \psi>0.
+\end{equation*}
+
+\subsection{Inventory terms vanish or are second order}
+The fundamental increment $v'-v=\sigma_v\,\mathrm{shock}$ is drawn after, and
+independently of, $q_{\mathrm{after}}$, so
+$\mathbb{E}[\text{inventory\_pnl}]=\mathbb{E}[q_{\mathrm{after}}]\cdot 0=0$ for
+every $h$. The quadratic risk $\mathbb{E}[q_{\mathrm{after}}^2]$ is $O(q_0^2)$
+plus a flow-variance term that is second order at $q_0\approx 0$; we carry it as
+a small additive curvature $\lambda_q\ge 0$ that only raises $\gamma$ (it is
+stabilising) and never changes the boundary's form.
+
+\subsection{The two Gaussian integrals}
+Standardize $u=g/\sigma_s$. Because $\tanh$ is odd,
+$\tanh(|x|)\,\mathrm{sign}(x)=\tanh(x)$, so the two state constants reduce to
+clean 1-D Gaussian integrals in $u$ alone:
+%
+\begin{align*}
+  \gbar(u) &= \mathbb{E}_{\eta\sim N(0,1)}\!\big[\tanh(|u+\eta|)\big], \\
+  a(u)     &= \mathbb{E}_{\eta\sim N(0,1)}\!\big[\tanh(u+\eta)\big], \\
+  \psi     &= \sigma_s\,u\,\frac{a(u)}{\gbar(u)} \;>\;0.
+\end{align*}
+%
+Both are smooth, bounded, monotone-in-$|u|$ integrals evaluated by quadrature.
+They are state constants (independent of $h$), so they pass through every
+$h$-derivative untouched.
+
+\subsection{Assembled objective}
+Writing the toxic level as the frozen $T=\tau(\hdep)$ (A3):
+%
+\begin{equation}\label{eq:J}
+  J(h;T) = P\,\Big[\,
+    \underbrace{h\,A\,e^{-kh}\rho}_{\text{uninf.\ spread}}
+    + \underbrace{h\,T}_{\text{toxic spread}}
+    - \underbrace{\psi\,T}_{\text{adverse sel.}}
+    - \underbrace{w\,(h-\href)^2}_{\text{quoting cost}}
+    - \lambda_q \,\Big].
+\end{equation}
+%
+\textbf{Key structural fact.} The adverse term $-\psi T$ is constant in $h$ (the
+toxic level is frozen within a deployment), so it drops out of every
+$h$-derivative below. It sets the level of profit - the echo-chamber gap of
+Priority 1.2 - but \emph{adverse selection does not enter the stability
+boundary}, only the optimal-vs-stable profit gap.
+
+% ===========================================================================
+\section{The best-response map and its slope}
+
+\subsection{The map}
+The dealer best-responds by maximising $J(h;T)$ at the frozen toxic level
+$T=\tau(\hdep)$: $\BR(\hdep)=\arg\max_h J(h;\tau(\hdep))$. The RRM iteration is
+$h_{k+1}=\BR(h_k)$; linearising at a fixed point $h^*$,
+$h_{k+1}-h^*\approx \BR'(h^*)(h_k-h^*)$, so the loop contracts iff the modulus
+$m:=|\BR'(h^*)|<1$.
+
+\subsection{First-order condition and the three derivatives}
+Define $F(h,T):=\partial J/\partial h$:
+%
+\begin{equation}\label{eq:FOC}
+  F(h,T) = P\,\big[\, A\rho\,e^{-kh}(1-kh) + T - 2w(h-\href) \,\big],
+  \qquad F=0 \text{ at the optimum.}
+\end{equation}
+
+\paragraph{(i) Curvature in $h$ (gives $\gamma$).}
+Only the uninformed term and quoting cost depend on $h$ ($hT$ is linear):
+%
+\begin{align*}
+  \frac{d}{dh}\!\big[A\rho e^{-kh}(1-kh)\big]
+    &= A\rho e^{-kh}\big[-k(1-kh)-k\big]
+     = A\rho e^{-kh}\,(k^2 h - 2k) \\
+    &= A\rho k\,e^{-kh}(kh-2), \\
+  \frac{d}{dh}\!\big[-2w(h-\href)\big] &= -2w,
+\end{align*}
+%
+hence $\partial^2 J/\partial h^2 = P\,[\,A\rho k\,e^{-kh}(kh-2)-2w\,]$ and
+%
+\begin{equation}\label{eq:gamma}
+  \boxed{\;
+  \gamma := -\frac{\partial^2 J}{\partial h^2}
+  = P\,\big[\, 2w + A\rho k\,e^{-kh}(2-kh) + \lambda_q \,\big].
+  \;}
+\end{equation}
+
+\paragraph{(ii) Cross sensitivity (gives $\beta$).}
+Only $hT$ carries a $T$-dependence in the gradient (coefficient $+1$); the
+constant adverse term contributes nothing to $\partial J/\partial h$:
+%
+\begin{equation}\label{eq:beta}
+  \boxed{\;
+  \beta := \Big|\frac{\partial^2 J}{\partial h\,\partial T}\Big| = P = \code{pnl\_scale}.
+  \;}
+\end{equation}
+
+\paragraph{(iii) Distribution sensitivity (gives $\eps$).}
+\begin{equation}\label{eq:eps}
+  \boxed{\;
+  \eps := \Big|\frac{d\tau}{dh}\Big|
+  = \rho\,\gbar\,\alpha f I\,c_t\,e^{-c_t h}.
+  \;}
+\end{equation}
+$\eps$ is the slope of the toxic-flow response to the deployed spread (tighter
+quotes summon more toxic flow) and is linear in $\alpha$ and in
+$\code{toxicity\_feedback}=f$.
+
+\subsection{Implicit-function theorem: the BR slope}
+Differentiate $F(h^*(\hdep),\tau(\hdep))=0$ totally in $\hdep$, with
+$F_h=-\gamma$, $F_T=+\beta$, $d\tau/d\hdep=-\eps$:
+%
+\begin{equation*}
+  \frac{dh^*}{d\hdep}
+  = -\frac{F_T\,(d\tau/d\hdep)}{F_h}
+  = -\frac{(\beta)(-\eps)}{(-\gamma)}
+  = -\frac{\beta\,\eps}{\gamma}.
+\end{equation*}
+%
+So $\BR'(\hdep)=-\beta\eps/\gamma$ - a \emph{negative} slope. The cobweb is
+oscillatory: deploying wider invites a narrower best response and vice versa.
+
+\subsection{The modulus and the boundary}
+\begin{theorem}[analytic stability boundary]\label{thm:boundary}
+At the fixed point $h^*$,
+%
+\begin{equation}\label{eq:modulus}
+  m(h^*) = |\BR'(h^*)| = \frac{\eps\,\beta}{\gamma}
+  = \frac{\rho\,\gbar\,\alpha f I\,c_t\,e^{-c_t h^*}}
+         {2w + A\rho k\,e^{-k h^*}(2-k h^*) + \lambda_q},
+\end{equation}
+%
+(the common $P=\code{pnl\_scale}$ cancels), and the loop is stable iff
+%
+\begin{equation*}
+  \eps < \frac{\gamma}{\beta}
+  \;\Longleftrightarrow\;
+  \rho\gbar\alpha f I c_t e^{-c_t h^*}
+  < 2w + A\rho k\,e^{-k h^*}(2-k h^*) + \lambda_q.
+\end{equation*}
+\end{theorem}
+%
+Every quantity is a closed form in the config and $h^*$, so the inequality is an
+a-priori predictor. $m=|\BR'|$ is exactly what \code{response\_modulus.py} returns,
+so \eqref{eq:modulus} is the directly comparable prediction (\S7).
+
+% ===========================================================================
+\section{Locating the fixed point \texorpdfstring{$h^*$}{h*}}
+
+The boundary is evaluated where the deployed spread is its own best response.
+Setting $F(h,\tau(h))=0$ with the toxic level evaluated self-consistently:
+%
+\begin{equation}\label{eq:fixedpoint}
+  A\rho\,e^{-k h^*}(1-k h^*) + \tau(h^*) - 2w(h^*-\href) = 0,
+  \qquad \tau(h^*)=\rho\gbar\big(I_b+\alpha f I e^{-c_t h^*}\big).
+\end{equation}
+%
+A smooth scalar equation; solve by Newton or bisection on
+$[0,\code{max\_half\_spread}]$. A unique interior root exists wherever
+$\gamma(h)>0$ (strict concavity of $J$ in $h$) - exactly the stability
+condition holding with room to spare.
+
+% ===========================================================================
+\section{Corollaries (each a falsifiable prediction)}
+
+\begin{corollary}[linear-in-adversariality scaling]
+At fixed $h^*$, $m$ is linear in $\alpha f$, and $m=1$ at
+\begin{equation*}
+  (\alpha f)^* = \frac{\gamma}{\rho\,\gbar\,I\,c_t\,e^{-c_t h^*}},
+\end{equation*}
+predicting the \code{toxicity\_feedback} value at which \code{sweep\_feedback.yaml}
+crosses the boundary before the sweep is run.
+\end{corollary}
+
+\begin{corollary}[lazy-deploy raises effective curvature]
+Under \code{update\_rule="rgd"} with step $\eta$, one gradient step gives the map
+$M(h)=h+\eta\,G(h)$ with $G(h)=\partial_h J(h;\tau(h))$ and linearised modulus
+$m_{\mathrm{RGD}}=|1-\eta(\gamma-\eps\beta)|$ in the worst-case (destabilising)
+orientation. Contraction requires $\gamma_{\mathrm{eff}}:=\gamma-\eps\beta>0$,
+i.e.\ the same boundary $\eps<\gamma/\beta$. Taking $K$ lazy steps compounds the
+contraction, enlarging the stable region.
+\end{corollary}
+
+\begin{corollary}[the modulus saturates rather than blows up]
+As $h^*$ grows, $A\rho k e^{-k h^*}(2-k h^*)\to 0$, so $\gamma\to 2wP$ (a floor,
+not zero) while $\eps$ also decays. Their ratio approaches a finite plateau
+$m_\infty\approx \eps(h^*)/(2w)$ rather than diverging - the analytic
+explanation of the empirically observed ``modulus saturates ($\sim 1.25$) past
+the boundary''. The GLFT term even turns negative for $k h^*>2$ (defensive
+widening, low curvature).
+\end{corollary}
+
+\begin{corollary}[why $\eps$, not $\alpha$, is the clean control variable]
+Sweeping $\alpha$ moves both $\eps$ (numerator, $\propto\alpha$) and $h^*$ (the
+dealer widens), feeding back through $e^{-c_t h^*}$ and the $\gamma$ curvature
+term, so $m(\alpha)$ is confounded and its sign is not robust to universe size.
+Sweeping $f=\code{toxicity\_feedback}$ at fixed structural regime moves $\eps$
+linearly with $h^*$ far less perturbed, isolating the performative channel.
+\end{corollary}
+
+% ===========================================================================
+\section{Symbol \texorpdfstring{$\to$}{->} config map}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Symbol & Meaning & Config field & Default \\
+\midrule
+$A$        & uninformed arrival scale          & \code{clients.base\_arrival\_rate} & 1.0 \\
+$k$        & demand elasticity (GLFT decay)    & \code{clients.demand\_elasticity}  & 1.5 \\
+$I_b$      & toxic baseline level              & \code{clients.info\_base\_intensity} & 0.60 \\
+$I$        & toxic slope scale                 & \code{clients.info\_intensity}     & 1.4 \\
+$\alpha$   & adversariality                    & \code{clients.alpha}               & 0.15 \\
+$f$        & performative feedback gain        & \code{clients.toxicity\_feedback}  & 0.22 \\
+$c_t$      & toxic spread-decay                & \code{clients.info\_spread\_decay} & 1.5 \\
+$\sigma_s$ & informed signal noise             & \code{clients.info\_signal\_noise} & 0.6 \\
+$w$        & quoting-cost convexity            & \code{reward.quote\_anchor\_weight}& 0.25 \\
+$\href$    & quoting-cost anchor               & \code{reward.quote\_anchor\_ref}   & 1.0 \\
+$P$        & global P\&L scale ($=\beta$)       & \code{reward.pnl\_scale}           & 1.0 \\
+$\lambda_q$& inventory-risk curvature          & \code{reward.inv\_risk\_weight}    & 0.05 \\
+$\rho$     & liquidity ratio at reference      & state (\code{liquidity/liq\_mean}) & $\approx 1$ \\
+$\gbar,\psi$ & gate mean / adverse severity    & derived (Gaussian integrals, \S3.5)& - \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===========================================================================
+\section{Validation protocol (predict then verify)}
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Predict.} For each $f$ in \code{sweep\_feedback.yaml}, solve
+  \eqref{eq:fixedpoint} for $h^*$, then evaluate $m_{\mathrm{pred}}(f)=\eps\beta/\gamma$
+  from \eqref{eq:gamma}, \eqref{eq:beta}, \eqref{eq:eps}.
+\item \textbf{Measure.} Run \code{measure\_response\_modulus} at $\href\approx h^*$
+  for the common-random-number BR-slope estimate $m_{\mathrm{meas}}(f)$.
+\item \textbf{Compare.} Report $m_{\mathrm{pred}}$ vs $m_{\mathrm{meas}}$ across the
+  sweep with cross-seed IQR bands. The claim: the predicted boundary $(\alpha f)^*$
+  coincides with the measured crossing $m_{\mathrm{meas}}=1$, and
+  $m_{\mathrm{pred}}\approx m_{\mathrm{meas}}$ in the contracting regime, diverging
+  only in the saturated regime (Corollary 3).
+\end{enumerate}
+%
+A reference implementation belongs in
+\code{endo\_market\_v2/endo\_market/analysis/analytic\_boundary.py} (a pure
+function of \code{Config}), reusing \code{response\_modulus.py} for step 2.
+
+% ===========================================================================
+\section{Honest caveats}
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{$\beta=\code{pnl\_scale}$ is exact only under the frozen-environment
+  FOC (A3).} A future operator modelling $dD/d\phi$ (PerfGD, Priority 1.2) makes
+  $h\tau(h)$ $h$-responsive and $\beta$ gains a $-h c_t$ correction; the boundary
+  form survives but $\beta$ is no longer a bare constant. This is the bridge to
+  1.2, not a defect.
+\item \textbf{$\lambda_q,\gbar,\psi$ are state-dependent.} The boundary is stated
+  at the probe reference state; the phase diagram (Priority 1.5) reports it as a
+  band over the reference-state distribution.
+\item \textbf{The cap (A4) is assumed slack.} Deep in the unstable regime the cap
+  re-convexifies the problem; the analytic modulus is valid up to and slightly
+  past the boundary, not arbitrarily far into divergence.
+\item \textbf{Single bond, zero skew (A1).} The scalar boundary is the base case;
+  the factor-model lift (1.5) and the multi-dealer $\eps<\gamma/(N\beta)$ (1.3)
+  build on it but are out of scope here.
+\end{itemize}
+
+% ===========================================================================
+\section*{References}
+\begin{itemize}[leftmargin=*]
+\item J.\ Perdomo, T.\ Zrnic, C.\ Mendler-D\"unner, M.\ Hardt.
+  \emph{Performative Prediction.} ICML 2020. - the $m=\eps\beta/\gamma$
+  criterion this work makes structural.
+\item M.\ Avellaneda, S.\ Stoikov. \emph{High-frequency trading in a limit-order
+  book.} Quant.\ Finance 2008; O.\ Gu\'eant, C.-A.\ Lehalle, J.\
+  Fern\'andez-Tapia (GLFT), 2013. - the exponential fill intensity
+  $\lambda(\delta)=A e^{-k\delta}$ underlying $\gamma$.
+\item See \code{../references.bib} and \code{literature/literature-raghav/README.md}
+  for the full citation map (Barzykin et al.\ 2025 for the $d\tau/dh$ grounding;
+  Cont--Kukanov--Stoikov for the informed-flow slope used in the triangulation
+  extension of 1.1).
+\end{itemize}
+
+\end{document}

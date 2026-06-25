@@ -1,4 +1,4 @@
-# 1.2 — Un-blinding the Operator: the PerfGD-Corrected Loop
+# 1.2 - Un-blinding the Operator: the PerfGD-Corrected Loop
 
 **STATUS: DONE (Priority 2, derivation/theorem).** This document discharges the
 *mathematical* content of methodology target **1.2** in
@@ -8,17 +8,17 @@ the Performative Gradient Descent (PerfGD) correction in closed form, prove it
 converges to the **performative optimum (PO)** rather than the **stable point
 (SP)**, show it **remains stable for `epsilon` beyond the RRM boundary
 `epsilon* = gamma/beta`**, and quantify the **echo-chamber gap** between the
-stable and optimal quotes. The remaining *code* task — wiring this gradient into a
-training loop as `equilibrium/perfgd_loop.py` — is called out in §8 and is
+stable and optimal quotes. The remaining *code* task - wiring this gradient into a
+training loop as `equilibrium/perfgd_loop.py` - is called out in §8 and is
 deliberately out of scope for the math-theory deliverable.
 
 > **One-line thesis.** Blind RRM (the loop analysed in 1.1) finds the spread that
-> is its own best response *given* the induced flow — the stable point. It is
+> is its own best response *given* the induced flow - the stable point. It is
 > blind to the fact that its own quoting *moves* that flow. PerfGD adds exactly
 > the missing term `dJ/dT * dtau/dh`, which 1.1 already gives in closed form, so
 > no estimation is needed. The corrected loop optimises the true objective and is
 > governed by the objective's *own* curvature `gamma_PO`, not by the cobweb
-> modulus `epsilon*beta/gamma` — which is why it converges in regimes where RRM
+> modulus `epsilon*beta/gamma` - which is why it converges in regimes where RRM
 > oscillates and diverges.
 
 **Formatting note.** As in 1.1, all mathematics is in fenced code blocks /
@@ -66,7 +66,7 @@ Following Perdomo et al. (2020), a decision-dependent problem has two distinct
 stationary objects.
 
 **Stable point `h_SP` (what RRM finds).** The dealer best-responds to the *frozen*
-distribution, then redeploys. A fixed point zeroes the **blind gradient** — the
+distribution, then redeploys. A fixed point zeroes the **blind gradient** - the
 derivative of `J` in its first (decision) argument only, with `T` held fixed and
 *then* evaluated self-consistently at `T = tau(h)`:
 
@@ -79,7 +79,7 @@ This is exactly the FOC of 1.1 §3–4; `h_SP` is the `h*` of that document.
 
 **Performative optimum `h_PO` (what we actually want).** The maximiser of the true
 objective `Phi(h) = J(h; tau(h))`, whose stationarity uses the **total**
-derivative — the blind gradient *plus* the term that accounts for how `h` moves
+derivative - the blind gradient *plus* the term that accounts for how `h` moves
 the distribution:
 
 ```
@@ -124,7 +124,7 @@ So the full PerfGD ascent direction is
 ```
 
 Every term is a closed-form function of the config and `h`. **No finite-difference
-probing of `dD/dphi` is required** — the contrast with Izzo et al. (2021), who
+probing of `dD/dphi` is required** - the contrast with Izzo et al. (2021), who
 *estimate* the distribution-response by perturbation and inherit its bias and
 variance. Here 1.1 supplies it exactly. This is the concrete pay-off of having
 derived the boundary analytically.
@@ -191,7 +191,7 @@ gap,
 ```
 
 matching the methodology's stated `O(1/k)`. If, in addition, `gamma_PO > 0`
-(strong concavity — §4.3), the rate upgrades to **linear**:
+(strong concavity - §4.3), the rate upgrades to **linear**:
 
 ```
    | h_k - h_PO |  <=  ( 1 - eta*gamma_PO )^k * | h_0 - h_PO | ,     for  eta <= 1/L ,
@@ -240,8 +240,8 @@ beyond `epsilon*` where RRM has already diverged.** Intuitively: RRM diverges no
 because the *objective* lost its optimum but because the *fixed-point iteration*
 overshoots it (a negative-slope cobweb, 1.1 §3.3); PerfGD descends the objective
 directly and never iterates the cobweb, so the cobweb modulus is irrelevant to
-it. This is precisely the methodology's claim — "converges to the PO at rate
-`O(1/k)` and remains stable for `epsilon` beyond the RRM boundary `epsilon*`" —
+it. This is precisely the methodology's claim - "converges to the PO at rate
+`O(1/k)` and remains stable for `epsilon` beyond the RRM boundary `epsilon*`" -
 now derived.
 
 ---
@@ -266,7 +266,7 @@ Solving with `Delta(h_SP) = -beta*epsilon*(h_SP - psi)`:
 ```
 
 So when toxic flow is net profitable at the stable spread (`h_SP > psi`), the
-**stable point quotes strictly wider than the optimum** — the dealer over-defends
+**stable point quotes strictly wider than the optimum** - the dealer over-defends
 because, blind to `dD/dphi`, it never credits itself for the flow its own
 tightening would summon. The gap is `O(epsilon)` to leading order and vanishes as
 `epsilon -> 0` (no performativity, SP = PO).
@@ -282,7 +282,7 @@ to first order at its optimum (`Phi'(h_PO) = 0`):
 ```
 
 **Reconciliation with the README.** The methodology README quotes the
-echo-chamber gap as `O(epsilon^2)`. That `O(epsilon^2)` is the *value* gap (6b) —
+echo-chamber gap as `O(epsilon^2)`. That `O(epsilon^2)` is the *value* gap (6b) -
 the standard performative-prediction suboptimality result. The raw *spread*
 inflation (6a) is `O(epsilon)` to leading order. We report both explicitly and
 label which is which; conflating them is a common slip.
@@ -294,7 +294,7 @@ label which is which; conflating them is a common slip.
 ### 7.1 The correction is self-financing exactly at `h = psi`
 `Delta(h) = -beta*(h - psi)*epsilon(h)` vanishes at `h = psi`: when the quoted
 half-spread equals the adverse severity, toxic flow is value-neutral and PerfGD
-and RRM momentarily agree. The performative correction has a *sign flip* there —
+and RRM momentarily agree. The performative correction has a *sign flip* there -
 it pulls toward *tighter* quotes when `h > psi` (chase the profitable summoned
 flow) and toward *wider* quotes when `h < psi` (suppress the toxic summoned flow).
 
@@ -302,7 +302,7 @@ flow) and toward *wider* quotes when `h < psi` (suppress the toxic summoned flow
 Since `epsilon` is linear in `alpha*f` (1.1 §3.2), so is the decision gap (6a) to
 leading order: `h_SP - h_PO ~ (alpha*f) * [ rho*gbar*I*c_t*exp(-c_t*h_SP)*(h_SP -
 psi) / gamma ]`. The echo chamber widens linearly as the market gets more
-adversarial — a directly testable prediction.
+adversarial - a directly testable prediction.
 
 ### 7.3 PerfGD curvature vs. RRM curvature, side by side
 ```
@@ -348,7 +348,7 @@ formulas completely; no estimator is needed.
   (the leading `dD/dphi` term), which is exactly what PerfGD targets, but
   higher-order self-consistency (the full implicit `D = T(D, phi)` solve of the
   fixed-point objective) is a further step.
-- **Single bond, zero skew, reference-state `psi`/`gbar`/`lambda_q`** — same scope
+- **Single bond, zero skew, reference-state `psi`/`gbar`/`lambda_q`** - same scope
   limits as 1.1 §9; the gap (6a–6b) is a per-state quantity to be reported as a
   band over the reference-state distribution.
 - **Linearised gap.** (6a)/(6b) are leading-order in `epsilon`; for large
@@ -360,13 +360,13 @@ formulas completely; no estimator is needed.
 ## References
 
 - J. Perdomo, T. Zrnic, C. Mendler-Dünner, M. Hardt. *Performative Prediction.*
-  ICML 2020. — stable point vs. performative optimum; the `O(epsilon^2)`
+  ICML 2020. - stable point vs. performative optimum; the `O(epsilon^2)`
   suboptimality of the stable point.
 - Z. Izzo, L. Ying, J. Zou. *How to Learn when Data Reacts to Your Model:
-  Performative Gradient Descent.* ICML 2021. — the PerfGD algorithm, here run with
+  Performative Gradient Descent.* ICML 2021. - the PerfGD algorithm, here run with
   the *exact* analytic `dD/dphi` from 1.1 instead of an estimated one.
 - C. Mendler-Dünner, J. Perdomo, T. Zrnic, M. Hardt. *Stochastic Optimization for
-  Performative Prediction.* NeurIPS 2020. — convergence rates for the corrected
+  Performative Prediction.* NeurIPS 2020. - convergence rates for the corrected
   dynamics.
 - Builds on [`01-analytic-stability-boundary.md`](01-analytic-stability-boundary.md);
   see [`../references.bib`](../references.bib) and
