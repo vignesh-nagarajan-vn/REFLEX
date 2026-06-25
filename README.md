@@ -121,7 +121,7 @@ reproduced the `ε < γ/β` stability boundary.
     |  \- tests/                    ← 21 tests (20 fast + 1 slow end-to-end)
     |- new-methodology/             ← forward-looking research roadmap (methodology + To-Do)
     |  |- README.md                 ← full methodology write-up and the To-Do checklist
-    |  |- math-theory/              ← proofs & derivations (1.1 analytic boundary: DONE)
+    |  |- math-theory/              ← proofs & derivations (1.1 boundary + 1.2 PerfGD: DONE)
     |  |- simulator/                ← (placeholder) operator, multi-dealer, estimators
     |  |- experiments/              ← (placeholder) sweeps and phase diagrams
     |  \- results/                  ← (placeholder) figures and tables
