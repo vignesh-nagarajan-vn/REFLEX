@@ -9,11 +9,11 @@ what is established in prior literature from what this project derives.
 
 | Priority | Document | Status |
 |----------|----------|--------|
-| **1.1** | [`01-analytic-stability-boundary.md`](01-analytic-stability-boundary.md) — closed-form `γ`, `β`, `ε` and the boundary `ε < γ/β` for the single-dealer market maker, with a predict-then-verify protocol against `analysis/response_modulus.py`. | ✅ **Complete** |
-| 1.2 | PerfGD un-blinding: analytic `dD/dφ`, `O(1/k)` convergence, echo-chamber gap. | ☐ Not started |
-| 1.3 | Multi-dealer PSNE boundary `ε < γ/(Nβ)`, mean-field `N→∞` limit. | ☐ Not started |
-| 1.4 | Distributionally robust `ε*` and `O(1/√n)` robust radius. | ☐ Not started |
-| 1.5 | Factor-model dimensionality reduction and its error bound (100+ bonds). | ☐ Not started |
+| **1.1** | [`01-analytic-stability-boundary.md`](01-analytic-stability-boundary.md) — closed-form `gamma`, `beta`, `epsilon` and the boundary `epsilon < gamma/beta` for the single-dealer market maker, with a predict-then-verify protocol against `analysis/response_modulus.py`. | **DONE** |
+| 1.2 | PerfGD un-blinding: analytic `dD/dphi`, `O(1/k)` convergence, echo-chamber gap. | Not started |
+| 1.3 | Multi-dealer PSNE boundary `epsilon < gamma/(N*beta)`, mean-field `N -> inf` limit. | Not started |
+| 1.4 | Distributionally robust `epsilon*` and `O(1/sqrt(n))` robust radius. | Not started |
+| 1.5 | Factor-model dimensionality reduction and its error bound (100+ bonds). | Not started |
 
 ## Conventions
 
