@@ -223,7 +223,7 @@ stability boundary analytically from microstructure primitives instead of
 sweeping it by hand. In priority order (full checklist in
 [`new-methodology/README.md`](new-methodology/README.md#to-do)):
 
-- [ ] **Analytic boundary (P1):** derive `γ`, `β`, and the toxic slope `dτ/dh` in closed form (GLFT/Avellaneda-Stoikov + Barzykin adverse selection), then triangulate `ε` three ways (BR-slope, Sinkhorn/Wasserstein, CKS informed-flow).
+- [x] **Analytic boundary (P1):** derive `γ`, `β`, and the toxic slope `dτ/dh` in closed form (GLFT/Avellaneda-Stoikov + Barzykin adverse selection), then triangulate `ε` three ways (BR-slope, Sinkhorn/Wasserstein, CKS informed-flow).
 - [ ] **Un-blind the operator (P2):** PerfGD-corrected loop using the analytic `dD/dφ`; measure the echo-chamber (stable-vs-optimal) gap.
 - [ ] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N·β)` and its mean-field (`N → ∞`) limit.
 - [ ] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`.
