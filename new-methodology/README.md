@@ -28,7 +28,15 @@ This section lays out, in order, every component of the research program: the ma
 
 The project's novelty claim is that the performativity stability boundary for a structural market model can be derived analytically from microstructure primitives, rather than assumed or empirically swept. This decomposes into five concrete mathematical targets, ordered by priority.
 
-**1.1 — Analytic stability boundary (Priority 1)**
+**1.1 — Analytic stability boundary (Priority 1) — ✅ DERIVED.** The closed-form
+derivation of `γ`, `β`, `ε` and the boundary `ε < γ/β` is complete and written up
+in [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md).
+It reduces the performative contraction modulus `m = εβ/γ` to the simulator's
+microstructure primitives (GLFT fill-curve curvature + quoting-cost convexity →
+`γ`; P&L scale → `β`; toxic-flow feedback slope `|dτ/dh|` → `ε`), yielding an
+*a-priori* boundary plus a predict-then-verify protocol against the existing
+`analysis/response_modulus.py`. Remaining sub-items below (the two extra `ε`
+estimators and their triangulation) are the in-progress continuation of 1.1.
 
 Target theorem: for an OTC bond market with Guéant–Lehalle–Fernández-Tapia (GLFT) microstructure and Barzykin-style adverse selection, the performativity stability boundary is
 
@@ -121,13 +129,13 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 ## To-Do
 
 ### Mathematical contributions
-- [ ] Derive closed-form `γ` and `β` from GLFT/Avellaneda–Stoikov value function
-- [ ] Derive `dτ/dh` from Barzykin et al. (2025) perturbation expansion
-- [ ] Build BR-slope estimator for `ε` (finite-difference, from simulator logs)
+- [x] Derive closed-form `γ` and `β` from GLFT/Avellaneda–Stoikov value function — see [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §2–3
+- [x] Derive `dτ/dh` from Barzykin et al. (2025) perturbation expansion — closed form in [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.1
+- [x] Build BR-slope estimator for `ε` (finite-difference, from simulator logs) — exists as `analysis/response_modulus.py`; wired into the validation protocol (§7)
 - [ ] Build Sinkhorn/Wasserstein-based estimator for `ε`
 - [ ] Build CKS-implied informed-flow slope estimator for `ε`
 - [ ] Verify agreement across all three `ε` estimators (triangulation)
-- [ ] Prove the analytic stability boundary theorem (Priority 1)
+- [x] Prove the analytic stability boundary theorem (Priority 1) — [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.4
 - [ ] Implement PerfGD using the analytic `dD/dφ`
 - [ ] Prove PerfGD convergence rate to the performative optimum (Priority 2)
 - [ ] Measure the echo-chamber (stable-vs-optimal) gap as a function of `ε`
