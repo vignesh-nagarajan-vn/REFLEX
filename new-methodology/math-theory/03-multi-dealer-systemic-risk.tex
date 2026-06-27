@@ -1,0 +1,427 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+% 1.3 - Multi-Dealer Competition and Systemic Performative Instability
+% LaTeX companion to 03-multi-dealer-systemic-risk.md (REFLEX / math-theory).
+% Self-contained and compilable with pdflatex.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+
+% Convenience macros matching the project's notation.
+\newcommand{\eps}{\varepsilon}
+\newcommand{\gbar}{\bar g}
+\newcommand{\hdep}{h^{\mathrm{dep}}}
+\newcommand{\hrefp}{h_{\mathrm{ref}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\BR}{\mathrm{BR}}
+\newcommand{\Neff}{N_{\mathrm{eff}}}
+\newcommand{\gj}{\gamma_{\mathrm{joint}}}
+\newcommand{\bvh}{\bm{h}}
+\newcommand{\ones}{\bm{1}}
+
+\title{\textbf{1.3 - Multi-Dealer Competition and\\ Systemic Performative Instability}}
+\author{REFLEX project - \code{math-theory}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{STATUS: DONE (Priority 3, derivation/theorem).} This document
+discharges the \emph{mathematical} content of methodology target \textbf{1.3}. It
+lifts the single-dealer closed forms of
+\code{01-analytic-stability-boundary} to $N$ competing dealers who share a common
+informed-flow pool, and derives the performatively stable Nash equilibrium (PSNE)
+boundary
+%
+\begin{equation*}
+  \text{stable}\quad\Longleftrightarrow\quad
+  m_N = \Neff\,\frac{\eps\,\beta}{\gamma} < 1
+  \quad\Longleftrightarrow\quad
+  \eps < \frac{\gamma}{\Neff\,\beta},
+  \qquad \Neff = 1 + \kappa\,(N-1),
+\end{equation*}
+%
+which at full toxic spillover $\kappa=1$ ($\Neff=N$) is the target
+$\eps < \gamma/(N\beta)$, and at $\kappa=0$ recovers the single-dealer boundary of
+1.1 applied to $N$ decoupled dealers. Every constant is one of 1.1's closed forms;
+the lift needs only the $N$-dealer linear algebra and \emph{no new estimation}.
+
+\paragraph{One-line thesis.}
+A single dealer is stable iff $m_1=\eps\beta/\gamma<1$. Put $N$ of them in a market
+that shares one informed-flow pool and the destabilising feedback no longer acts
+through each dealer's own re-tightening alone: when \emph{any} dealer tightens it
+summons toxic flow that picks off \emph{all} of them, so the joint best-response
+map is a rank-one common-mode coupling whose unstable eigenvalue is $N$ times
+larger. The market crosses into instability at $\eps=\gamma/(N\beta)$ -- a factor
+$N$ before any individual dealer would. Competition manufactures a synchronised
+cobweb more fragile than any dealer in isolation. That is the systemic-risk result.
+
+% ===========================================================================
+\section{Carry-over and new notation}
+
+From \code{01-analytic-stability-boundary} we reuse the single-dealer one-step
+objective at frozen toxic level $T$ and its three closed-form constants:
+%
+\begin{align*}
+  J(h;T) &= P\big[\, h\,A\,e^{-kh}\rho + hT - \psi T - w(h-\hrefp)^2 - \lambda_q \,\big],
+  \qquad P=\code{pnl\_scale},\\[2pt]
+  \gamma &= -\,\partial_{hh}J = P\big[\,2w + A\rho k\,e^{-kh}(2-kh) + \lambda_q\,\big]
+           &&\text{(strong convexity)},\\
+  \beta  &= \big|\partial_{hT}J\big| = P &&\text{(joint smoothness)},\\
+  \eps   &= \big|\,d\tau/dh\,\big| = \rho\,\gbar\,\alpha f I\,c_t\,e^{-c_t h}
+           &&\text{(distribution sensitivity)},\\
+  m_1    &= \eps\beta/\gamma &&\text{(single-dealer modulus, 1.1\,\S3.4).}
+\end{align*}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Symbol & Reading & Definition \\
+\midrule
+$N$            & number of competing dealers                       & proposed \code{clients.n\_dealers} \\
+$h_i$          & half-spread quoted by dealer $i$                  & per-dealer policy coordinate \\
+$\bvh=(h_1,\dots,h_N)$ & joint quote profile                       & strategy profile in $\mathbb{R}^N$ \\
+$h_i^{\mathrm{dep}}$ & deployed spread of dealer $i$               & \S2, A3$'$ \\
+$\tau_i$       & toxic notional hitting dealer $i$                 & \S2 \\
+$\kappa$       & cross-dealer toxic spillover, $\in[0,1]$          & proposed \code{clients.toxic\_spillover} \\
+$T_i$          & frozen toxic level of dealer $i$, $=\tau_i(\bvh^{\mathrm{dep}})$ & \S2 \\
+$\BR_i$        & dealer $i$'s frozen-environment best response     & \S3 \\
+$J_{\BR}$      & Jacobian of $\BR:\mathbb{R}^N\!\to\!\mathbb{R}^N$ at the PSNE & \S3 \\
+$\Neff$        & effective dealer count, $=1+\kappa(N-1)$          & \S4 \\
+$m_N$          & joint modulus, $=\Neff\,m_1=\rho(J_{\BR})$        & \S4 \\
+$\gj$          & joint curvature, $=\gamma-\Neff\,\eps\beta$       & \S6 \\
+$N_c$          & critical dealer count, $=\gamma/(\beta\eps)=1/m_1$& \S8 \\
+$c$            & aggregate spillover in the scaling $\kappa=c/N$   & \S7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===========================================================================
+\section{Setup: $N$ symmetric dealers sharing one informed-flow pool}
+
+We extend the single-bond, zero-skew analysis of 1.1 to $N$ dealers quoting the
+same bond simultaneously, at the level of each dealer's central half-spread $h_i$.
+
+\begin{assumption}[symmetric dealers, single bond, zero skew]
+All $N$ dealers share the microstructure constants $(A,k,w,\hrefp,P,\lambda_q)$ and
+the toxic parameters $(I_b,I,\alpha,f,c_t,\sigma_s)$ of 1.1. One bond, $\text{skew}=0$.
+\end{assumption}
+
+\begin{assumption}[reference state]
+$\gamma$, $\gbar$, $\psi$ are evaluated at the common probe reference state $s_0$
+with $q_0\!\approx\!0$, mispricing $g$, liquidity ratio $\rho$ -- identical to 1.1.
+\end{assumption}
+
+\begin{assumption}[frozen-environment, simultaneous best response]
+Within one deployment round the operator conditions on a \emph{frozen}
+\code{policy\_summary} of the whole deployed profile $\bvh^{\mathrm{dep}}$. Each
+dealer $i$ sees the toxic environment frozen at $T_i=\tau_i(\bvh^{\mathrm{dep}})$
+while its own benign channel responds to its candidate $h_i$; all dealers redeploy
+together (simultaneous RRM, the multiplayer setting of Brown et al.\ 2021 and Narang
+et al.\ 2022).
+\end{assumption}
+
+\begin{assumption}[saturation non-binding]
+The informed-flow cap is slack at the operating point; the uncapped form is carried.
+\end{assumption}
+
+\begin{assumption}[own-franchise benign flow]
+Each dealer's uninformed notional $A\,e^{-kh_i}\rho$ responds to its own spread only;
+the competitive coupling is carried entirely by the toxic channel (\S3). Competitive
+splitting of benign flow only adds own-$h$ curvature (raises $\gamma$, stabilising)
+and is out of scope (\S11).
+\end{assumption}
+
+% ===========================================================================
+\section{Coupled toxic flow and the joint best-response map}
+
+\paragraph{Shared informed-flow pool.}
+With $N$ dealers the informed pool is shared: a tighter market -- \emph{any} dealer
+tightening -- raises the venue's attractiveness to informed flow, increasing the
+toxic notional routed at \emph{every} dealer. We model
+%
+\begin{equation}
+  \tau_i(\bvh^{\mathrm{dep}})
+  = \rho\,\gbar\Big[\, I_b + \alpha f I\Big( e^{-c_t h_i^{\mathrm{dep}}}
+     + \kappa\!\!\sum_{j\ne i} e^{-c_t h_j^{\mathrm{dep}}}\Big)\Big],
+  \qquad \kappa\in[0,1].
+  \label{eq:taui}
+\end{equation}
+%
+$\kappa=0$ gives $N$ independent single-dealer problems; $\kappa=1$ is full
+spillover (the informed pool tracks the aggregate attractiveness
+$\sum_j e^{-c_t h_j^{\mathrm{dep}}}$, the ``shared induced distribution'' of Brown
+et al.\ 2021). At the symmetric point $h_j^{\mathrm{dep}}=h^*$,
+%
+\begin{equation*}
+  \partial_{h_i^{\mathrm{dep}}}\tau_i = -\eps,\qquad
+  \partial_{h_j^{\mathrm{dep}}}\tau_i = -\kappa\,\eps \ (j\ne i),\qquad
+  \eps=\rho\gbar\alpha f I\,c_t\,e^{-c_t h^*}.
+\end{equation*}
+
+\paragraph{Per-dealer objective is 1.1's.}
+Under A1$'$/A5$'$, dealer $i$'s objective at frozen $T_i$ is 1.1's $J$ with
+$h\!\to\!h_i$, $T\!\to\!T_i$; competitor spreads enter \emph{only} through the scalar
+$T_i$. Hence $\partial_{h_ih_i}J_i=-\gamma$ and $\partial_{h_iT_i}J_i=+\beta=P$
+exactly as in 1.1, and the constant-in-$h_i$ adverse term $-\psi T_i$ drops out of
+the boundary (it drives the level / echo-chamber gap, \S11).
+
+\paragraph{The map.}
+Each dealer best-responds, $\BR_i(\bvh^{\mathrm{dep}})=\arg\max_{h_i}J_i(h_i;\tau_i(\bvh^{\mathrm{dep}}))$,
+with FOC
+$F_i=P[A\rho e^{-kh_i}(1-kh_i)+T_i-2w(h_i-\hrefp)]=0$.
+The simultaneous-RRM iteration is $\bvh^{t+1}=\BR(\bvh^{t})$; a PSNE $\bvh^*$ is a
+fixed point, and the loop contracts iff $\rho(J_{\BR})<1$.
+
+\paragraph{Jacobian (implicit-function theorem).}
+Differentiating $F_i(\BR_i,\tau_i)=0$ in $h_j^{\mathrm{dep}}$ with $F_{i,h_i}=-\gamma$,
+$F_{i,T_i}=+\beta$ and the slopes above,
+%
+\begin{equation}
+  \frac{\partial \BR_i}{\partial h_i^{\mathrm{dep}}} = -\frac{\beta\eps}{\gamma}=-m_1
+  \ \ (\text{diagonal}),\qquad
+  \frac{\partial \BR_i}{\partial h_j^{\mathrm{dep}}} = -\kappa\frac{\beta\eps}{\gamma}=-\kappa m_1
+  \ \ (j\ne i),
+\end{equation}
+%
+so at the symmetric PSNE
+%
+\begin{equation}
+  J_{\BR} = -\,m_1\big[(1-\kappa)\,I + \kappa\,\ones\ones^{\!\top}\big],
+  \qquad m_1=\eps\beta/\gamma.
+  \label{eq:JBR}
+\end{equation}
+%
+$J_{\BR}$ is symmetric (consequence of the symmetric shared pool), so $\rho(J_{\BR})$
+equals its operator $2$-norm and the contraction is a genuine Euclidean contraction.
+
+% ===========================================================================
+\section{Spectrum, the PSNE boundary, and the headline theorem}
+
+The all-ones matrix $\ones\ones^{\!\top}$ has eigenvalue $N$ (eigenvector $\ones$,
+the \emph{common mode}: all dealers move together) and $0$ with multiplicity $N-1$
+(the \emph{differential modes}). Hence \eqref{eq:JBR} has eigenvalues
+%
+\begin{align*}
+  \lambda_+ &= -m_1\big(1+\kappa(N-1)\big) = -m_1\Neff && \text{(common mode)},\\
+  \lambda_- &= -m_1(1-\kappa) && \text{(differential, mult. } N-1).
+\end{align*}
+%
+With $\Neff:=1+\kappa(N-1)\ge 1\ge 1-\kappa$, the common mode dominates and
+$\rho(J_{\BR})=m_1\Neff=:m_N$.
+
+\begin{theorem}[PSNE stability boundary]
+For $N$ symmetric dealers sharing a toxic pool with spillover $\kappa\in[0,1]$, the
+simultaneous-RRM loop contracts to the PSNE iff
+%
+\[
+  m_N = \Neff\,\frac{\eps\beta}{\gamma}<1
+  \quad\Longleftrightarrow\quad
+  \eps<\frac{\gamma}{\Neff\,\beta},\qquad \Neff=1+\kappa(N-1).
+\]
+%
+In particular at full spillover $\kappa=1$ ($\Neff=N$) this is $\eps<\gamma/(N\beta)$,
+with market-wide instability at $N\eps\beta/\gamma=1$; at $\kappa=0$ it reduces to
+the single-dealer $\eps<\gamma/\beta$ applied to each of the $N$ decoupled dealers.
+\end{theorem}
+
+\begin{proof}
+$\BR$ is $C^1$ near the symmetric fixed point ($J_i$ is smooth and strongly concave
+in $h_i$ by $\gamma>0$, so $\BR_i$ is a smooth implicit function). The iteration
+contracts near $\bvh^*$ iff $\rho(J_{\BR})<1$ (Ostrowski/Banach for the linearised
+map); by the spectrum above $\rho(J_{\BR})=m_1\Neff$. Substituting $m_1=\eps\beta/\gamma$
+gives the boundary. Symmetry of $J_{\BR}$ makes $\rho$ the $2$-norm, so $m_N<1$ is a
+strict Euclidean contraction.
+\end{proof}
+
+Every entry of $J_{\BR}$ carries the \emph{same} single-dealer feedback $-m_1$, but
+the common-mode eigenvalue sums $\Neff$ of them in phase: the unstable direction is
+the synchronised market-wide tightening, not any one dealer's own loop. Moreover
+$|\lambda_-|=m_1(1-\kappa)\le m_1<m_N$, so the differential modes are damped
+\emph{more} strongly than a lone dealer -- instability here is intrinsically systemic.
+
+% ===========================================================================
+\section{Existence and uniqueness of the PSNE}
+
+Each $h_i\in[0,\,\code{max\_half\_spread}]$, so the joint space $B$ is a compact
+convex box. Under A1$'$ each $J_i(\cdot;T_i)$ is strongly concave in $h_i$
+($\gamma>0$) and $\tau_i$ is continuous, so $\BR:B\to B$ is a continuous self-map of
+a nonempty compact convex set; by \textbf{Brouwer} a PSNE exists (the market-making
+instance of Brown et al.\ 2021). When $m_N<1$, $\BR$ is a $2$-norm contraction, so
+the PSNE is \textbf{unique} and globally attracting on $B$ (Banach). By symmetry it
+solves the scalar equation
+%
+\begin{equation*}
+  A\rho e^{-kh^*}(1-kh^*) + \rho\gbar\big(I_b + \Neff\,\alpha f I\,e^{-c_t h^*}\big)
+   - 2w(h^*-\hrefp) = 0,
+\end{equation*}
+%
+i.e.\ 1.1's fixed-point equation with the toxic baseline-plus-slope amplified by the
+same $\Neff$. Solve by Newton/bisection on $[0,\code{max\_half\_spread}]$.
+
+% ===========================================================================
+\section{Convergence rate of the joint loop}
+
+\paragraph{Linear rate.}
+With $J_{\BR}$ symmetric and $m_N<1$,
+$\|\bvh^{t}-\bvh^*\|_2\le m_N^{\,t}\,\|\bvh^{0}-\bvh^*\|_2$: the joint loop converges
+linearly at $m_N=\Neff\eps\beta/\gamma$, slowing as $N$ or $\kappa$ grows. The rounds
+to tolerance scale like $1/(1-m_N)$ near the boundary -- critical slowing down (\S8.3).
+
+\paragraph{Strong-monotonicity view (Narang et al.\ 2022).}
+The joint Nash gradient operator's strong-monotonicity constant is the worst-case
+joint curvature
+%
+\begin{equation}
+  \gj := \gamma - \Neff\,\eps\beta,\qquad \gj>0 \iff \eps<\gamma/(\Neff\beta),
+\end{equation}
+%
+which at $\kappa=1$ is $\gj=\gamma-N\eps\beta$ (the README's value, generalising 1.1
+\S5's $\gamma_{\mathrm{eff}}=\gamma-\eps\beta$). Under $\gj>0$, Narang et al.\ give
+$O(1/k)$ on $\mathbb{E}\|\bvh^k-\bvh^*\|^2$ for the stochastic loop and linear
+$(1-\eta\gj)$ for the deterministic one. When $\gj\le 0$ but the weaker
+\emph{variational-stability} condition holds, the loop still converges, but to a
+weaker equilibrium concept -- a caveat for the systemic reading (\S11).
+
+% ===========================================================================
+\section{The mean-field limit $N\to\infty$}
+
+\paragraph{Strong coupling ($\kappa$ fixed $>0$): systemic collapse.}
+$\Neff=1+\kappa(N-1)\sim\kappa N\to\infty$, so
+$\eps^*(N)=\gamma/(\Neff\beta)\sim\gamma/(\kappa N\beta)\to 0$: \emph{any} $\eps>0$
+destabilises a sufficiently large fully-coupled market.
+
+\paragraph{Mean-field coupling ($\kappa=c/N$): a finite boundary.}
+With each dealer's footprint $O(1/N)$ (response to the empirical quote distribution),
+set $\kappa=c/N$ for fixed aggregate intensity $c\ge0$. Then $\Neff\to 1+c$ and
+%
+\begin{equation}
+  \eps < \frac{\gamma}{(1+c)\,\beta},\qquad \eps_{\mathrm{MF}}=(1+c)\,\eps,
+\end{equation}
+%
+a finite, well-posed continuum boundary: the aggregate attractiveness
+$\tfrac1N\sum_j e^{-c_t h_j^{\mathrm{dep}}}$ concentrates on its population mean
+(propagation of chaos, Lacker 2016), so the $(N,\eps)$ stability region has a clean
+$N\to\infty$ limit -- the licence to scale Priority 1.5's phase diagram to a
+realistic many-dealer market. The two regimes bracket reality; the simulator
+distinguishes them by the scaling of $m_N$ in $N$ at fixed $\eps$ (\S10).
+
+% ===========================================================================
+\section{Corollaries (each a falsifiable prediction)}
+
+\begin{corollary}[critical dealer count]
+At full spillover, the market is stable iff $N<N_c$ with $N_c=\gamma/(\beta\eps)=1/m_1$.
+A monopoly-stable market ($m_1<1$) is destabilised once the fully-coupled dealer
+count exceeds $1/m_1$ (e.g.\ $m_1=0.5\Rightarrow N_c=2$).
+\end{corollary}
+
+\begin{corollary}[linear-in-$\Neff$ modulus]
+$m_N=\Neff\,m_1$ is exactly linear in $\Neff$; measured joint modulus vs.\ $N$ (full
+spillover) is a line of slope $m_1$ through the origin -- a one-parameter check.
+\end{corollary}
+
+\begin{corollary}[critical slowing down]
+The relaxation time $\sim 1/(1-m_N)$ diverges as $(N,\eps)$ approach the boundary:
+RRM takes progressively more rounds to settle as $N\to N_c$, a dynamical early
+warning of the systemic transition.
+\end{corollary}
+
+\begin{corollary}[spillover is the policy lever]
+The boundary depends on $N$ only through $\Neff=1+\kappa(N-1)$; fragmenting the
+informed pool (lowering $\kappa$ via segmented/tiered RFQ, last-look) re-stabilises a
+market that ``too many dealers'' pushed past the boundary.
+\end{corollary}
+
+\noindent As in 1.1\,\S6.4, sweep \code{toxicity\_feedback} $f$ (linear in $\eps$),
+not $\alpha$: the multi-dealer phase diagram lives on the $(N,\eps)$ plane.
+
+% ===========================================================================
+\section{Validation protocol and the remaining code task}
+
+\textbf{Predict.} For each $(N,\kappa,f)$: solve the symmetric PSNE $h^*$ (\S5),
+evaluate $m_1$ from 1.1's closed forms at $h^*$, predict $m_N=\Neff m_1$, the
+boundary $\eps<\gamma/(\Neff\beta)$, and $N_c=1/m_1$.
+
+\textbf{Measure -- common-mode probe.} Generalise \code{response\_modulus.py} by
+perturbing all $N$ deployed spreads \emph{in phase} (along the unstable eigenvector
+$\ones$) under common random numbers:
+%
+\[
+  m_N^{\mathrm{meas}} = \big|\,\BR_i(\bvh^*+\delta\ones)-\BR_i(\bvh^*-\delta\ones)\,\big|/(2\delta)
+  \quad(\text{any }i),
+\]
+%
+which isolates $\lambda_+=-m_N$. An \emph{anti-phase} probe (eigenvector $\perp\ones$)
+returns $m_1(1-\kappa)$ and so \textbf{identifies $\kappa$ empirically} from the ratio
+of the two slopes -- a free calibration of the spillover.
+
+\textbf{Compare -- the systemic phase diagram (Priority 3 deliverable).} Report
+$m_N^{\mathrm{pred}}$ vs.\ $m_N^{\mathrm{meas}}$ on the $(N,\eps)$ grid with cross-seed
+median $+$ IQR; confirm the linear-in-$N$ law, the integer crossing at $N_c$, and the
+critical slowing down. The $2$-D $(N,\eps)$ stability region is the paper's
+systemic-risk figure.
+
+\textbf{Remaining code task (out of scope here).} Add \code{clients.n\_dealers} and
+\code{clients.toxic\_spillover}, generalise \code{clients.py} to the coupled $\tau_i$
+of \eqref{eq:taui}, and add \code{analysis/multi\_dealer\_modulus.py} implementing the
+in-/anti-phase probes (reusing single-dealer machinery). $\code{n\_dealers}=1$ must
+reproduce \code{endo\_market\_v2} exactly.
+
+% ===========================================================================
+\section{Honest caveats}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Full spillover $\kappa=1$ is the strong assumption.} Real OTC toxic
+  flow is partially segmented ($\kappa<1$); the honest statement is the interpolated
+  $\eps<\gamma/(\Neff\beta)$ with $\kappa$ \emph{measured} from the anti-phase probe.
+  \item \textbf{Symmetric dealers.} With heterogeneous $(\gamma_i,\eps_i)$, $J_{\BR}$
+  has entries $-\beta\,(\text{spillover})\,\eps_j/\gamma_i$ and the spectral radius is
+  dominated by the least-curved (most defensive) dealer -- one fragile dealer can set
+  the systemic boundary.
+  \item \textbf{Own-franchise benign flow.} Bertrand splitting of uninformed flow is
+  omitted; it adds own-$h$ curvature (raises $\gamma$, stabilising) without changing
+  the common-mode-resonance mechanism.
+  \item \textbf{Frozen-environment, first-order.} The multi-dealer PerfGD correction
+  (the 1.2$\times$1.3 cross-product) replaces $\gj$ by an objective curvature and, as
+  in 1.2\,\S5, can stabilise the loop \emph{beyond} the PSNE boundary; here we
+  establish the blind boundary PerfGD would beat.
+  \item \textbf{Cap slack, reference-state constants.} $\gbar,\psi,\lambda_q$ and the
+  cap are at the reference state; deep past the boundary the cap re-convexifies and
+  the linearisation (and uniqueness) cease to hold. Report the boundary as a band over
+  the reference-state distribution and over $(N,\kappa)$.
+  \item \textbf{Mean-field regime selection.} Whether the large-market limit is the
+  collapsing or the finite one depends on the unobserved scaling of toxic capacity
+  with venue count; the simulator can measure which holds, and the paper must not
+  assert one without that measurement.
+\end{itemize}
+
+% ===========================================================================
+\section*{References}
+\begin{itemize}[leftmargin=1.4em]
+  \item G.\ Brown, S.\ Hod, I.\ Kalemaj. \emph{Performative Games.} arXiv:2106.09784,
+  2021. -- PSNE existence; product-space contraction (\S3--\S5). (Lit.\ \#11.)
+  \item A.\ Narang, E.\ Faulkner, D.\ Drusvyatskiy, M.\ Fazel, L.\,J.\ Ratliff.
+  \emph{Multiplayer Performative Prediction: Learning in Decision-Dependent Games.}
+  arXiv:2207.05630, 2022. -- joint $O(1/k)$ / variational stability (\S6). (Lit.\ \#12.)
+  \item D.\ Lacker. \emph{A General Characterization of the Mean Field Limit for
+  Stochastic Differential Games.} PTRF, 2016. arXiv:1510.01408. -- the $N\to\infty$
+  limit of \S7. (Lit.\ \#17.)
+  \item J.\ Perdomo, T.\ Zrnic, C.\ Mendler-D\"unner, M.\ Hardt. \emph{Performative
+  Prediction.} ICML 2020. -- the single-agent $m_1=\eps\beta/\gamma$ boundary that
+  $\Neff$ multiplies.
+  \item Builds on \code{01-analytic-stability-boundary} (closed-form $\gamma,\beta,\eps,m_1$)
+  and \code{02-perfgd-correction} (the un-blinding cross-product of \S11).
+\end{itemize}
+
+\end{document}

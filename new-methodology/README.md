@@ -66,7 +66,18 @@ Target theorem: under GLFT microstructure, a Performative Gradient Descent (Perf
 - Replace blind RRM with PerfGD using the closed-form distribution-response term — no estimation step required once 1.1 is derived.
 - Quantify the "echo chamber gap" (stable-vs-optimal spread inflation), expected `O(ε²)` near `ε*`, as a function of `ε`.
 
-**1.3 — Multi-dealer extension and systemic risk (Priority 3)**
+**1.3 — Multi-dealer extension and systemic risk (Priority 3) — STATUS: DONE
+(derivation).** The closed-form lift to `N` competing dealers sharing one
+informed-flow pool is derived in
+[`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md).
+The joint best-response Jacobian is a rank-one common-mode coupling whose unstable
+eigenvalue scales by the effective dealer count `N_eff = 1 + κ·(N−1)`, giving the
+boundary `ε < γ/(N_eff·β)` (the headline `ε < γ/(N·β)` at full toxic spillover
+`κ = 1`; `κ = 0` recovers the single-dealer boundary). PSNE existence/uniqueness,
+joint convergence (`γ_joint = γ − N_eff·ε·β`), the mean-field `N → ∞` limit, and
+the systemic critical dealer count `N_c = 1/m₁` are all derived. The remaining
+*code* task — an `N`-dealer simulator mode + common-mode BR-slope probe — is
+pending.
 
 Target theorem: for `N` symmetric dealers, the performatively stable Nash equilibrium (PSNE) boundary generalizes to `ε < γ/(N·β)`, with joint effective curvature `γ_joint ≈ γ − N·ε·β`. Market-wide instability — all dealers crossing the boundary simultaneously — emerges at `N·ε·β/γ = 1`.
 
@@ -148,10 +159,10 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [ ] Implement PerfGD using the analytic `dD/dφ` — closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; `equilibrium/perfgd_loop.py` code still pending
 - [x] Prove PerfGD convergence rate to the performative optimum (Priority 2) — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §4–5 (`O(1/k)`, linear at `1−η·γ_PO`, stable beyond `ε*`)
 - [x] Derive the echo-chamber (stable-vs-optimal) gap as a function of `ε` — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §6 (`O(ε)` decision gap, `O(ε²)` value gap); empirical measurement pending
-- [ ] Extend simulator to `N` dealers with shared induced distribution
-- [ ] Prove PSNE existence for `N`-dealer competition (Priority 3)
-- [ ] Prove joint convergence rate under variational stability
-- [ ] Derive the mean-field (`N → ∞`) limit of the stability boundary
+- [ ] Extend simulator to `N` dealers with shared induced distribution — derivation done in [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §10 (`clients.n_dealers`, `clients.toxic_spillover`, coupled `tau_i`); `analysis/multi_dealer_modulus.py` code still pending
+- [x] Prove PSNE existence for `N`-dealer competition (Priority 3) — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §4–§5 (boundary `ε < γ/(N_eff·β)`, Brouwer existence + Banach uniqueness)
+- [x] Prove joint convergence rate under variational stability — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §6 (linear at `m_N`; `O(1/k)` under `γ_joint > 0`, variational-stability fallback)
+- [x] Derive the mean-field (`N → ∞`) limit of the stability boundary — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §7 (collapsing fixed-`κ` vs. finite `κ = c/N` regimes)
 - [ ] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4)
 - [ ] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size
 - [ ] Extend to 100+ correlated bonds via factor-model reduction (Priority 5)

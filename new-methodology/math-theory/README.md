@@ -11,7 +11,7 @@ what is established in prior literature from what this project derives.
 |----------|----------|--------|
 | **1.1** | [`01-analytic-stability-boundary.md`](01-analytic-stability-boundary.md) — closed-form `gamma`, `beta`, `epsilon` and the boundary `epsilon < gamma/beta` for the single-dealer market maker, with a predict-then-verify protocol against `analysis/response_modulus.py`. | **DONE** |
 | **1.2** | [`02-perfgd-correction.md`](02-perfgd-correction.md) — closed-form PerfGD correction `Delta = dT_J * dtau/dh`, convergence to the performative optimum at `O(1/k)` (linear at rate `1 - eta*gamma_PO`), stability beyond the RRM boundary `epsilon*`, and the `O(epsilon)` decision / `O(epsilon^2)` value echo-chamber gap. | **DONE (derivation)**; loop code pending |
-| 1.3 | Multi-dealer PSNE boundary `epsilon < gamma/(N*beta)`, mean-field `N -> inf` limit. | Not started |
+| **1.3** | [`03-multi-dealer-systemic-risk.md`](03-multi-dealer-systemic-risk.md) — multi-dealer PSNE boundary `epsilon < gamma/(N_eff*beta)` (`N_eff = 1 + kappa*(N-1)`; headline `epsilon < gamma/(N*beta)` at full spillover), joint modulus `m_N = N_eff*m_1`, PSNE existence/uniqueness, joint convergence `gamma_joint = gamma - N_eff*epsilon*beta`, mean-field `N -> inf` limit, and the systemic critical dealer count `N_c = 1/m_1`. | **DONE (derivation)**; simulator/code task pending |
 | 1.4 | Distributionally robust `epsilon*` and `O(1/sqrt(n))` robust radius. | Not started |
 | 1.5 | Factor-model dimensionality reduction and its error bound (100+ bonds). | Not started |
 
