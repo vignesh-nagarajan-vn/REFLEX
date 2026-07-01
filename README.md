@@ -41,6 +41,8 @@ under repeated interaction with that same policy.
   <img src="https://img.shields.io/badge/GNU%20Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white">
   <img src="https://img.shields.io/badge/cURL-073551?style=for-the-badge&logo=curl&logoColor=white">
   <img src="https://img.shields.io/badge/Mermaid-FF3670?style=for-the-badge&logo=mermaid&logoColor=white">
+  <img src="https://img.shields.io/badge/LaTeX-008080?style=for-the-badge&logo=latex&logoColor=white">
+  <img src="https://img.shields.io/badge/Overleaf-47A141?style=for-the-badge&logo=overleaf&logoColor=white">
   <img src="https://img.shields.io/badge/BibTeX-008080?style=for-the-badge&logo=latex&logoColor=white">
 </p>
 
