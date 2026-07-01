@@ -84,7 +84,19 @@ Target theorem: for `N` symmetric dealers, the performatively stable Nash equili
 - Prove existence of the PSNE boundary (via performative games theory) and its convergence rate under joint variational stability (via multiplayer performative prediction theory) for `N`-dealer competition.
 - Establish the mean-field limit as `N → ∞`, connecting the discrete `N`-dealer game to a tractable continuum aggregate.
 
-**1.4 — Robust uncertainty quantification (Priority 4)**
+**1.4 — Robust uncertainty quantification (Priority 4) — STATUS: DONE
+(derivation).** The distributionally robust stability certificate is derived in
+[`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md).
+Because `ε` is *estimated*, the certificate declares stability only when the whole
+ambiguity ball is stable-side: `ε̂_n + δ_n < γ/β`, giving a robust boundary
+`ε*_rob = γ/β − δ_n` that closes on the nominal one at `O(1/√n)`. The headline
+finding: that parametric rate is *bought by the common-random-numbers construction
+already in `response_modulus.py`* — a naive finite difference gives only
+`O(n^{−1/3})`, and raw empirical `W₁` gives `O(n^{−1/d})`; the entropic/Sinkhorn
+estimator (paper #14) restores `O(1/√n)` for the OT route. The sample complexity
+`n_req = (z·σ/Δ)² = O(Δ^{−2})` diverges at the boundary, and statistical (shrinking)
+vs. structural/model (fixed) uncertainty are separated. The remaining *code* task —
+a cross-seed variance harness + optional Sinkhorn estimator — is pending.
 
 Target result: a distributionally robust stable point — the policy stable under worst-case `ε` within an ambiguity set — with nominal boundary `ε*` reported alongside a robust radius `δ` that shrinks at rate `O(1/√n)` in the number of simulated episodes `n`.
 
@@ -163,8 +175,8 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Prove PSNE existence for `N`-dealer competition (Priority 3) — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §4–§5 (boundary `ε < γ/(N_eff·β)`, Brouwer existence + Banach uniqueness)
 - [x] Prove joint convergence rate under variational stability — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §6 (linear at `m_N`; `O(1/k)` under `γ_joint > 0`, variational-stability fallback)
 - [x] Derive the mean-field (`N → ∞`) limit of the stability boundary — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §7 (collapsing fixed-`κ` vs. finite `κ = c/N` regimes)
-- [ ] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4)
-- [ ] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size
+- [x] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4) — [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §3–§4 (`ε`-ball / Wasserstein ball; robust certificate `ε̂_n + δ_n < γ/β`)
+- [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size — derived in [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §2 (CRN gives parametric rate; naive difference `O(n^{−1/3})`) + §5 sample complexity; empirical log-log slope check + `analysis/robust_boundary.py` code still pending
 - [ ] Extend to 100+ correlated bonds via factor-model reduction (Priority 5)
 - [ ] Derive and report the dimensionality-reduction error bound
 

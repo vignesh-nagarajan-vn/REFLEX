@@ -1,0 +1,298 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+% 1.4 - Distributionally Robust Stability and the O(1/sqrt(n)) Ambiguity Radius
+% LaTeX companion to 04-robust-uncertainty.md (REFLEX / math-theory).
+% Self-contained and compilable with pdflatex.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\epshat}{\hat\eps_n}
+\newcommand{\mhat}{\hat m_n}
+\newcommand{\dn}{\delta_n}
+\newcommand{\Neff}{N_{\mathrm{eff}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\BR}{\mathrm{BR}}
+\newcommand{\epsstar}{\eps^{*}}
+\newcommand{\epsrob}{\eps^{*}_{\mathrm{rob}}}
+\newcommand{\ebar}{\bar e}
+
+\title{\textbf{1.4 - Distributionally Robust Stability and the\\ $O(1/\sqrt{n})$ Ambiguity Radius}}
+\author{REFLEX project - \code{math-theory}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{STATUS: DONE (Priority 4, derivation/theorem).} This document
+discharges the \emph{mathematical} content of methodology target \textbf{1.4}. The
+sensitivity $\eps$ is \emph{estimated} from a finite simulation, so the crossing
+$\eps=\epsstar$ is a random event and a bare point estimate of $\epsstar$ is not a
+claim. We (i) show the estimator concentrates at the parametric rate
+$|\epshat-\eps|=O_p(1/\sqrt{n})$ -- and that this hinges on the
+\emph{common-random-numbers} (CRN) construction already in
+\code{response\_modulus.py}, a naive difference giving only $O(n^{-1/3})$;
+(ii) build an ambiguity set of radius $\dn=O(1/\sqrt{n})$; (iii) derive the
+distributionally robust stability certificate (Cao \& Shi 2022) with robust boundary
+$\epsrob=\epsstar-\dn$; (iv) derive the sample-complexity $n_{\mathrm{req}}=O(\Delta^{-2})$;
+and (v) separate statistical from structural uncertainty.
+
+\paragraph{One-line thesis.}
+1.1 says ``stable iff $\eps<\gamma/\beta$.'' But you never know $\eps$; you know
+$\epshat\pm\dn$ from $n$ episodes. The honest object is the \emph{certificate}:
+declare stable only when the whole ambiguity ball is on the stable side,
+$\epshat+\dn<\gamma/\beta$. The robust boundary sits a margin $\dn=O(1/\sqrt{n})$
+inside the nominal one, and the sample size to resolve the crossing blows up as
+$(\text{distance to boundary})^{-2}$. The CRN trick in the existing probe is exactly
+what makes that margin shrink at $1/\sqrt{n}$ rather than $n^{-1/3}$.
+
+% ===========================================================================
+\section{Carry-over and new notation}
+
+From \code{01-analytic-stability-boundary} and \code{03-multi-dealer-systemic-risk}:
+%
+\[
+  m=\eps\beta/\gamma,\qquad \epsstar=\gamma/\beta\ \ (\text{multi-dealer: }\gamma/(\Neff\beta)),
+  \qquad \mhat=\frac{|\BR(h+\delta)-\BR(h-\delta)|}{2\delta}\ \ (\text{CRN probe}).
+\]
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Symbol & Reading & Definition \\
+\midrule
+$n$        & episodes per estimate                & \code{rrm.eval\_episodes} / rollouts \\
+$S$        & seeds for cross-seed variance        & \S3, \S8 \\
+$\epshat$  & estimator of $\eps$ from $n$ episodes & \S1 ($=\mhat\,\gamma/\beta$, or Sinkhorn) \\
+$\sigma_\eps$ & per-episode estimator std          & \S2 (delta method / IPA) \\
+$\dn$      & ambiguity radius                      & $=z\,\sigma_\eps/\sqrt{n}=O(1/\sqrt{n})$ \\
+$a,z$      & miscoverage; $z=z_{1-a}$              & \S2 \\
+$U_n$      & ambiguity set                         & $\eps$-ball or Wasserstein ball, \S3 \\
+$\epsrob$  & robust boundary                       & $=\epsstar-\dn$, \S4 \\
+$\Delta$   & distance of truth to boundary         & $=|\epsstar-\eps|$, \S5 \\
+$n_{\mathrm{req}}$ & episodes to certify at $\Delta$ & $=(z\sigma_\eps/\Delta)^2$, \S5 \\
+$\lambda$  & Sinkhorn regularisation               & \S3 \\
+$\eta_{\mathrm{mod}}$ & structural relative ambiguity & \S6 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===========================================================================
+\section{The estimation problem}
+
+The nominal theory is deterministic, $\eps<\gamma/\beta$, but $\eps$ is never
+observed -- it is estimated by the CRN BR-slope probe (or a Sinkhorn/CKS estimator)
+from $n$ episodes. The probe returns the modulus $\mhat$; since $\gamma,\beta$ are
+closed forms, $\epshat=\mhat\,\gamma/\beta$ and
+$\mathrm{Var}(\epshat)=(\gamma/\beta)^2\mathrm{Var}(\mhat)$. Deciding
+``stable vs.\ unstable'' is a test of $H_0:\eps\ge\epsstar$ vs.\ $H_1:\eps<\epsstar$;
+a point estimate without its sampling error is the overclaim this priority prevents.
+
+% ===========================================================================
+\section{Concentration -- and why CRN is load-bearing}
+
+\paragraph{Smooth functional of sample averages.}
+$\BR$ solves the FOC $F(h;\theta)=0$ with $\theta$ the population flow moments;
+empirically $\hat\BR_n=\BR(\hat\theta_n)$, $\hat\theta_n=\tfrac1n\sum_i X_i$. As
+$F_h=-\gamma\ne0$, the implicit-function theorem + CLT + delta method give
+$\sqrt{n}(\hat\BR_n-\BR)\to N(0,\nabla\BR^{\!\top}\Sigma_X\nabla\BR)$.
+
+\paragraph{Naive finite difference: $O(n^{-1/3})$.}
+With \emph{independent} noise in the two deployments,
+%
+\[
+  \text{bias}=O(\delta^2),\qquad
+  \mathrm{Var}(\mhat)=\frac{\sigma_{\BR}^2}{2\delta^2 n}=O\!\Big(\frac{1}{\delta^2 n}\Big),
+\]
+%
+so $\mathrm{MSE}=O(\delta^4)+O(1/(\delta^2 n))$ is minimised at $\delta\sim n^{-1/6}$,
+giving $\mathrm{MSE}=O(n^{-2/3})$, i.e.\ $|\mhat-m|=O_p(n^{-1/3})$.
+
+\paragraph{CRN restores $O(1/\sqrt{n})$.}
+\code{response\_modulus.py} drives both probes with the \emph{same} generators, so
+the difference is a pathwise (IPA) derivative:
+%
+\[
+  D(\delta,\omega)=\hat\BR_n(h+\delta;\omega)-\hat\BR_n(h-\delta;\omega)
+  =2\delta\,\partial_h\BR(h;\omega)+O(\delta^3),
+\]
+%
+whence the $O(1)$ fluctuations cancel and
+$\mathrm{Var}(\mhat)=\mathrm{Var}(D)/(4\delta^2)=\sigma_{\mathrm{IPA}}^2/n+O(\delta^2)$,
+which is $O(1/n)$ \emph{uniformly in} $\delta$. Taking $\delta$ small kills the bias
+for free:
+%
+\begin{equation}
+  |\mhat-m|=O_p(1/\sqrt{n}),\qquad |\epshat-\eps|=O_p(1/\sqrt{n}).
+  \tag{$*$}
+\end{equation}
+%
+\emph{The $O(1/\sqrt{n})$ radius is bought by the variance-reduction design already
+in the code}, not assumed.
+
+\paragraph{Finite-sample certificate.}
+If the per-episode IPA derivative is sub-Gaussian ($\sigma_\eps$, cap slack A4),
+Hoeffding gives $P(|\epshat-\eps|>t)\le 2e^{-nt^2/(2\sigma_\eps^2)}$, so w.p.\ $\ge1-a$,
+%
+\begin{equation}
+  |\epshat-\eps|\le \dn:=\sigma_\eps\sqrt{2\log(2/a)/n}=O(\sqrt{\log(1/a)/n}).
+  \tag{$**$}
+\end{equation}
+
+% ===========================================================================
+\section{The ambiguity set}
+
+\paragraph{$\eps$-ball from cross-seed variance.}
+Run $S$ seeds, each on $n$ episodes: $\ebar=\tfrac1S\sum_s\epshat^{(s)}$,
+$s_\eps^2=\tfrac1{S-1}\sum_s(\epshat^{(s)}-\ebar)^2$ estimate $\eps$ and
+$\sigma_\eps^2/n$. Set $U_n=[\ebar-\dn,\ebar+\dn]$ with $\dn=z_{1-a}s_\eps$ (single
+$n$-episode estimate) or $z_{1-a}s_\eps/\sqrt{S}$ (pooled $Sn$). The $1/\sqrt{n}$
+scaling is then \emph{tested} (\S8), not assumed.
+
+\paragraph{Wasserstein ball / Sinkhorn rate.}
+$\eps$ is a $W_1$-Lipschitz constant, so the principled set is
+$U_n^{W}=\{Q:W_1(Q,\hat D_n)\le r_n\}$. Raw empirical $W_1$ is cursed,
+$O(n^{-1/d})$; the \emph{entropic/Sinkhorn} estimator (fixed $\lambda$) has bias
+$O(\lambda)$ and $O(1/\sqrt{n})$ std (Cuturi \& Peyr\'e 2019, Ch.~7), realising the
+$1/\sqrt{n}$ radius. By $W_1$-DRO duality (worst-case risk $=$ nominal $+\,r\times$
+Lipschitz), an $r_n=O(1/\sqrt{n})$ ball coincides to leading order with the
+$\eps$-ball; tuning $\lambda$ balances bias vs.\ $\sigma/\sqrt{n}$.
+
+% ===========================================================================
+\section{The robust stability certificate}
+
+\begin{definition}[robust-stable]
+A configuration is robust-stable at confidence $1-a$ if
+$\sup_{\eps'\in U_n} m(\eps')=\sup_{\eps'\in U_n}\eps'\beta/\gamma<1$.
+\end{definition}
+
+\begin{theorem}[robust boundary]
+With the CRN BR-slope (or fixed-$\lambda$ Sinkhorn) estimator and $\dn=O(1/\sqrt{n})$,
+a configuration is robust-stable at confidence $1-a$ iff
+%
+\[
+  \ebar+\dn<\gamma/\beta
+  \quad\Longleftrightarrow\quad
+  \ebar<\epsrob:=\gamma/\beta-\dn .
+\]
+%
+The robust boundary is strictly inside the nominal one, and
+$\epsstar-\epsrob=\dn=O(1/\sqrt{n})\to0$. The band
+$[\,\gamma/\beta-\dn,\ \gamma/\beta+\dn\,]$ is the ``undecided'' region.
+\end{theorem}
+
+\begin{proof}
+$m(\eps')=\eps'\beta/\gamma$ is affine increasing, so the sup over
+$U_n=[\ebar-\dn,\ebar+\dn]$ is at the upper endpoint; requiring it $<1$ gives the
+certificate. $\epsrob<\epsstar$ since $\dn>0$, and the limit follows from $(*)$.
+\end{proof}
+
+\noindent This is Cao \& Shi's claim -- the robust stable point lies inside the
+nominal region and widens the margin -- made quantitative: the widening is $\dn$,
+vanishing at $1/\sqrt{n}$.
+
+% ===========================================================================
+\section{Sample complexity}
+
+With $\Delta:=|\epsstar-\eps|$, deciding stability at confidence $1-a$ needs
+$\dn<\Delta$, i.e.
+%
+\begin{equation}
+  n_{\mathrm{req}}(\Delta)=\big(z_{1-a}\,\sigma_\eps/\Delta\big)^2=O(\Delta^{-2}).
+\end{equation}
+%
+As $\Delta\to0$, $n_{\mathrm{req}}\to\infty$: no finite simulation resolves the
+exact crossing, so a single ``$\epsstar=0.47$'' is undefinable -- only ``stable /
+unstable / undecided at $n$ episodes.'' The predictions $n_{\mathrm{req}}\sim\Delta^{-2}$
+and $\dn\sim n^{-1/2}$ (log-log slope $-1/2$) are falsifiable (\S8); a slope near
+$-1/3$ would reveal a broken CRN coupling (\S3).
+
+% ===========================================================================
+\section{Corollaries}
+
+\begin{corollary}[robust systemic boundary]
+Composing with 1.3, robust-stable for $N$ dealers iff $\ebar+\dn<\gamma/(\Neff\beta)$,
+so $\epsrob^{N}=\gamma/(\Neff\beta)-\dn$. The same absolute $\dn$ eats a larger
+fraction of the stable region as $N$ grows, and $\Delta_N$ shrinks with $N$, so
+$n_{\mathrm{req}}\sim\Delta_N^{-2}$ \emph{increases}: systemic markets are more
+fragile \emph{and} harder to certify.
+\end{corollary}
+
+\begin{corollary}[statistical vs.\ structural]
+$\dn$ is statistical (shrinks with $n$). Model misspecification is a fixed relative
+ambiguity $\eta_{\mathrm{mod}}$; the total set is
+$[\ebar(1-\eta_{\mathrm{mod}})-\dn,\ \ebar(1+\eta_{\mathrm{mod}})+\dn]$ and
+robust-stable iff $\ebar(1+\eta_{\mathrm{mod}})+\dn<\gamma/\beta$. As $n\to\infty$,
+$\dn\to0$ but $\eta_{\mathrm{mod}}$ remains: more simulation cannot buy away
+misspecification.
+\end{corollary}
+
+\begin{corollary}[one-sided coverage]
+By monotonicity of $m$ in $\eps$, the upper-confidence-bound rule has
+$P(\text{declare stable}\mid\text{truly unstable})\le a$: it never over-claims
+stability beyond $a$ -- the correct asymmetry for a risk statement.
+\end{corollary}
+
+% ===========================================================================
+\section{Validation protocol and remaining code task}
+
+\textbf{Predict.} From 1.1 compute $\eps,\epsstar,\Delta$; predict $\dn,\epsrob,n_{\mathrm{req}}$.
+\textbf{Measure.} For a geometric grid in $n$ and $S$ seeds, run the probe, form
+$\ebar,s_\eps,\dn$.
+\textbf{Check:} (i) $s_\eps$ vs.\ $n$ log-log slope $-1/2$; (ii) certificate flips at
+$\epsrob$, gap collapses as $1/\sqrt{n}$; (iii) $n_{\mathrm{req}}\sim\Delta^{-2}$.
+Report the phase diagram with nominal boundary, robust boundary, and shaded
+undecided band.
+
+\textbf{Code (out of scope here):} a thin \code{analysis/robust\_boundary.py}
+wrapping the existing probe in a cross-seed loop, returning
+$(\ebar,\dn,\epsrob,\text{band})$ and the rate check; optionally
+\code{analysis/sinkhorn\_epsilon.py}. No change to the market model.
+
+% ===========================================================================
+\section{Honest caveats}
+\begin{itemize}[leftmargin=1.4em]
+  \item The $1/\sqrt{n}$ rate is a property of the \emph{estimator} (CRN /
+  fixed-$\lambda$ Sinkhorn); naive difference gives $n^{-1/3}$, raw $W_1$ gives
+  $n^{-1/d}$. The log-log slope check is its falsification test.
+  \item Sub-Gaussianity assumes the cap slack (A4); deep past the boundary use a
+  Bernstein / median-of-means variant.
+  \item Cross-seed $s_\eps$ conflates estimator noise with reference-state drift
+  unless $\gamma,\beta,h^*$ are held fixed; report $\dn$ per reference state.
+  \item Structural $\eta_{\mathrm{mod}}$ does not shrink; the $(c_t,I)$ sensitivity
+  sweep must accompany $\dn$ or the robustness is illusory.
+  \item The CLT radius $(*)$ and finite-sample $(**)$ agree in rate, differ in
+  constant; use $(**)$ for any hard certificate.
+\end{itemize}
+
+% ===========================================================================
+\section*{References}
+\begin{itemize}[leftmargin=1.4em]
+  \item T.\ Cao, R.\ Shi. \emph{Distributionally Robust Performative Prediction.}
+  arXiv:2206.01844, 2022. -- minimax stable point; robust point inside the nominal
+  region, widening the margin. (Lit.\ \#13.)
+  \item M.\ Cuturi, G.\ Peyr\'e. \emph{Computational Optimal Transport.} 2019
+  (arXiv:1803.00567), Ch.~7. -- entropic/Sinkhorn estimation and its $O(1/\sqrt{n})$
+  sample complexity with $O(\lambda)$ bias (\S4). (Lit.\ \#14.)
+  \item J.\ Perdomo, T.\ Zrnic, C.\ Mendler-D\"unner, M.\ Hardt. \emph{Performative
+  Prediction.} ICML 2020. -- $\eps$ as the $W_1$-Lipschitz sensitivity.
+  \item Supporting: sub-Gaussian (Hoeffding) tail for $(**)$; delta-method /
+  M-estimator CLT for $(*)$; Genevay et al.\ and Mena \& Niles-Weed for the
+  entropic-OT parametric rate.
+  \item Builds on \code{01-analytic-stability-boundary} (closed forms + CRN probe)
+  and \code{03-multi-dealer-systemic-risk} (\S6.1).
+\end{itemize}
+
+\end{document}
