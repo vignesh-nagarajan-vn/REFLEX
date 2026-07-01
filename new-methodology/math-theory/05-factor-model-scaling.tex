@@ -1,0 +1,297 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+% 1.5 - Scaling to 100+ Correlated Bonds: the Modulus Matrix and its
+%        Factor-Reduction Error Bound
+% LaTeX companion to 05-factor-model-scaling.md (REFLEX / math-theory).
+% Self-contained and compilable with pdflatex.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\BR}{\mathrm{BR}}
+\newcommand{\Gam}{\Gamma}
+\newcommand{\Sig}{\Sigma}
+\newcommand{\Mmat}{M}
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\bh}{\bm{h}}
+\newcommand{\bq}{\bm{q}}
+
+\title{\textbf{1.5 - Scaling to 100+ Correlated Bonds:\\ the Modulus Matrix and its Factor-Reduction Error Bound}}
+\author{REFLEX project - \code{math-theory}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{STATUS: DONE (Priority 5, derivation/theorem).} This document
+discharges the \emph{mathematical} content of methodology target \textbf{1.5}. It
+lifts the scalar boundary of 1.1 from one bond to a universe of $d$ correlated
+bonds, replacing the scalar modulus $m=\eps\beta/\gamma$ by a $d\times d$
+\textbf{modulus matrix}
+%
+\[
+  \Mmat = \beta\,\Gam^{-1}E,\qquad \text{stable}\iff \rho(\Mmat)<1,
+\]
+%
+and makes the $d=100+$ regime tractable and honest via the factor structure already
+present in \code{bonds.py}: $\Gam$ is diagonal-plus-low-rank, so $\Mmat$ and its
+boundary are computable in $O(dk^2)$ (Woodbury / Bergault-Gu\'eant), and truncating
+to $k$ factors perturbs the boundary by an amount linear in the residual factor
+variance $\|R\|=\lambda_{k+1}(C)$ (Theorem 1).
+
+\paragraph{One-line thesis.}
+One bond is stable iff a scalar $m<1$. A book of $d$ correlated bonds is stable iff
+the $d\times d$ matrix $\Mmat=\beta\Gam^{-1}E$ has spectral radius below $1$ - and
+because inventory risk couples bonds through their shared factor covariance, the
+most fragile direction is the \textbf{market factor}: the whole book re-quoting in
+unison. The curse of dimensionality is defused by the same factor structure that
+causes it.
+
+% ===========================================================================
+\section{Carry-over and new notation}
+
+For each bond $i$ (own microstructure $A_i,k_i,c_{t,i},I_i$):
+%
+\begin{align*}
+  \gamma_i &= P[\,2w + A_i\rho k_i e^{-k_i h_i}(2-k_i h_i) + \lambda_{q,i}\,], &
+  \beta &= P,\\
+  \eps_i &= \rho\bar g\,\alpha f I_i c_{t,i} e^{-c_{t,i}h_i}, &
+  m_1^{(i)} &= \eps_i\beta/\gamma_i .
+\end{align*}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Symbol & Reading & Definition / source \\
+\midrule
+$d$ & number of bonds & \code{bonds.n\_bonds} \\
+$\bh$ & spread vector & per-bond $b_h$ \\
+$C$ & $d\times d$ correlation matrix & \code{BondUniverse.corr} \\
+$\Sig$ & covariance $=D_\sigma C D_\sigma$ & $D_\sigma=\diag(\sigma_i)$ \\
+$B,\Lambda,D_{\mathrm{idio}}$ & loadings / factor cov / idiosyncratic & $C=B\Lambda B^{\!\top}+D_{\mathrm{idio}}$ \\
+$k$ & retained factors, $k\ll d$ & $1+\code{n\_sectors}$ \\
+$\zeta$ & inventory risk aversion & $\propto\code{reward.inv\_risk\_weight}$ \\
+$G$ & $\diag(dq_i/dh_i)$ & \S2 \\
+$\Gam$ & Hessian $=D_\gamma+\zeta' G\Sig G$ & \S2 \\
+$E$ & $\diag(\eps_1..\eps_d)$ & \S2 \\
+$\Mmat$ & modulus matrix $=\beta\Gam^{-1}E$; stable iff $\rho(\Mmat)<1$ & \S2--\S3 \\
+$R$ & dropped-factor residual $C-C_k$; $\|R\|=\lambda_{k+1}(C)$ & \S5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===========================================================================
+\section{Setup: the $d$-bond maker and the \code{bonds.py} factor model}
+
+A single dealer quotes $d$ bonds, holding inventory $\bq\in\mathbb{R}^d$; the new
+ingredient is cross-bond inventory risk through $\Sig$.
+
+\begin{assumption}[factor covariance is \code{bonds.py}'s]
+$C=\code{BondUniverse.corr}$ is, by construction, a factor model: a global market
+factor (loading $\sqrt{\code{global\_factor}}$ on every bond) $+$ per-sector blocks
+$+$ idiosyncratic residual, i.e.\ $C=B\Lambda B^{\!\top}+D_{\mathrm{idio}}$ with
+$k=1+\code{n\_sectors}$ factors. $\Sig=D_\sigma C D_\sigma$.
+\end{assumption}
+
+\begin{assumption}[per-bond toxic channel; quadratic inventory value]
+Toxic flow is per-bond ($\eps_i$); the cross-sectional coupling is the inventory
+penalty $(P\zeta/2)\bq^{\!\top}\Sig\bq$ (Gu\'eant/Avellaneda-Stoikov form).
+\end{assumption}
+
+% ===========================================================================
+\section{The multi-bond objective and the modulus matrix}
+
+Summing 1.1 termwise and subtracting the inventory penalty (with $G=\diag(dq_i/dh_i)$):
+%
+\[
+  J(\bh)=\sum_i P\big[h_iA_ie^{-k_ih_i}\rho+h_iT_i-\psi_iT_i-w(h_i-h_{\mathrm{ref}})^2\big]
+  -\tfrac{P\zeta}{2}\bq(\bh)^{\!\top}\Sig\,\bq(\bh).
+\]
+%
+Differentiating in $\bh$:
+%
+\begin{align*}
+  \Gam &:= -\partial^2_{\bh\bh}J = D_\gamma + \zeta' G\Sig G,\quad \zeta':=P\zeta,\quad
+  D_\gamma=\diag(\gamma_i^0),\\
+  \partial^2 J/\partial h_i\partial T_j &= P\,[i{=}j]\ \Rightarrow\ \beta I,\ \beta=P;\qquad
+  d\tau_i/dh_i^{\mathrm{dep}}=-\eps_i\ \Rightarrow\ E=\diag(\eps_i).
+\end{align*}
+%
+$\Gam\succ0$ with off-diagonals $\zeta' g_i\Sig_{ij}g_j$ - the cross-bond coupling.
+The FOC IFT ($F_h=-\Gam$, $F_T=\beta I$, $d\tau/d\bh^{\mathrm{dep}}=-E$) gives
+$J_{\BR}=-\beta\Gam^{-1}E$, so the loop contracts iff $\rho(\Mmat)<1$ with
+%
+\begin{equation}
+  \boxed{\;\Mmat=\beta\Gam^{-1}E=P\,\Gam^{-1}\diag(\eps_i)\;}
+\end{equation}
+
+% ===========================================================================
+\section{The boundary and its structure}
+
+\paragraph{Sanity checks.}
+Uncorrelated book: $\Sig,\Gam$ diagonal, $\Mmat=\diag(m_1^{(i)})$,
+$\rho(\Mmat)=\max_i m_1^{(i)}$ (the least-stable bond sets the boundary).
+$d=1$: $\rho(\Mmat)=m_1$. \checkmark
+
+\paragraph{Market-factor mode.}
+The coupling in $\Gam$ lives entirely in the low-rank $\zeta'G(D_\sigma B)\Lambda(D_\sigma B)^{\!\top}G$,
+so the top eigenvector of $\Mmat$ aligns with the top factor of $\Sig$ - the
+\textbf{global market factor}. The fragile direction is the whole book re-quoting
+together (synchronised correlated inventory, undiversifiable), the cross-sectional
+twin of 1.3's common dealer mode; idiosyncratic perturbations are damped more.
+
+\paragraph{Concentration.}
+At fixed per-bond feedback, a concentrated (high \code{global\_factor}) universe
+reaches $\rho(\Mmat)=1$ at a lower $f$ than a diversified one (\S7.1): correlation,
+not count, is the systemic variable.
+
+% ===========================================================================
+\section{Factor reduction: $O(dk^2)$ tractability}
+
+Fold the idiosyncratic part into the diagonal and invert by Woodbury:
+%
+\[
+  \Gam=D+U\Lambda U^{\!\top},\quad D=D_\gamma+\zeta'GD_\sigma D_{\mathrm{idio}}D_\sigma G,\quad
+  U=\sqrt{\zeta'}\,GD_\sigma B\ (d\times k),
+\]
+\[
+  \Gam^{-1}=D^{-1}-D^{-1}U(\Lambda^{-1}+U^{\!\top}D^{-1}U)^{-1}U^{\!\top}D^{-1}.
+\]
+%
+Forming $\Gam^{-1}$, $\Mmat=P\Gam^{-1}E$, and $\rho(\Mmat)$ by power iteration costs
+$O(dk^2+k^3)$ instead of $O(d^3)$ - Bergault-Gu\'eant's reduction applied to the
+\emph{stability operator}. Each $\Mmat v$ is a diagonal solve plus a rank-$k$ update;
+no dense $d\times d$ matrix is materialised.
+
+% ===========================================================================
+\section{The factor-truncation error bound}
+
+Retain the top $k$ factors, $C\approx C_k=B_k\Lambda_kB_k^{\!\top}$, dropping
+$R:=C-C_k$ with $\|R\|_2=\lambda_{k+1}(C)$; let $\Gam_k,\Mmat_k$ use $C_k$.
+
+\begin{theorem}[dimensionality-reduction error]
+With $\gamma_{\min}=\lambda_{\min}(D_\gamma)>0$, $\eps_{\max}=\max_i\eps_i$,
+$g_{\max}=\max_i|g_i|$,
+%
+\[
+  \|\Mmat-\Mmat_k\|_2\le \frac{P\,\eps_{\max}\,\zeta' g_{\max}^2}{\gamma_{\min}^2}\,\|R\|_2,
+  \qquad
+  |\rho(\Mmat)-\rho(\Mmat_k)|\le \kappa(V)\,\|\Mmat-\Mmat_k\|_2=O(\lambda_{k+1}(C)),
+\]
+%
+where $\kappa(V)$ is the eigenvector conditioning of $\Mmat$ (Bauer-Fike; $=1$ when
+$\Mmat$ is normal). Hence the feedback-gain boundary $f^*$ solving $\rho(\Mmat(f))=1$
+has $|f^*_k-f^*|=O(\lambda_{k+1}(C))$, linear in the residual factor variance and
+vanishing as $k\to d$.
+\end{theorem}
+
+\begin{proof}
+$\Gam,\Gam_k\succeq D_\gamma$ give $\|\Gam^{-1}\|,\|\Gam_k^{-1}\|\le1/\gamma_{\min}$.
+The resolvent identity with $\Gam-\Gam_k=\zeta'GD_\sigma RD_\sigma G$ yields
+$\|\Gam^{-1}-\Gam_k^{-1}\|\le(\zeta'g_{\max}^2\sigma_{\max}^2/\gamma_{\min}^2)\|R\|$;
+multiply by $\|\beta E\|=P\eps_{\max}$. Bauer-Fike bounds the eigenvalue
+perturbation of the diagonalisable $\Mmat$ by $\kappa(V)\|\Mmat-\Mmat_k\|$. Since
+$E$ (hence $\Mmat$) is linear in $f$, $d\rho/df>0$ is bounded below on the operating
+range, so dividing preserves the rate.
+\end{proof}
+
+\noindent This is the Bergault-Gu\'eant (2021) Proposition~4 analogue: the reduction
+error is closed-form in the residual variance, so a $k$-factor phase diagram carries
+a rigorous $O(\lambda_{k+1}(C))$ band. Choosing $k$ so $\lambda_{k+1}(C)$ (a
+computable eigenvalue of the known $C$) is below tolerance is the truncation rule.
+
+% ===========================================================================
+\section{Calibration}
+
+\textbf{Real data:} $\sigma_i\leftarrow \mathrm{DV01}_i\,\sigma_{\mathrm{rate}}$ with
+$\mathrm{DV01}_i=\text{duration}_i\cdot\text{price}_i\cdot10^{-4}$; $k_i,A_i$ from
+MLE of $\lambda(\delta)=A_ie^{-k_i\delta}$ on inter-trade times; $C$ from empirical
+bond-return correlations (rate/credit/sector PCA $\to B,\Lambda$); $\zeta$ from risk
+aversion. Then $\gamma_i,\eps_i$ from 1.1. \textbf{Synthetic (no data):} calibrate
+$\eps_i$ from the Cont-Kukanov-Stoikov informed-intensity slope
+$d\lambda_{\mathrm{informed}}/d\delta$ (1.1 \S8's third estimator), disclosed as
+synthetic.
+
+% ===========================================================================
+\section{Corollaries}
+
+\begin{corollary}[diversification is a stability lever]
+$f^*(\text{book})\sim f^*(\text{single})/\chi(C)$ with $\chi(C)\ge1$ the top-factor
+amplification ($=1$ for diagonal $C$, growing with \code{global\_factor}). Adding
+uncorrelated names leaves $\rho(\Mmat)=\max_i m_1^{(i)}$ unchanged; factor-correlated
+names inflate it.
+\end{corollary}
+
+\begin{corollary}[compose with 1.3 / 1.4]
+For $N$ dealers $\times$ $d$ bonds the fragile eigenvector is
+$(\bm{1}_{\text{dealers}})\otimes(\text{global bond factor})$ and
+$\rho_{\mathrm{sys}}\sim N_{\mathrm{eff}}\chi(C)m_1$, so stable iff
+$\eps<\gamma/(N_{\mathrm{eff}}\chi(C)\beta)$. The robust version (1.4) certifies iff
+$\hat\rho(\Mmat)+\delta_n<1$; the factor reduction makes the cross-seed re-estimation
+over 100+ bonds affordable.
+\end{corollary}
+
+% ===========================================================================
+\section{Validation protocol and remaining code task}
+
+\textbf{Predict:} factorise $C$; build $\Mmat$ via Woodbury; predict $\rho(\Mmat)$,
+$f^*$, the market-factor eigenvector, and the $O(\lambda_{k+1}(C))$ truncation error.
+\textbf{Measure:} generalise \code{response\_modulus.py} to a CRN finite difference
+along the top factor eigenvector $v_1$,
+$\hat\rho(\Mmat)=\|\BR(\bh^*+\delta v_1)-\BR(\bh^*-\delta v_1)\|/(2\delta)$.
+\textbf{Compare:} $\hat\rho(\Mmat)$ vs $f$ over a $d=100+$ universe with median$+$IQR
+over universe draws; overlay the predicted boundary, the \code{global\_factor}-sweep
+diversification law, and the shrinking $k$-factor error band. \textbf{Code (out of
+scope):} \code{analysis/factor\_reduction.py} (factorise, Woodbury, error bound);
+factor-mode probe; per-bond calibration from \code{bonds.features}. $d=1$ / diagonal
+$C$ reproduces 1.1.
+
+% ===========================================================================
+\section{Honest caveats}
+\begin{itemize}[leftmargin=1.4em]
+  \item The inventory coupling is the modelled cross-sectional channel; $\zeta\to0$
+  decouples into 1.1 bond-by-bond ($\rho(\Mmat)\to\max_i m_1^{(i)}$).
+  \item $G=\diag(dq_i/dh_i)$ is a first-order operating-point sensitivity; large
+  fills / non-zero skew add cross-bond and nonlinear terms.
+  \item Bauer-Fike $\kappa(V)>1$ for strongly non-normal (very heterogeneous)
+  books; report it rather than assuming $\kappa(V)=1$.
+  \item Calibration provenance: absent TRACE, disclose the synthetic CKS route.
+  \item Reference-state constants / cap slack as in 1.1 \S9; the phase diagram is a
+  band over reference states \emph{and} universe draws.
+  \item Single dealer here; the $N$-dealer $\times$ $d$-bond Kronecker spectrum is
+  the 1.3 $\times$ 1.5 follow-on.
+\end{itemize}
+
+% ===========================================================================
+\section*{References}
+\begin{itemize}[leftmargin=1.4em]
+  \item P.\ Bergault, O.\ Gu\'eant. \emph{Size Matters for OTC Market Makers:
+  General Results and Dimensionality Reduction Techniques.} Mathematical Finance,
+  2021. arXiv:1907.01225. - factor reduction (\S4) and residual-variance error bound
+  (Prop.~4; \S5). (Lit.\ \#9.)
+  \item R.\ Cont, A.\ Kukanov, S.\ Stoikov. \emph{The Price Impact of Order Book
+  Events.} J.\ Fin.\ Econometrics, 2014. arXiv:1011.6402. - synthetic $\eps_i$
+  calibration (\S6). (Lit.\ \#18.)
+  \item Avellaneda-Stoikov; Gu\'eant-Lehalle-Fern\'andez-Tapia (GLFT) - fill
+  intensity and quadratic inventory value (\S1--\S2).
+  \item Weyl's inequality and the Bauer-Fike theorem (\S5); the Woodbury identity
+  (\S4).
+  \item Builds on \code{01-analytic-stability-boundary}; composes with
+  \code{03-multi-dealer-systemic-risk} and \code{04-robust-uncertainty} (\S7).
+\end{itemize}
+
+\end{document}

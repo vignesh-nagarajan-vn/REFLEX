@@ -103,7 +103,19 @@ Target result: a distributionally robust stable point — the policy stable unde
 - Fit the ambiguity set from cross-seed variance in estimated `ε`.
 - Report both nominal and robust stability boundaries; without this, a point estimate of `ε*` is not a statistically defensible claim.
 
-**1.5 — Scale and calibration (Priority 5)**
+**1.5 — Scale and calibration (Priority 5) — STATUS: DONE (derivation).** The
+factor-model lift to `d` correlated bonds is derived in
+[`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md).
+The scalar modulus becomes a `d × d` modulus matrix `M = β·Γ⁻¹·E` with boundary
+`ρ(M) < 1`; the unstable direction is the global market factor (the cross-sectional
+twin of 1.3's common dealer mode). The Hessian `Γ = D_γ + ζ·G·Σ·G` inherits the
+diagonal-plus-low-rank structure of the `bonds.py` factor covariance, so `M` and its
+boundary are computable in `O(d·k²)` via Woodbury (Bergault–Guéant), and truncating
+to `k` factors perturbs the boundary by an amount **linear in the residual factor
+variance `λ_{k+1}(C)`** (a Bergault–Guéant Proposition-4 analog). The calibration map
+(duration/DV01/spread-vol, or synthetic CKS) and the composition with 1.3/1.4 are
+included. The remaining *code* task — factorising `corr`, the market-factor probe,
+and per-bond calibration — is pending.
 
 Target: extend the phase diagram from a single bond/single dealer to 100+ correlated bonds via factor-model dimensionality reduction (Bergault & Guéant), with `γ`/`β` calibrated from real bond characteristics (duration, DV01, spread volatility) or, absent real data, from a synthetic Cont–Kukanov–Stoikov microstructure calibration.
 
@@ -177,8 +189,8 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Derive the mean-field (`N → ∞`) limit of the stability boundary — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §7 (collapsing fixed-`κ` vs. finite `κ = c/N` regimes)
 - [x] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4) — [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §3–§4 (`ε`-ball / Wasserstein ball; robust certificate `ε̂_n + δ_n < γ/β`)
 - [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size — derived in [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §2 (CRN gives parametric rate; naive difference `O(n^{−1/3})`) + §5 sample complexity; empirical log-log slope check + `analysis/robust_boundary.py` code still pending
-- [ ] Extend to 100+ correlated bonds via factor-model reduction (Priority 5)
-- [ ] Derive and report the dimensionality-reduction error bound
+- [x] Extend to 100+ correlated bonds via factor-model reduction (Priority 5) — derived in [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §2–§4 (modulus matrix `M = β·Γ⁻¹·E`, `O(d·k²)` Woodbury reduction); `analysis/factor_reduction.py` code + per-bond calibration still pending
+- [x] Derive and report the dimensionality-reduction error bound — [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`, linear in residual factor variance, via Weyl / Bauer–Fike)
 
 ### Data collection
 - [ ] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure
