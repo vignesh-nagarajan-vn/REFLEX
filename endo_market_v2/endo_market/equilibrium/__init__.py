@@ -20,3 +20,29 @@ __all__ = [
 from .rrm_loop import RRMIterate, RRMTrajectory, run_rrm  # noqa: E402
 
 __all__ += ["RRMIterate", "RRMTrajectory", "run_rrm"]
+
+from .perfgd_loop import (  # noqa: E402
+    EchoChamberGap,
+    PerfGDResult,
+    analyze_perfgd,
+    echo_chamber_gap,
+    gamma_po,
+    perfgd_correction,
+    perfgd_gradient,
+    run_perfgd,
+    run_rrm_cobweb,
+    solve_performative_optimum,
+)
+
+__all__ += [
+    "EchoChamberGap",
+    "PerfGDResult",
+    "analyze_perfgd",
+    "echo_chamber_gap",
+    "gamma_po",
+    "perfgd_correction",
+    "perfgd_gradient",
+    "run_perfgd",
+    "run_rrm_cobweb",
+    "solve_performative_optimum",
+]

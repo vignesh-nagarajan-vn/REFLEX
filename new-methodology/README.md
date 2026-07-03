@@ -58,8 +58,13 @@ echo-chamber gap are derived in
 correction term is `Δ = (∂J/∂T)·(dτ/dh) = −β(h−ψ)ε`, built entirely from 1.1's
 closed forms (no estimation). PerfGD is governed by the objective curvature
 `γ_PO = γ + βε(2 + c_t·ψ − c_t·h_PO)`, not the cobweb modulus, so it converges
-where RRM diverges. The remaining *code* task — `equilibrium/perfgd_loop.py` — is
-not yet implemented.
+where RRM diverges. **The code is now implemented** in
+[`endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py)
+(built on the shared closed-form foundation
+[`analysis/analytic_boundary.py`](../endo_market_v2/endo_market/analysis/analytic_boundary.py)):
+the analytic correction `Δ`, the performative optimum `h_PO`, `γ_PO`, the
+echo-chamber gap, and a demonstration that the blind RRM cobweb diverges while
+PerfGD converges for `ε` beyond `ε*` (tests in `tests/test_perfgd_loop.py`).
 
 Target theorem: under GLFT microstructure, a Performative Gradient Descent (PerfGD)–corrected loop, using the analytic `dD/dφ` from 1.1, converges to the performative optimum (PO) at rate `O(1/k)` and remains stable for `ε` beyond the repeated-risk-minimization (RRM) boundary `ε*`.
 
@@ -75,9 +80,15 @@ eigenvalue scales by the effective dealer count `N_eff = 1 + κ·(N−1)`, givin
 boundary `ε < γ/(N_eff·β)` (the headline `ε < γ/(N·β)` at full toxic spillover
 `κ = 1`; `κ = 0` recovers the single-dealer boundary). PSNE existence/uniqueness,
 joint convergence (`γ_joint = γ − N_eff·ε·β`), the mean-field `N → ∞` limit, and
-the systemic critical dealer count `N_c = 1/m₁` are all derived. The remaining
-*code* task — an `N`-dealer simulator mode + common-mode BR-slope probe — is
-pending.
+the systemic critical dealer count `N_c = 1/m₁` are all derived. **The code is now
+implemented** in
+[`endo_market_v2/endo_market/analysis/multi_dealer_modulus.py`](../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py):
+the closed-form boundary, the `N×N` joint Jacobian and its spectrum, the
+mean-field limits, a genuine `N`-dimensional joint best-response cobweb, and the
+in-phase / anti-phase empirical probes (which reuse the single-dealer BR-slope
+machinery via an `N_eff`-amplified effective config, so no simulator surgery is
+needed — the `clients.n_dealers` / `clients.toxic_spillover` config fields are
+added). Tests in `tests/test_multi_dealer.py`.
 
 Target theorem: for `N` symmetric dealers, the performatively stable Nash equilibrium (PSNE) boundary generalizes to `ε < γ/(N·β)`, with joint effective curvature `γ_joint ≈ γ − N·ε·β`. Market-wide instability — all dealers crossing the boundary simultaneously — emerges at `N·ε·β/γ = 1`.
 
@@ -180,10 +191,10 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [ ] Build CKS-implied informed-flow slope estimator for `ε`
 - [ ] Verify agreement across all three `ε` estimators (triangulation)
 - [x] Prove the analytic stability boundary theorem (Priority 1) — [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.4
-- [ ] Implement PerfGD using the analytic `dD/dφ` — closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; `equilibrium/perfgd_loop.py` code still pending
+- [x] Implement PerfGD using the analytic `dD/dφ` — closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; implemented in [`endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) (+ shared [`analysis/analytic_boundary.py`](../endo_market_v2/endo_market/analysis/analytic_boundary.py))
 - [x] Prove PerfGD convergence rate to the performative optimum (Priority 2) — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §4–5 (`O(1/k)`, linear at `1−η·γ_PO`, stable beyond `ε*`)
 - [x] Derive the echo-chamber (stable-vs-optimal) gap as a function of `ε` — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §6 (`O(ε)` decision gap, `O(ε²)` value gap); empirical measurement pending
-- [ ] Extend simulator to `N` dealers with shared induced distribution — derivation done in [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §10 (`clients.n_dealers`, `clients.toxic_spillover`, coupled `tau_i`); `analysis/multi_dealer_modulus.py` code still pending
+- [x] Extend to `N` dealers with shared induced distribution — implemented in [`endo_market_v2/endo_market/analysis/multi_dealer_modulus.py`](../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py) with new config fields `clients.n_dealers` / `clients.toxic_spillover`; the coupled `tau_i` (§2.1) drives the genuine `N`-dim joint cobweb, and the common-mode / anti-phase empirical probes reuse the single-dealer BR-slope machinery via an `N_eff`-amplified effective config
 - [x] Prove PSNE existence for `N`-dealer competition (Priority 3) — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §4–§5 (boundary `ε < γ/(N_eff·β)`, Brouwer existence + Banach uniqueness)
 - [x] Prove joint convergence rate under variational stability — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §6 (linear at `m_N`; `O(1/k)` under `γ_joint > 0`, variational-stability fallback)
 - [x] Derive the mean-field (`N → ∞`) limit of the stability boundary — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §7 (collapsing fixed-`κ` vs. finite `κ = c/N` regimes)
@@ -208,8 +219,8 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 ### Model architecture
 - [ ] Select architecture for learned operator `T_θ`
 - [ ] Implement GLFT/Avellaneda–Stoikov baseline policy
-- [ ] Implement PerfGD correction module
-- [ ] Implement `N`-dealer multi-agent extension
+- [x] Implement PerfGD correction module — [`equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) (`perfgd_correction`, `perfgd_gradient`, `run_perfgd`)
+- [x] Implement `N`-dealer multi-agent extension — [`analysis/multi_dealer_modulus.py`](../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py) (analytic boundary + genuine `N`-dim joint cobweb `run_joint_rrm`)
 - [ ] Implement BR-slope, Sinkhorn, and CKS estimator heads as diagnostics
 
 ### Training and tuning

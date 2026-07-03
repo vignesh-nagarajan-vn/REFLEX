@@ -1,7 +1,7 @@
 # 1.3 - Multi-Dealer Competition and Systemic Performative Instability
 
-**STATUS: DONE (Priority 3, derivation/theorem).** This document discharges the
-*mathematical* content of methodology target **1.3** in
+**STATUS: DONE (Priority 3, derivation/theorem + code).** This document discharges
+the *mathematical* content of methodology target **1.3** in
 [`../README.md`](../README.md). It lifts the single-dealer closed forms of
 [`01-analytic-stability-boundary.md`](01-analytic-stability-boundary.md) to `N`
 competing dealers who share a common informed-flow pool, and derives:
@@ -25,10 +25,10 @@ competing dealers who share a common informed-flow pool, and derives:
 
 The single-dealer modulus `m_1 = epsilon*beta/gamma` of 1.1 is the building block;
 *every* constant below is one of 1.1's closed forms, so this lift requires **no new
-estimation** -- only the `N`-dealer linear algebra. The remaining *code* task --
-adding a shared-toxic-pool `N`-dealer mode to the simulator and a common-mode
-BR-slope probe -- is called out in §10 and is deliberately out of scope for the
-math-theory deliverable.
+estimation** -- only the `N`-dealer linear algebra. The companion *code* --
+[`analysis/multi_dealer_modulus.py`](../../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py),
+the closed-form boundary, the joint cobweb, and the common-mode / anti-phase probes --
+is now implemented (§10).
 
 > **One-line thesis.** A single dealer is stable iff `m_1 = epsilon*beta/gamma < 1`.
 > Put `N` of them in a market that shares one informed-flow pool and the
@@ -535,8 +535,8 @@ the `(N, f)` (equivalently `(N, epsilon)`) plane, not `(N, alpha)`.
 
 | Symbol | Meaning | Config field | Status |
 |--------|---------|--------------|--------|
-| `N` | number of dealers | `clients.n_dealers` | **proposed** (single-dealer today) |
-| `kappa` | toxic spillover across dealers | `clients.toxic_spillover` | **proposed** |
+| `N` | number of dealers | `clients.n_dealers` | **added** (default `1`) |
+| `kappa` | toxic spillover across dealers | `clients.toxic_spillover` | **added** (default `0.0`) |
 | `epsilon`, `beta`, `gamma`, `m_1` | single-dealer constants | derived in 1.1 (see its §7 map) | existing |
 | `N_eff` | effective dealer count `1+kappa(N-1)` | derived (§4) | - |
 | `m_N` | joint modulus `N_eff*m_1` | derived (§4); measured by common-mode probe (§10) | - |
@@ -544,11 +544,11 @@ the `(N, f)` (equivalently `(N, epsilon)`) plane, not `(N, alpha)`.
 | `N_c` | critical dealer count `1/m_1` | derived (§8.1) | - |
 | `c` | mean-field aggregate spillover (`kappa = c/N`) | derived (§7.2) | - |
 
-The two **proposed** fields (`clients.n_dealers`, `clients.toxic_spillover`) are
-the only new configuration this priority requires; every other quantity is a
-closed form in the *existing* 1.1 config. `n_dealers = 1` (or `toxic_spillover =
-0`) must reproduce the present single-dealer behaviour bit-for-bit -- the first
-regression test of the `N`-dealer code (§10).
+The two **new** fields (`clients.n_dealers`, `clients.toxic_spillover`, now added
+to `ClientsConfig`) are the only new configuration this priority requires; every
+other quantity is a closed form in the *existing* 1.1 config. `n_dealers = 1` (or
+`toxic_spillover = 0`) reproduces the present single-dealer behaviour bit-for-bit
+-- checked by the `kappa = 0` regression test in `tests/test_multi_dealer.py` (§10).
 
 ---
 
@@ -585,13 +585,23 @@ bands; confirm (i) the linear-in-`N` law (§8.2), (ii) the integer crossing at
 figure: competitive quoting destabilises the market a factor `N_eff` before any
 single dealer's loop would.
 
-**Remaining code task (out of scope here).** Extend the simulator to `N` dealers
-sharing one informed pool: add `clients.n_dealers`, `clients.toxic_spillover`,
-generalise `clients.py`'s toxic intensity to the coupled `tau_i` of §2.1, and add
-a `analysis/multi_dealer_modulus.py` implementing the in-phase / anti-phase probes
-above (reusing the single-dealer machinery). `n_dealers = 1` must reproduce
-`endo_market_v2` exactly. The math here fixes every formula that module needs; no
-estimator beyond the existing BR-slope probe is required.
+**Code (DONE).** Implemented in
+[`analysis/multi_dealer_modulus.py`](../../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py),
+with the config fields `clients.n_dealers` and `clients.toxic_spillover` added
+(defaults `1` / `0.0`, reproducing `endo_market_v2` exactly). `multi_dealer_boundary`
+returns the closed-form `m_N`, `gamma_joint`, `N_c` and boundary; `joint_jacobian`
+builds `J_BR` and its spectrum; `run_joint_rrm` runs the genuine `N`-dimensional
+coupled-`tau_i` best-response cobweb; `mean_field_boundary` / `strong_coupling_limit`
+give the §7 limits; and `common_mode_probe` (with `measure_common_mode_modulus` /
+`measure_differential_modulus`) runs the in-phase / anti-phase probes and identifies
+`kappa`. The empirical probes **reuse the single-dealer machinery** exactly as
+prescribed: the symmetric in-phase common mode is provably a single-dealer problem
+with the toxic slope amplified by `N_eff` (`effective_config`), so
+`measure_response_modulus` is called on that effective config — no `N`-body
+simulator surgery is required. (Absolute agreement of the *learned-operator*
+measurement with the linear `m_N = N_eff*m_1` law holds only in the responsive,
+non-saturated regime — the documented saturation/attenuation caveat, §11.) Verified
+by `tests/test_multi_dealer.py`.
 
 ---
 
