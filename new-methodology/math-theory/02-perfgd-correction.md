@@ -1,16 +1,16 @@
 # 1.2 - Un-blinding the Operator: the PerfGD-Corrected Loop
 
-**STATUS: DONE (Priority 2, derivation/theorem).** This document discharges the
-*mathematical* content of methodology target **1.2** in
+**STATUS: DONE (Priority 2, derivation/theorem + code).** This document discharges
+the *mathematical* content of methodology target **1.2** in
 [`../README.md`](../README.md): it builds on the closed forms of
 [`01-analytic-stability-boundary.md`](01-analytic-stability-boundary.md) to derive
 the Performative Gradient Descent (PerfGD) correction in closed form, prove it
 converges to the **performative optimum (PO)** rather than the **stable point
 (SP)**, show it **remains stable for `epsilon` beyond the RRM boundary
 `epsilon* = gamma/beta`**, and quantify the **echo-chamber gap** between the
-stable and optimal quotes. The remaining *code* task - wiring this gradient into a
-training loop as `equilibrium/perfgd_loop.py` - is called out in §8 and is
-deliberately out of scope for the math-theory deliverable.
+stable and optimal quotes. The companion *code* -
+[`equilibrium/perfgd_loop.py`](../../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) -
+is now implemented (§8).
 
 > **One-line thesis.** Blind RRM (the loop analysed in 1.1) finds the spread that
 > is its own best response *given* the induced flow - the stable point. It is
@@ -326,12 +326,18 @@ statement of "un-blinding stabilises the loop".
 3. Confirm the measured `h_SP - h_PO` matches (6a) (`O(epsilon)`) and the measured
    performative-risk gap matches (6b) (`O(epsilon^2)`), with cross-seed IQR bands.
 
-**Remaining code task (out of scope here).** Implement
-`equilibrium/perfgd_loop.py`: identical to the RRM loop but adding the scalar
-correction `Delta(h_k) = -P*(h_k - psi)*epsilon(h_k)` to the policy gradient,
-with `epsilon(h)` and `psi` imported from a shared analytic module (the
-`analytic_boundary.py` recommended in 1.1 §8). The math here fixes that module's
-formulas completely; no estimator is needed.
+**Code (DONE).** Implemented in
+[`equilibrium/perfgd_loop.py`](../../endo_market_v2/endo_market/equilibrium/perfgd_loop.py):
+`perfgd_correction` is the scalar `Delta(h) = -P*(h - psi)*epsilon(h)`,
+`perfgd_gradient` the corrected ascent `Phi' = G + Delta`,
+`solve_performative_optimum` returns `h_PO`, `gamma_po` the objective curvature,
+`echo_chamber_gap` the (6a)/(6b) gaps, and `run_rrm_cobweb` / `run_perfgd` the two
+loops (`analyze_perfgd` assembles all of it). `epsilon(h)` and `psi` are imported
+from the shared
+[`analysis/analytic_boundary.py`](../../endo_market_v2/endo_market/analysis/analytic_boundary.py)
+recommended in 1.1 §8 (also delivered) — no estimator is needed. Verified by
+`tests/test_perfgd_loop.py` (including the "PerfGD stable beyond `epsilon*`"
+demonstration and the `Delta(psi)=0` sign flip).
 
 ---
 

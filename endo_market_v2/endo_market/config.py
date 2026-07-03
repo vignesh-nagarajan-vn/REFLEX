@@ -62,6 +62,11 @@ class ClientsConfig:
     info_cap: float = 8.0  # saturation cap on informed notional (bounds the toxicity)
     toxicity_feedback: float = 0.22  # explicit gain of toxicity-vs-spread feedback (~epsilon scaler)
     spread_ref: float = 0.5  # reference half-spread around which feedback is centred
+    # Multi-dealer competition (math-theory 1.3).  ``n_dealers = 1`` and
+    # ``toxic_spillover = 0`` reproduce the single-dealer market bit-for-bit; the
+    # analytic N-dealer boundary (analysis/multi_dealer_modulus.py) reads these.
+    n_dealers: int = 1  # N: number of dealers sharing one informed-flow pool
+    toxic_spillover: float = 0.0  # kappa in [0, 1]: cross-dealer toxic spillover
 
 
 @dataclass
