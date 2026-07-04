@@ -106,8 +106,13 @@ already in `response_modulus.py`* — a naive finite difference gives only
 `O(n^{−1/3})`, and raw empirical `W₁` gives `O(n^{−1/d})`; the entropic/Sinkhorn
 estimator (paper #14) restores `O(1/√n)` for the OT route. The sample complexity
 `n_req = (z·σ/Δ)² = O(Δ^{−2})` diverges at the boundary, and statistical (shrinking)
-vs. structural/model (fixed) uncertainty are separated. The remaining *code* task —
-a cross-seed variance harness + optional Sinkhorn estimator — is pending.
+vs. structural/model (fixed) uncertainty are separated. **The code is now
+implemented** in
+[`endo_market_v2/endo_market/analysis/robust_boundary.py`](../endo_market_v2/endo_market/analysis/robust_boundary.py):
+the ambiguity radius, the robust certificate (stable / unstable / undecided), the
+`O(Δ^{−2})` sample-complexity curve, the `O(1/√n)` log-log rate check, and the
+structural-floor `η_mod` — with a cross-seed empirical harness over the existing
+probe. Tests in `tests/test_robust_boundary.py`.
 
 Target result: a distributionally robust stable point — the policy stable under worst-case `ε` within an ambiguity set — with nominal boundary `ε*` reported alongside a robust radius `δ` that shrinks at rate `O(1/√n)` in the number of simulated episodes `n`.
 
@@ -125,8 +130,14 @@ boundary are computable in `O(d·k²)` via Woodbury (Bergault–Guéant), and tr
 to `k` factors perturbs the boundary by an amount **linear in the residual factor
 variance `λ_{k+1}(C)`** (a Bergault–Guéant Proposition-4 analog). The calibration map
 (duration/DV01/spread-vol, or synthetic CKS) and the composition with 1.3/1.4 are
-included. The remaining *code* task — factorising `corr`, the market-factor probe,
-and per-bond calibration — is pending.
+included. **The code is now implemented** in
+[`endo_market_v2/endo_market/analysis/factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py):
+the `d×d` modulus matrix `M = β·Γ⁻¹·E` and `ρ(M)`, the `O(d·k²)` Woodbury reduction
+(matched against the dense inverse), the `O(λ_{k+1}(C))` truncation error bound, the
+duration-calibrated `σ_i`, and the 1.3×1.5 systemic composition `N_eff·χ·m₁`. The
+clean priced-risk `M` is *stabilised* by correlation (fragile mode idiosyncratic) —
+the honest §3.3 reading, documented in the module. Tests in
+`tests/test_factor_reduction.py`.
 
 Target: extend the phase diagram from a single bond/single dealer to 100+ correlated bonds via factor-model dimensionality reduction (Bergault & Guéant), with `γ`/`β` calibrated from real bond characteristics (duration, DV01, spread volatility) or, absent real data, from a synthetic Cont–Kukanov–Stoikov microstructure calibration.
 
@@ -198,10 +209,10 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Prove PSNE existence for `N`-dealer competition (Priority 3) — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §4–§5 (boundary `ε < γ/(N_eff·β)`, Brouwer existence + Banach uniqueness)
 - [x] Prove joint convergence rate under variational stability — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §6 (linear at `m_N`; `O(1/k)` under `γ_joint > 0`, variational-stability fallback)
 - [x] Derive the mean-field (`N → ∞`) limit of the stability boundary — [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §7 (collapsing fixed-`κ` vs. finite `κ = c/N` regimes)
-- [x] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4) — [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §3–§4 (`ε`-ball / Wasserstein ball; robust certificate `ε̂_n + δ_n < γ/β`)
-- [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size — derived in [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §2 (CRN gives parametric rate; naive difference `O(n^{−1/3})`) + §5 sample complexity; empirical log-log slope check + `analysis/robust_boundary.py` code still pending
-- [x] Extend to 100+ correlated bonds via factor-model reduction (Priority 5) — derived in [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §2–§4 (modulus matrix `M = β·Γ⁻¹·E`, `O(d·k²)` Woodbury reduction); `analysis/factor_reduction.py` code + per-bond calibration still pending
-- [x] Derive and report the dimensionality-reduction error bound — [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`, linear in residual factor variance, via Weyl / Bauer–Fike)
+- [x] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4) — derived in [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §3–§4 and implemented in [`endo_market_v2/endo_market/analysis/robust_boundary.py`](../endo_market_v2/endo_market/analysis/robust_boundary.py) (`ε`-ball, robust certificate `ε̂_n + δ_n < γ/β`, structural floor `η_mod`)
+- [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size — [`robust_boundary.py`](../endo_market_v2/endo_market/analysis/robust_boundary.py) `rate_check` / `loglog_rate` (log-log slope check; CRN gives the parametric rate) and `sample_complexity` (`n_req = O(Δ^{−2})`)
+- [x] Extend to 100+ correlated bonds via factor-model reduction (Priority 5) — derived in [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §2–§4 and implemented in [`endo_market_v2/endo_market/analysis/factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py) (modulus matrix `M = β·Γ⁻¹·E`, `O(d·k²)` Woodbury reduction, duration-calibrated `σ_i`)
+- [x] Derive and report the dimensionality-reduction error bound — [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`), implemented as [`factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py) `truncation_error_bound`
 
 ### Data collection
 - [ ] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure
