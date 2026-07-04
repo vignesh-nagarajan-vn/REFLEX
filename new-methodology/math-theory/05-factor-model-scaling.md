@@ -1,7 +1,7 @@
 # 1.5 - Scaling to 100+ Correlated Bonds: the Modulus Matrix and its Factor-Reduction Error Bound
 
-**STATUS: DONE (Priority 5, derivation/theorem).** This document discharges the
-*mathematical* content of methodology target **1.5** in
+**STATUS: DONE (Priority 5, derivation/theorem + code).** This document discharges
+the *mathematical* content of methodology target **1.5** in
 [`../README.md`](../README.md). It lifts the scalar boundary of 1.1 from one bond
 to a universe of `d` correlated bonds, replacing the scalar modulus `m = epsilon*beta/gamma`
 by a `d x d` **modulus matrix** `M = beta * Gamma^{-1} * E` whose spectral radius
@@ -26,8 +26,10 @@ governs stability, and then makes the `d = 100+` regime tractable and honest by:
    count, is what destabilises a large book (§7).
 
 Every per-bond constant is 1.1's closed form; the new content is the *cross-sectional
-linear algebra* and its truncation error. The remaining *code* task - a multi-bond
-factor-mode probe and per-bond calibration - is called out in §9.
+linear algebra* and its truncation error. The companion *code* --
+[`analysis/factor_reduction.py`](../../endo_market_v2/endo_market/analysis/factor_reduction.py),
+the modulus matrix, the Woodbury reduction, and the truncation error bound -- is now
+implemented (§9).
 
 > **One-line thesis.** One bond is stable iff a scalar `m < 1`. A book of `d`
 > correlated bonds is stable iff a `d x d` matrix `M = beta*Gamma^{-1}*E` has
@@ -425,11 +427,21 @@ over universe draws (seeds)**, overlaying (i) the predicted boundary, (ii) the
 band (§5) shrinking as `k` grows. This is the "tight median+IQR, 100+ correlated
 bonds" figure the methodology names.
 
-**Remaining code task (out of scope here).** (i) `analysis/factor_reduction.py`:
-factorise `BondUniverse.corr`, build `M` via Woodbury, return `rho(M)` and the
-error bound; (ii) extend the probe to the factor-mode finite difference; (iii)
-per-bond calibration of the `clients` constants from `bonds.features`. All reuse the
-existing simulator and universe; no change to the market model itself.
+**Code (DONE).** Implemented in
+[`analysis/factor_reduction.py`](../../endo_market_v2/endo_market/analysis/factor_reduction.py):
+`per_bond_constants` builds `(gamma0_i, epsilon_i, sigma_i, g_i)` from 1.1's closed
+forms and `bonds.features` (duration-calibrated `sigma_i`, §6.1); `modulus_matrix` /
+`factor_modulus` form the dense `M`, `rho(M)`, the top eigenvector and `chi`;
+`factorize_corr` + `gamma_inverse_woodbury` + `spectral_radius_woodbury` give the
+`O(d*k^2)` reduction (validated against the dense inverse); `truncation_error_bound`
+returns the §5 `O(lambda_{k+1}(C))` bound; and `systemic_spectral_radius` composes
+with 1.3 (§7.2). Verified by `tests/test_factor_reduction.py`. Consistent with the
+§3.3 honesty, the *clean priced-risk* `M` is computed as derived: correlation enters
+through the inventory curvature, so it is stabilising and the fragile mode is
+idiosyncratic (the destabilising reading needs the un-hedged channel). Per-bond
+calibration of the *client* micro-constants (`A_i, k_i, c_{t,i}, I_i`) and the
+factor-mode empirical probe remain the deferred extensions; no change to the market
+model was needed.
 
 ---
 

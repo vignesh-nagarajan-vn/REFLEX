@@ -123,7 +123,7 @@ reproduced the `ε < γ/β` stability boundary.
     |  \- tests/                    ← 21 tests (20 fast + 1 slow end-to-end)
     |- new-methodology/             ← forward-looking research roadmap (methodology + To-Do)
     |  |- README.md                 ← full methodology write-up and the To-Do checklist
-    |  |- math-theory/              ← proofs & derivations (1.1 boundary + 1.2 PerfGD: DONE)
+    |  |- math-theory/              ← proofs & derivations 1.1–1.5 (all DONE: derived + coded)
     |  |- simulator/                ← (placeholder) operator, multi-dealer, estimators
     |  |- experiments/              ← (placeholder) sweeps and phase diagrams
     |  \- results/                  ← (placeholder) figures and tables
@@ -218,6 +218,33 @@ Full per-paper notes and BibTeX live in each collection's `README.md` and
 `references.bib`. PDFs land in each collection's `pdfs/` after running its
 `download_pdfs.sh`.
 
+## Analytic stability theory (`new-methodology/`)
+
+Where `endo_market_v2` *measures* the stability boundary by sweeping, the
+[`new-methodology/math-theory/`](new-methodology/math-theory/) program **derives it
+in closed form** from the simulator's own microstructure primitives — then verifies
+each derivation against the code. All five priorities are now **derived *and*
+implemented** as dependency-light closed-form modules in
+`endo_market_v2/endo_market/analysis/` (and `equilibrium/`), each with tests:
+
+| # | Result | Key object | Novelty |
+|---|--------|-----------|---------|
+| **1.1** | Analytic boundary | `m = εβ/γ`, stable iff `ε < γ/β` | `γ`, `β`, `ε` are *computed* from GLFT fill-curve curvature + the toxic-flow slope `dτ/dh`, not treated as tuned Lipschitz constants — an *a-priori* boundary you can evaluate before running the loop. |
+| **1.2** | PerfGD un-blinding | `Δ = −β(h−ψ)ε`, `γ_PO` | The distribution response `dD/dφ` is supplied in *closed form* (no estimation), so the corrected loop is governed by the objective curvature `γ_PO` and converges where blind RRM diverges — past the boundary `ε*`. |
+| **1.3** | Multi-dealer systemic risk | `ε < γ/(N_eff·β)`, `N_c = 1/m₁` | A shared toxic pool makes competition a *synchronised common-mode cobweb*: the market destabilises a factor `N_eff` **before** any single dealer would — competition manufactures systemic fragility. |
+| **1.4** | Robust boundary | `ε̂_n + δ_n < γ/β`, `δ_n = O(1/√n)` | The parametric `1/√n` radius is *bought by the common-random-numbers probe* (a naive difference gives only `n^{−1/3}`); the crossing is statistically hard to pin (`n_req = O(Δ^{−2})`), separating statistical from structural uncertainty. |
+| **1.5** | Factor-model scaling | modulus matrix `M = βΓ⁻¹E`, `ρ(M)<1` | The curse of dimensionality is defused by the *same* factor structure that causes it — `Γ` is diagonal-plus-low-rank, so `ρ(M)` is `O(d·k²)` via Woodbury with a truncation error linear in the residual factor variance `λ_{k+1}(C)`. |
+
+**The novelty in one line.** Performative-prediction theory (Perdomo et al., ICML
+2020) proves repeated retraining converges iff `ε < γ/β` but treats `γ`, `β`, `ε` as
+abstract constants of an unspecified loss. REFLEX pins them to a *structural* OTC
+market-making model and turns that single point boundary into a **predictive,
+un-blindable, multi-dealer, statistically-robust, 100+-bond** one — every claim
+stated as a closed form and made falsifiable against the simulator. See
+[`new-methodology/README.md`](new-methodology/README.md) for the full methodology and
+[`new-methodology/math-theory/`](new-methodology/math-theory/) for the derivations
+(each with a compilable LaTeX companion) and the module-by-module code map.
+
 ## Goals
 
 The research program targets one novelty claim: derive the performativity
@@ -225,11 +252,11 @@ stability boundary analytically from microstructure primitives instead of
 sweeping it by hand. In priority order (full checklist in
 [`new-methodology/README.md`](new-methodology/README.md#to-do)):
 
-- [x] **Analytic boundary (P1):** derive `γ`, `β`, and the toxic slope `dτ/dh` in closed form (GLFT/Avellaneda-Stoikov + Barzykin adverse selection), then triangulate `ε` three ways (BR-slope, Sinkhorn/Wasserstein, CKS informed-flow).
-- [ ] **Un-blind the operator (P2):** PerfGD-corrected loop using the analytic `dD/dφ`; measure the echo-chamber (stable-vs-optimal) gap.
-- [ ] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N·β)` and its mean-field (`N → ∞`) limit.
-- [ ] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`.
-- [ ] **Scale and calibrate (P5):** 100+ correlated bonds via factor-model reduction, calibrated to TRACE-derived or synthetic microstructure.
+- [x] **Analytic boundary (P1):** derive `γ`, `β`, and the toxic slope `dτ/dh` in closed form (GLFT/Avellaneda-Stoikov + Barzykin adverse selection). *Derived + coded* ([`analytic_boundary.py`](endo_market_v2/endo_market/analysis/analytic_boundary.py)); the three-way `ε` triangulation (Sinkhorn, CKS) is the remaining extension.
+- [x] **Un-blind the operator (P2):** PerfGD-corrected loop using the analytic `dD/dφ`; echo-chamber (stable-vs-optimal) gap. *Derived + coded* ([`perfgd_loop.py`](endo_market_v2/endo_market/equilibrium/perfgd_loop.py)).
+- [x] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N_eff·β)` and its mean-field (`N → ∞`) limit. *Derived + coded* ([`multi_dealer_modulus.py`](endo_market_v2/endo_market/analysis/multi_dealer_modulus.py)).
+- [x] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`. *Derived + coded* ([`robust_boundary.py`](endo_market_v2/endo_market/analysis/robust_boundary.py)).
+- [x] **Scale and calibrate (P5):** 100+ correlated bonds via factor-model reduction (`ρ(M)<1`, `O(d·k²)` Woodbury). *Derived + coded* ([`factor_reduction.py`](endo_market_v2/endo_market/analysis/factor_reduction.py)); real-TRACE calibration is the remaining extension.
 - [ ] Secure a research placement at a top AI lab (with affiliation).
 - [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance; deadline Aug 2, 2026) or another main-track venue.
 

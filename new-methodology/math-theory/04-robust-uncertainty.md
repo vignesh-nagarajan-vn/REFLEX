@@ -1,7 +1,7 @@
 # 1.4 - Distributionally Robust Stability and the `O(1/sqrt(n))` Ambiguity Radius
 
-**STATUS: DONE (Priority 4, derivation/theorem).** This document discharges the
-*mathematical* content of methodology target **1.4** in
+**STATUS: DONE (Priority 4, derivation/theorem + code).** This document discharges
+the *mathematical* content of methodology target **1.4** in
 [`../README.md`](../README.md). It turns the *point* boundary of 1.1 (and its
 multi-dealer lift, 1.3) into a **statistically defensible** one: because the
 sensitivity `epsilon` is *estimated* from a finite simulation, the crossing
@@ -31,8 +31,11 @@ not a claim. We
    floor) -- the "off by 20%" sensitivity question (§6).
 
 Every constant is inherited from 1.1/1.3; the new content is the *statistics* of
-the existing estimator. The remaining *code* task -- a cross-seed variance harness
-and the Sinkhorn `epsilon` estimator -- is called out in §8.
+the existing estimator. The companion *code* --
+[`analysis/robust_boundary.py`](../../endo_market_v2/endo_market/analysis/robust_boundary.py),
+the cross-seed variance harness, the certificate, and the sample-complexity /
+log-log rate checks -- is now implemented (§8); the optional Sinkhorn `epsilon`
+estimator remains the one deferred item.
 
 > **One-line thesis.** 1.1 says "stable iff `epsilon < gamma/beta`." But you never
 > know `epsilon`; you know `epsilon_hat_n +/- delta_n` from `n` episodes. The
@@ -433,12 +436,18 @@ Report the phase diagram with the nominal boundary, the robust boundary, and the
 **undecided band** shaded -- the median+IQR-with-error-bars figure the methodology
 requires (and the ICAIF "uncertainty bands across seeds" line item).
 
-**Remaining code task (out of scope here).** (i) A thin
-`analysis/robust_boundary.py` that wraps the existing probe in the cross-seed loop,
-returns `(ebar, delta_n, epsilon*_rob, undecided_band)`, and emits the log-log
-rate check; (ii) optionally `analysis/sinkhorn_epsilon.py` (the OT-route estimator,
-also feeding 1.1's triangulation) with `lambda` tuning. Both consume the existing
-simulator; no change to the market model is needed.
+**Code (DONE).** Implemented in
+[`analysis/robust_boundary.py`](../../endo_market_v2/endo_market/analysis/robust_boundary.py):
+`empirical_radius` fits the cross-seed radius `delta_n = z*s`; `robust_certificate`
+returns the `(mean, delta_n, epsilon*_rob, verdict in {stable, unstable, undecided})`
+with the structural floor `eta_mod` (§6.2); `sample_complexity` gives
+`n_req = (z*sigma/Delta)^2` (§5); `loglog_rate` / `rate_check` emit the
+`slope ~ -1/2` diagnostic (§2.3); `finite_sample_radius` is the sub-Gaussian variant
+(§2.4); and `robust_boundary` wraps the existing `measure_response_modulus` probe in
+the cross-seed loop, reporting both modulus- and `epsilon`-space certificates.
+Verified by `tests/test_robust_boundary.py`. Only the optional Sinkhorn OT-route
+estimator (`analysis/sinkhorn_epsilon.py`, feeding 1.1's triangulation) is deferred;
+no change to the market model was needed.
 
 ---
 
