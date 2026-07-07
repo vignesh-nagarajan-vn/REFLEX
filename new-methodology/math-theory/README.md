@@ -33,11 +33,8 @@ Tests: `endo_market_v2/tests/test_analytic_boundary.py`, `test_perfgd_loop.py`,
 `test_multi_dealer.py`, `test_robust_boundary.py`, `test_factor_reduction.py` (run
 `pytest -q -m "not slow"` from inside `endo_market_v2/`).
 
-> **PDF build.** Priorities 1.1 and 1.2 have compiled PDFs in
-> [`latex-papers/`](latex-papers/). The `.tex` companions for **1.3, 1.4, and 1.5**
-> still need to be compiled into LaTeX PDFs via Overleaf and added to
-> [`latex-papers/`](latex-papers/) (paste each `.tex` into an Overleaf project and
-> download the PDF; the sources are self-contained and compile with `pdflatex`).
+> **PDF build.** All priorities (1.1 through 1.5) have compiled PDFs in
+> [`latex-papers/`](latex-papers/). Created via Overleaf and LaTeX.
 
 ## Conventions
 
