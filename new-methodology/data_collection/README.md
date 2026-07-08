@@ -1,4 +1,4 @@
-# REFLEX — Data Collection Repository
+# REFLEX — Data Collection
 
 ## Repository Structure
 
