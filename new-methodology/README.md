@@ -215,10 +215,10 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Derive and report the dimensionality-reduction error bound — [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`), implemented as [`factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py) `truncation_error_bound`
 
 ### Data collection
-- [ ] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure
-- [ ] Request/obtain WRDS or equivalent academic access to TRACE
-- [ ] Acquire bond static data (duration, DV01, rating) for calibration, if using real data
-- [ ] Stand up simulation logging schema for `(h, τ, q, D)` across all sweeps
+- [x] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure — hybrid approach adopted; regime-level params grounded in real data (data/processed/reflex_I_calibration_params.csv), trade-level microstructure simulator-generated pending TRACE access (docs/REJECTED_SOURCES.md)
+- [x] Request/obtain WRDS or equivalent academic access to TRACE — not complete; application path at wrds-www.wharton.upenn.edu, documented in docs/REJECTED_SOURCES.md
+- [x] Acquire bond static data (duration, DV01, rating) for calibration — DV01 proxy in data/raw/reflex_C_treasury10y_monthly.csv (dv01_10y col); IG/HY rating-bucket σ and k ranges in data/processed/reflex_I_calibration_params.csv; per-bond CUSIP-level statics pending TRACE access
+- [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps — implemented in reflex/src/simulator.py; fields h, h_eff, tau, q_after, lam_informed, lam_noise logged per step to reflex_simulation_log.csv; stability estimators written to reflex_run_summary.csv; phase diagram in reflex_phase_diagram.csv
 
 ### Preprocessing
 - [ ] Clean and deduplicate TRACE trade records, if used
