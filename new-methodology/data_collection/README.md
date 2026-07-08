@@ -1,24 +1,5 @@
 # REFLEX — Data Collection Repository
 
-> **R**einforced **E**ndogenous **L**earning with **F**ixed-point **E**quilibria and **X**-regime stability
-
-Data collection, verification, and calibration pipeline for the REFLEX paper:  
-*"Learning in Markets Where the Data Distribution Depends on the Learner: A Fixed-Point Framework for OTC Corporate Bond Dealers"*
-
-Submitted to: **ICAIF 2025 Main Track**
-
----
-
-## ⚠️ Data Integrity Statement
-
-**Every dataset in this repository is real, verified, and non-synthetic.**
-
-During development, one candidate source (Pooja2420/Liquidity-Scoring) was discovered to be a synthetic simulator masquerading as TRACE data — its `trace_loader.py` explicitly states *"we generate realistic synthetic intraday bond trade data."* That source was removed entirely and is documented in [`docs/REJECTED_SOURCES.md`](docs/REJECTED_SOURCES.md).
-
-All remaining sources were verified against known historical values before inclusion. Verification methodology and exact check values are in [`docs/VERIFICATION_LOG.md`](docs/VERIFICATION_LOG.md).
-
----
-
 ## Repository Structure
 
 ```
