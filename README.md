@@ -91,7 +91,7 @@ flowchart LR
 | **Control parameter** | Adversarialness `α`  | Adversariality `α ∈ [0,1]` | Feedback gain `ε` (`α` found to be confounded) |
 | **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` |
 | **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | **Result reproduced**: `m` crosses 1 at `ε* ≈ 1.3`, then saturates |
-| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 21 tests + phase-diagram PNG & sweep CSV |
+| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests (simulator + all five analytic modules) + phase-diagram PNG & sweep CSV |
 
 The progression: `edl_simulator_v1` proved the *concept* (one parameter flips a
 market between convergence and chaos) analytically; `endo_market` rebuilt it as a
@@ -123,7 +123,9 @@ reproduced the `ε < γ/β` stability boundary.
     |  \- tests/                    ← 21 tests (20 fast + 1 slow end-to-end)
     |- new-methodology/             ← forward-looking research roadmap (methodology + To-Do)
     |  |- README.md                 ← full methodology write-up and the To-Do checklist
-    |  |- math-theory/              ← proofs & derivations 1.1–1.5 (all DONE: derived + coded)
+    |  |- math-theory/              ← proofs & derivations 1.1–1.5 (all DONE: derived + coded) + LaTeX/PDF
+    |  |- data_collection/          ← real macro + bond-factor dataset (raw/processed/master) + verification
+    |  |- preprocessing/            ← cleaning, calibration fit (A,k), episode splits (calibration/held-out)
     |  |- simulator/                ← (placeholder) operator, multi-dealer, estimators
     |  |- experiments/              ← (placeholder) sweeps and phase diagrams
     |  \- results/                  ← (placeholder) figures and tables
@@ -244,6 +246,44 @@ stated as a closed form and made falsifiable against the simulator. See
 [`new-methodology/README.md`](new-methodology/README.md) for the full methodology and
 [`new-methodology/math-theory/`](new-methodology/math-theory/) for the derivations
 (each with a compilable LaTeX companion) and the module-by-module code map.
+
+## Data (real-market calibration)
+
+[`new-methodology/data_collection/`](new-methodology/data_collection/) and
+[`new-methodology/preprocessing/`](new-methodology/preprocessing/) hold a
+**real, public, verified** dataset used to calibrate the simulator's
+microstructure regime — ~36 years of daily and ~70 years of monthly series
+joined into `REFLEX_MASTER_DATASET.csv`:
+
+- **Macro / regime:** CBOE VIX (σ proxy, regime classifier), EIA WTI crude,
+  Fed H.15 10-year Treasury (DV01), Shiller S&P 500 / CAPE, gold + BLS CPI.
+- **Bond microstructure:** Dickerson–Mueller–Robotti (2023 JFE) TRACE-derived
+  bond factors — the **liquidity risk factor** is the primary `ε` proxy — and
+  monthly returns for **212 real-CUSIP** corporate bonds (the `D(φ)` proxy).
+- **Preprocessing:** cleaning/winsorisation/ADF, reconstructed `(h, q, τ)`
+  proxies, an exponential-intensity `λ(h)=A·e^{−k·h}` fit per rating×regime, and
+  lookahead-safe calibration / validation / held-out episode splits.
+
+**Honest provenance (stated in the paper, not a footnote):** this is *not*
+trade-level TRACE — dealer-side prints, per-dealer inventory `q`, and per-bond
+`A`/`k` require WRDS TRACE Enhanced (access pending), so those quantities are
+proxied from the closest free sources. See
+[`data_collection/docs/REJECTED_SOURCES.md`](new-methodology/data_collection/docs/REJECTED_SOURCES.md).
+
+## Status & next steps
+
+The five analytic priorities (1.1–1.5) are **derived and coded**, and the
+real-data calibration pipeline is **built and verified**. The remaining program,
+in order:
+
+1. **Run the model with the theory + dataset** — calibrate from the dataset above,
+   run the RRM and PerfGD loops and the `ε` / `N` / universe-size sweeps, and
+   generate output data (phase diagrams, echo-chamber gap, multi-dealer boundary)
+   with median + IQR bands across seeds.
+2. **Analyze** — figures and raw data land in
+   [`new-methodology/results/`](new-methodology/results/).
+3. **Write the paper** — conference-ready for [ICAIF 2026](https://icaif2026.org/)
+   (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026).
 
 ## Goals
 

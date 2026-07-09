@@ -4,7 +4,7 @@ A machine learning framework for markets where the data distribution is not fixe
 
 REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed point where the market dynamics induced by a trading policy are stable under repeated interaction with that same policy.
 
-> **Status note.** The theory and experiments below are a research roadmap, not completed results. The literature review (18 papers, see `references.bib`) is done. The analytic boundary, the multi-dealer extension, and the calibrated phase diagrams are *target deliverables* — none are proven or measured yet. This README is written to make that distinction explicit so nothing here is mistaken for a finished claim.
+> **Status note.** What is *done*: the literature review (18 papers, see `references.bib`); the five analytic derivations 1.1–1.5 (each **derived in closed form and implemented** as a tested module in `endo_market_v2/`, see §1); and the real-market calibration dataset (`data_collection/`, `preprocessing/`, all verified against known historical values). What is *not yet done*: running the calibrated model to **measure** the empirical phase diagrams (the RRM/PerfGD loops, the `ε`/`N`/universe-size sweeps, median + IQR bands over seeds), analyzing those results, and writing them up for ICAIF 2026. In short — the theory and data are in place; the calibrated empirical results and the paper are the live deliverables. Nothing below should be read as a *measured* result until it appears with data in `results/`.
 
 ## What it does
 

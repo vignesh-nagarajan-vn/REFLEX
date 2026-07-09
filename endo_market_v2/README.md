@@ -91,23 +91,28 @@ Objective (maximised) = `spread_capture + inventory_pnl - adverse_selection_loss
 ## Layout
 
     endo_market/
-    |- config.py, types.py
+    |- config.py, types.py    (config adds multi-dealer n_dealers / toxic_spillover, 1.3)
     |- env/         bonds, liquidity_field, clients (the toxic-flow channel), simulator (T_true)
     |- policy/      Linear / MLP differentiable quoting policies
     |- objective/   reward (locked P&L + quoting-cost anchor), stability diagnostics
     |- operator/    heads + response_operator (T_theta, differentiable rollout)
-    |- equilibrium/ data_collection, fit_operator, optimize_policy (pathwise/REINFORCE/RGD), rrm_loop
-    |- analysis/    convergence, response_modulus (BR-slope estimator), sweep, metrics, plots
+    |- equilibrium/ data_collection, fit_operator, optimize_policy (pathwise/REINFORCE/RGD),
+    |               rrm_loop, perfgd_loop (analytic PerfGD-corrected loop, math-theory 1.2)
+    |- analysis/    response_modulus (model-free BR-slope estimator), + the closed-form
+    |               analytic-theory modules: analytic_boundary (1.1), multi_dealer_modulus (1.3),
+    |               robust_boundary (1.4), factor_reduction (1.5); convergence, sweep, metrics, plots
     \- utils/
     configs/  default.yaml | sweep_feedback.yaml (PRIMARY, epsilon) | sweep_adversariality.yaml (alpha)
     experiments/  run_single.py | run_sweep.py
-    tests/    test_simulator, test_policy, test_operator, test_rrm_convergence  (21 tests)
+    tests/    test_simulator, test_policy, test_operator, test_rrm_convergence, + one per analytic
+              module (test_analytic_boundary, test_perfgd_loop, test_multi_dealer,
+              test_robust_boundary, test_factor_reduction)  -- 63 tests (59 fast + 4 slow)
 
 ## Install, test, run
 
     pip install -e .
-    pytest -q -m "not slow"        # 20 fast tests
-    pytest -q -m slow              # +1 end-to-end stability-boundary test (~2 min)
+    pytest -q -m "not slow"        # 59 fast tests
+    pytest -q -m slow              # +4 slow end-to-end / boundary tests (~min each)
 
     # single run: one RRM trajectory + BR-slope modulus + market metrics + plot
     python -m experiments.run_single --config configs/default.yaml --seed 0
@@ -117,13 +122,31 @@ Objective (maximised) = `spread_capture + inventory_pnl - adverse_selection_loss
 
 ## Status
 
-**Complete and tested (21 tests):** environment + exact P&L identity; differentiable
+**Complete and tested (63 tests):** environment + exact P&L identity; differentiable
 policies; the learned operator `T_theta` (held-out NLL drops ~10 -> ~3); data
 collection; policy optimization (pathwise default, REINFORCE and RGD paths, path
 logged never switched silently); the RRM loop with a blow-up guard; the BR-slope
 modulus estimator; sweep / metrics / plotting; both entry points. The headline
 stability-boundary crossing is asserted in `test_rrm_convergence.py` (median over
 seeds: stable at epsilon=0, unstable at epsilon=6).
+
+**Analytic theory now implemented (math-theory 1.1--1.5).** The closed-form
+counterparts to the swept modulus live alongside the simulator and are each
+tested: `analysis/analytic_boundary.py` (1.1: `gamma`, `beta`, `epsilon`, `h*`,
+`m = epsilon*beta/gamma`), `equilibrium/perfgd_loop.py` (1.2: the analytic PerfGD
+correction, `h_PO`, `gamma_PO`, echo-chamber gap, RRM-diverges-vs-PerfGD-converges),
+`analysis/multi_dealer_modulus.py` (1.3: `epsilon < gamma/(N_eff*beta)`, joint
+spectrum, mean-field limit), `analysis/robust_boundary.py` (1.4: ambiguity radius,
+robust certificate, `O(1/sqrt(n))` rate), `analysis/factor_reduction.py` (1.5:
+`d x d` modulus matrix, Woodbury reduction, truncation bound). Derivations and the
+module-by-module map are in `../new-methodology/math-theory/`.
+
+**Calibration dataset.** `../new-methodology/{data_collection,preprocessing}/` hold
+a real (public, verified) macro + bond-factor dataset used to calibrate the
+microstructure regime; it is *not* trade-level TRACE (that needs WRDS access),
+so `h`, per-dealer `q`, and per-bond `A`/`k` are proxied -- stated plainly, not
+hidden. The next phase runs the loops/sweeps calibrated from this dataset to
+produce the publication-grade phase diagrams.
 
 **Honest caveats / limitations:**
 - The per-seed modulus is **noisy near the critical point** (finite 8-bond market);
