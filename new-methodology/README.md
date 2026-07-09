@@ -224,7 +224,7 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Clean and deduplicate TRACE trade records, if used — complete. Applied to reflex_G_bond_returns_monthly.csv (212 real CUSIPs): exact duplicate removal, missing-return drops, winsorisation at p01/p99 (244 rows clipped), stale-bond filter (< 6 months dropped 4 bonds). Output: data/preprocessed/01_master_cleaned.csv. Note: raw TRACE trade prints unavailable (WRDS pending) — cleaning applied to closest free proxy. Documented in docs/REJECTED_SOURCES.md.
 - [x] Reconstruct realized spreads and inventory paths per dealer-bond pair - partially complete. proxy only. h from VIX-implied spread + Dickerson LRF (Friewald et al. 2012); q from cumulative bond market return; τ from credit/liquidity factor ratio. → data/preprocessed/02_master_enriched.csv. Per-dealer granularity requires TRACE Enhanced (WRDS pending).
 - [x] Fit exponential-intensity parameters `(A, k)` from inter-trade times - partially complete. (A, k) from inter-trade times — proxy only, circular. λ(h) = A·exp(−k·h) fit via MLE on TRACE window 2004–2021, but λ observations were VIX-derived, not real trade counts. → data/preprocessed/03_fitted_intensity_params.csv. True fit requires TRACE trade-level timestamps.
-- [x] Normalize simulator logs into a consistent cross-run schema
+- [x] Normalize simulator logs into a consistent cross-run schema - complete. Columns renamed to master schema, z-scored against real calibration-window stats, data_is_synthetic = True flagged, stability labels numerically encoded. → data/preprocessed/04_sim_logs_normalised.csv, 04_sim_summary_normalised.csv.
 - [x] Define episode-level (not trade-level) calibration/held-out split
 
 ### Model architecture
