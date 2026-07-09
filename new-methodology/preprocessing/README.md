@@ -92,7 +92,7 @@ Every source was checked against known historical values before inclusion. All 3
 | Dickerson | Sep 2008 MKTB (Lehman shock) | very negative | **−8.26%** ✓ |
 | Bond returns | CUSIP format (9-char alphanumeric) | e.g. `00138GAB5` | **verified** ✓ |
 
-One candidate source (Pooja2420/Liquidity-Scoring) was found to be synthetic and removed — see [`docs/REJECTED_SOURCES.md`](docs/REJECTED_SOURCES.md).
+Direct TRACE access requires WRDS (pending). The workaround uses Dickerson et al. (2023) JFE — a peer-reviewed paper that processed the full TRACE Enhanced feed and released derived factor returns publicly. Their Liquidity Risk Factor (LRF) and Credit Risk Factor (CRF) carry real bond microstructure signal and are citable. From these, plus VIX and GS10, we reconstruct all REFLEX calibration quantities. Parameter ranges are validated against published estimates: Bao et al. (2011) report IG Amihud illiquidity 0.2–0.8; Dick-Nielsen et al. (2012) report IG effective half-spreads of 20–80 bps.
 
 ### What is Not Available from Free Sources
 
