@@ -221,11 +221,11 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps — implemented in reflex/src/simulator.py; fields h, h_eff, tau, q_after, lam_informed, lam_noise logged per step to reflex_simulation_log.csv; stability estimators written to reflex_run_summary.csv; phase diagram in reflex_phase_diagram.csv
 
 ### Preprocessing
-- [ ] Clean and deduplicate TRACE trade records, if used
-- [ ] Reconstruct realized spreads and inventory paths per dealer-bond pair
-- [ ] Fit exponential-intensity parameters `(A, k)` from inter-trade times
-- [ ] Normalize simulator logs into a consistent cross-run schema
-- [ ] Define episode-level (not trade-level) calibration/held-out split
+- [x] Clean and deduplicate TRACE trade records, if used
+- [x] Reconstruct realized spreads and inventory paths per dealer-bond pair
+- [x] Fit exponential-intensity parameters `(A, k)` from inter-trade times
+- [x] Normalize simulator logs into a consistent cross-run schema
+- [x] Define episode-level (not trade-level) calibration/held-out split
 
 ### Model architecture
 - [ ] Select architecture for learned operator `T_θ`
