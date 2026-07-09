@@ -222,7 +222,7 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 
 ### Preprocessing
 - [x] Clean and deduplicate TRACE trade records, if used — complete. Applied to reflex_G_bond_returns_monthly.csv (212 real CUSIPs): exact duplicate removal, missing-return drops, winsorisation at p01/p99 (244 rows clipped), stale-bond filter (< 6 months dropped 4 bonds). Output: data/preprocessed/01_master_cleaned.csv. Note: raw TRACE trade prints unavailable (WRDS pending) — cleaning applied to closest free proxy. Documented in docs/REJECTED_SOURCES.md.
-- [x] Reconstruct realized spreads and inventory paths per dealer-bond pair
+- [x] Reconstruct realized spreads and inventory paths per dealer-bond pair - partially complete. proxy only. h from VIX-implied spread + Dickerson LRF (Friewald et al. 2012); q from cumulative bond market return; τ from credit/liquidity factor ratio. → data/preprocessed/02_master_enriched.csv. Per-dealer granularity requires TRACE Enhanced (WRDS pending).
 - [x] Fit exponential-intensity parameters `(A, k)` from inter-trade times
 - [x] Normalize simulator logs into a consistent cross-run schema
 - [x] Define episode-level (not trade-level) calibration/held-out split
