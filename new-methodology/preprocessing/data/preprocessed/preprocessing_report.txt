@@ -1,0 +1,211 @@
+
+──────────────────────────────────────────────────────────────
+LOADING REFLEX_MASTER_DATASET.csv
+──────────────────────────────────────────────────────────────
+  Rows      : 9,218
+  Columns   : 36
+  Date range: 1990-01-02 → 2026-06-30
+  data_is_synthetic: [False]
+
+  Null summary by column group:
+    Always-present cols    : 0 nulls (verified)
+    Dickerson factors      : 3,695 nulls (pre-2004-08, expected — TRACE starts Aug 2004)
+    Cross-section sigma    : 6,276 nulls (pre-2014-12, expected — QuhiQuhihi starts Dec 2014)
+
+──────────────────────────────────────────────────────────────
+STEP 1 — Clean: nulls, outliers, stationarity, autocorrelation
+──────────────────────────────────────────────────────────────
+  [1a] Null handling
+  Strategy: do NOT drop rows — preserves 1990-2026 spine for regime analysis.
+  Sparse cols get a missingness indicator; forward-fill only where economically
+  justified (monthly data already forward-filled to daily in build_datasets.py).
+    bond_mkt_ret          : 3,695 nulls → filled with regime-conditional mean
+    duration_rf           : 3,695 nulls → filled with regime-conditional mean
+    credit_rf             : 3,695 nulls → filled with regime-conditional mean
+    liquidity_rf          : 3,695 nulls → filled with regime-conditional mean
+    cum_lrf_12m           : 3,926 nulls → filled with regime-conditional mean
+    bond_vol_6m           : 3,800 nulls → filled with regime-conditional mean
+    n_bonds               : 6,276 nulls → filled with regime-conditional mean
+    ret_mean              : 6,276 nulls → filled with regime-conditional mean
+    ret_sigma_xs          : 6,276 nulls → filled with regime-conditional mean
+
+  [1b] Outlier winsorisation (1st/99th pct, fit on pre-2022 only)
+  Pre-2022 window used as calibration reference to prevent lookahead.
+    vix_close                   : clipped  162 rows [10.0800, 48.1840]
+    implied_spread_bps          : clipped  162 rows [75.5600, 342.2880]
+    sp500_sigma_12m             : clipped  127 rows [0.0340, 0.3009]
+    bond_mkt_ret                : clipped  127 rows [-0.0322, 0.0447]
+    liquidity_rf                : clipped  126 rows [-0.0182, 0.0349]
+    credit_rf                   : clipped  123 rows [-0.0488, 0.0485]
+    ret_sigma_xs                : clipped  197 rows [0.0045, 0.0287]
+    k_IG_estimate               : clipped  162 rows [0.3778, 1.7114]
+    k_HY_estimate               : clipped  162 rows [0.9445, 4.2786]
+    A_IG_estimate               : clipped  162 rows [4.2580, 17.5316]
+    A_HY_estimate               : clipped  162 rows [0.6387, 2.6297]
+
+  [1c] Augmented Dickey-Fuller stationarity tests (α=0.05)
+  Column                         ADF stat    p-value  Stationary?
+  --------------------------------------------------------------
+  vix_close                        -6.952     0.0000 ✓ stationary
+  implied_spread_bps               -6.952     0.0000 ✓ stationary
+  gs10_yield                       -2.374     0.1491  ✗ unit root
+  real_yield                       -2.473     0.1223  ✗ unit root
+  sp500_sigma_12m                  -3.541     0.0070 ✓ stationary
+  liquidity_rf                    -10.338     0.0000 ✓ stationary
+  ret_sigma_xs                     -7.468     0.0000 ✓ stationary
+
+  → gs10_yield is non-stationary; added gs10_yield_diff1 as differenced feature
+
+  → real_yield is non-stationary; added real_yield_diff1 as differenced feature
+
+  [1d] Lag-1 autocorrelation of key features
+    vix_close                   : ρ(1) = 0.978
+    implied_spread_bps          : ρ(1) = 0.978
+    liquidity_rf                : ρ(1) = 0.962
+    sp500_sigma_12m             : ρ(1) = 0.997
+  High autocorrelation → use lagged features in ML; do NOT i.i.d. split on rows.
+
+  [1e] Regime balance (full sample vs post-2004 TRACE window)
+  Full 1990-2026:
+    calm        :  2962 days (32.1%)
+    normal      :  2828 days (30.7%)
+    elevated    :  2693 days (29.2%)
+    stress      :   660 days ( 7.2%)
+    crisis      :    75 days ( 0.8%)
+  TRACE 2004-2021:
+    calm        :  1836 days (40.5%)
+    normal      :  1317 days (29.1%)
+    elevated    :   994 days (21.9%)
+    stress      :   312 days ( 6.9%)
+    crisis      :    74 days ( 1.6%)
+  Held-out 2022-2026:
+    calm        :   272 days (23.5%)
+    normal      :   483 days (41.7%)
+    elevated    :   338 days (29.2%)
+    stress      :    63 days ( 5.4%)
+    crisis      :     1 days ( 0.1%)
+
+  → 01_master_cleaned.csv  (9,218 rows × 57 cols)
+
+──────────────────────────────────────────────────────────────
+STEP 2 — Enrich: reconstruct h, q_inventory, D(φ) from master
+──────────────────────────────────────────────────────────────
+  All reconstructions use master's own columns — no re-derivation from scratch.
+
+  [2a] Half-spread h_IG and h_HY (basis points)
+  Method: weighted combination of master's implied_spread_bps (macro component)
+  and abs(liquidity_rf) scaled to bps (micro illiquidity component).
+  Weights from Friewald et al. (2012): VIX explains ~60% of IG spread variation.
+  h_IG: mean=50.0 bps | stress mean=94.6 bps | crisis mean=123.1 bps
+  h_HY: mean=142.1 bps | stress mean=265.3 bps
+
+  [2b] Inventory path q_proxy (normalised)
+  Method: 3-month cumulative bond_mkt_ret, normalised by 12m rolling vol.
+  Rationale: in dealer models, net inventory position tracks cumulative
+  signed order flow; bond_mkt_ret is the closest available aggregate proxy.
+  Range clipped to [-3σ, +3σ] — matches simulator q_after scale.
+  q_proxy: mean=1.818 | std=1.907 | range=[-3.00, 3.00]
+
+  [2c] D(φ) order-flow distribution proxy
+  Method: cross-sectional return dispersion (ret_sigma_xs) as spread of D(φ).
+  Pre-2014 (no QuhiQuhihi data): imputed as sp500_sigma_12m × 0.35 (IG ratio).
+  D_phi_sigma: mean=0.0136 | real=2942 days | imputed=6276 days
+
+  [2d] τ (toxic/informed-flow fraction) proxy
+  Method: |credit_rf| / (|credit_rf| + |liquidity_rf| + ε) — the share of
+  the total factor signal attributable to adverse selection (credit) vs
+  pure illiquidity (liquidity). Bounded [0, 1].
+  tau_proxy: mean=0.744 | stress mean=0.561
+
+  → 02_master_enriched.csv  (9,218 rows × 65 cols)
+
+──────────────────────────────────────────────────────────────
+STEP 3 — Fit exponential-intensity parameters (A, k) from master
+──────────────────────────────────────────────────────────────
+  Model: λ(h) = A · exp(−k · h),  where h = implied_spread_bps / 10000
+  Fit using master's A_IG_estimate and A_HY_estimate as the λ observations
+  and h_IG_decimal / h_HY_decimal as the h observations, grouped by regime.
+  MLE for exponential model via scipy.optimize.curve_fit.
+  IG calm      : n=1806 | A=17.02 (SE=0.135) | k_decay=41.303 | k_impact R²=0.27 | resid_stat=✓
+  IG normal    : n=1206 | A=12.55 (SE=0.128) | k_decay=25.012 | k_impact R²=0.04 | resid_stat=✓
+  IG elevated  : n= 989 | A=9.82 (SE=0.111) | k_decay=24.349 | k_impact R²=0.08 | resid_stat=✓
+  IG stress    : n= 312 | A=7.18 (SE=0.202) | k_decay=24.544 | k_impact R²=0.07 | resid_stat=✗
+  IG crisis    : n=  74 | A=4.26 (SE=0.000) | k_decay=0.000 | k_impact R²=nan | resid_stat=✗
+  HY calm      : n=1806 | A=2.82 (SE=0.027) | k_decay=24.850 | k_impact R²=0.27 | resid_stat=✓
+  HY normal    : n=1206 | A=2.08 (SE=0.026) | k_decay=16.666 | k_impact R²=0.04 | resid_stat=✓
+  HY elevated  : n= 989 | A=1.64 (SE=0.022) | k_decay=14.500 | k_impact R²=0.08 | resid_stat=✓
+  HY stress    : n= 312 | A=1.26 (SE=0.038) | k_decay=14.265 | k_impact R²=0.07 | resid_stat=✗
+  HY crisis    : n=  74 | A=0.64 (SE=0.000) | k_decay=0.000 | k_impact R²=nan | resid_stat=✗
+
+  → 03_fitted_intensity_params.csv  (10 rows)
+
+──────────────────────────────────────────────────────────────
+STEP 4 — Normalise simulator logs to master schema
+──────────────────────────────────────────────────────────────
+  Loaded: 104,000 step-rows | 1040 episodes
+
+  [4b] Z-score params from master pre-2022 calibration window
+    h_halfspread           z-scored using master.h_IG_decimal (μ=0.0051, σ=0.0022)
+    tau_toxicfrac          z-scored using master.tau_proxy (μ=0.7222, σ=0.2349)
+    q_inventory            z-scored using master.q_proxy (μ=1.7094, σ=1.9854)
+    lambda_informed        z-scored using master.A_IG_estimate (μ=10.9601, σ=3.1101)
+    lambda_noise           z-scored using master.A_IG_estimate (μ=10.9601, σ=3.1101)
+
+  Normalised sim log : 104,000 rows × 23 cols
+  Normalised summary : 1040 rows × 26 cols
+  Stability: {'stable': 705, 'oscillating': 210, 'collapsed_saturated': 125}
+  → 04_sim_logs_normalised.csv
+  → 04_sim_summary_normalised.csv
+
+──────────────────────────────────────────────────────────────
+STEP 5 — Episode-level calibration / held-out split
+──────────────────────────────────────────────────────────────
+  Episode = one (bond_id × ε × N_dealers × universe_size) trajectory (T=600 steps)
+  Split axis: ε (adversarial intensity) — NOT random, NOT time-based for sim data
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  calibration  70%  ε ∈ [0.05, 0.75]  — covers calm→stress     │
+  │  validation   15%  ε ∈ (0.75, 0.85]  — near stability boundary │
+  │  held-out     15%  ε ∈ (0.85, 0.95]  — high-adversarial regime │
+  └─────────────────────────────────────────────────────────────────┘
+
+  Real-data split (master):
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  pre_sample   1990-2003  — macro context, no bond factors       │
+  │  calibration  2004-2019  — full TRACE window, pre-COVID         │
+  │  validation   2020-2021  — COVID shock + recovery               │
+  │  held-out     2022-2026  — rate-hike cycle, out-of-sample       │
+  └─────────────────────────────────────────────────────────────────┘
+  sim calibration    :  832 episodes | {'stable': 560, 'oscillating': 210, 'collapsed_saturated': 62}
+  sim validation     :  104 episodes | {'stable': 77, 'collapsed_saturated': 27}
+  sim held_out       :  104 episodes | {'stable': 68, 'collapsed_saturated': 36}
+  → 05_calibration_episodes.csv  (936 episodes)
+  → 05_heldout_episodes.csv       (104 episodes)
+  real pre_sample     :  3674 days | regime={'elevated': 1366, 'normal': 1139, 'calm': 884, 'stress': 285}
+  real calibration    :  3882 days | regime={'calm': 1784, 'normal': 1032, 'elevated': 766, 'stress': 244, 'crisis': 56}
+  real validation     :   505 days | regime={'elevated': 223, 'normal': 174, 'stress': 68, 'calm': 22, 'crisis': 18}
+  real held_out       :  1157 days | regime={'normal': 483, 'elevated': 338, 'calm': 272, 'stress': 63, 'crisis': 1}
+
+──────────────────────────────────────────────────────────────
+STEP 6 — Build MASTER_PREPROCESSED.csv
+──────────────────────────────────────────────────────────────
+  Z-score all continuous features using calibration-window stats ONLY.
+  Lookahead guard: scaler fit on icaif_split='calibration' rows only.
+  Scaler fit on 3,882 calibration rows (2004-08 to 2019-12)
+  Scaler stats saved → scaler_stats.csv (for inference-time normalisation)
+
+  MASTER_PREPROCESSED: 9,218 rows × 87 cols
+  icaif_split distribution: {'calibration': 3882, 'pre_sample': 3674, 'held_out': 1157, 'validation': 505}
+
+──────────────────────────────────────────────────────────────
+PREPROCESSING COMPLETE — Output Summary
+──────────────────────────────────────────────────────────────
+  01_master_cleaned.csv                         9,218 rows ×  58 cols  ← Step 1  Clean: nulls filled, outliers winsorised, ADF checked
+  02_master_enriched.csv                        9,218 rows ×  66 cols  ← Step 2  Enrich: h, q_proxy, tau_proxy, D_phi added
+  03_fitted_intensity_params.csv                   10 rows ×  20 cols  ← Step 3  Fitted (A, k) per rating×regime from master
+  04_sim_logs_normalised.csv                  104,000 rows ×  23 cols  ← Step 4  Sim logs: renamed cols, master-anchored z-scores
+  04_sim_summary_normalised.csv                 1,040 rows ×  26 cols  ← Step 4  Sim summary: z-scored estimators, stability codes
+  05_calibration_episodes.csv                     936 rows ×  28 cols  ← Step 5  Calibration + validation episodes (ε ≤ 0.85)
+  05_heldout_episodes.csv                         104 rows ×  28 cols  ← Step 5  Held-out episodes (ε > 0.85)
+  scaler_stats.csv                                 23 rows ×   3 cols  ← Step 6  Scaler μ/σ for inference-time normalisation
+  MASTER_PREPROCESSED.csv                       9,218 rows ×  88 cols  ← Step 6  Final analysis-ready panel (all steps merged)
