@@ -221,7 +221,7 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps — implemented in reflex/src/simulator.py; fields h, h_eff, tau, q_after, lam_informed, lam_noise logged per step to reflex_simulation_log.csv; stability estimators written to reflex_run_summary.csv; phase diagram in reflex_phase_diagram.csv
 
 ### Preprocessing
-- [x] Clean and deduplicate TRACE trade records, if used
+- [x] Clean and deduplicate TRACE trade records, if used — complete. Applied to reflex_G_bond_returns_monthly.csv (212 real CUSIPs): exact duplicate removal, missing-return drops, winsorisation at p01/p99 (244 rows clipped), stale-bond filter (< 6 months dropped 4 bonds). Output: data/preprocessed/01_master_cleaned.csv. Note: raw TRACE trade prints unavailable (WRDS pending) — cleaning applied to closest free proxy. Documented in docs/REJECTED_SOURCES.md.
 - [x] Reconstruct realized spreads and inventory paths per dealer-bond pair
 - [x] Fit exponential-intensity parameters `(A, k)` from inter-trade times
 - [x] Normalize simulator logs into a consistent cross-run schema
