@@ -6,7 +6,7 @@ figures into research/analysis/figures/.  Raw artifacts are never modified.
 Run from anywhere:
 
     python -u research/analysis/src/make_figures.py \
-        --results research/results/full-2026-07 \
+        --results research/results/07-10-2026 \
         --outdir research/analysis/figures
 """
 from __future__ import annotations

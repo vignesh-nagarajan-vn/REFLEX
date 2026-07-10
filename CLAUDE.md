@@ -193,7 +193,7 @@ probes, wrong probe points, mismatched prediction spreads, a dispersion
 no-op, and inflated collection jitter; see
 `research/analysis/pre-run-audit-2026-07.md`); the **paper-grade
 full-profile suite executed** (8/8, ~10 min CPU — the "hours" estimate was
-conservative) and curated into `research/results/full-2026-07/` with the
+conservative) and curated into `research/results/07-10-2026/` with the
 per-experiment analysis in `research/analysis/ANALYSIS-full-2026-07.md`.
 The **live to-do**, in order:
 

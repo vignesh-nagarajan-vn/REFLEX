@@ -1,4 +1,4 @@
-# theory/ — the five closed-form derivations (shipped copies)
+# theory/ - the five closed-form derivations (shipped copies)
 
 Self-contained copies of the REFLEX math-theory derivations (canonical originals
 live in `../../research/math-theory/`, including `.tex` sources and
@@ -19,4 +19,4 @@ ML loops that consume the corrections live in
 [`../reflex/equilibrium/`](../reflex/equilibrium/).
 
 Convention: every analytic claim ships with a validation protocol against the
-simulator — a derivation only counts once it is falsifiable against code.
+simulator - a derivation only counts once it is falsifiable against code.
