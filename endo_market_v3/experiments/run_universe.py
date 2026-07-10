@@ -27,7 +27,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from reflex.calibration import load_xsection_sigma
+from reflex.calibration.loader import bond_vol_dispersion
 from reflex.config import load_config
 from reflex.env.bonds import BondUniverse
 from reflex.theory.factor_scaling import (
@@ -49,11 +49,16 @@ def main(argv=None) -> None:
 
     base = load_config(args.config)
 
-    # Data-calibrated per-bond sigma dispersion: scale idiosyncratic sigmas by
-    # the observed cross-sectional dispersion of real bond returns (G2 file).
-    xs = load_xsection_sigma()
-    disp = float(xs["ret_sigma_xs"].mean()) if "ret_sigma_xs" in xs.columns else None
-    rel_disp = 0.35 if disp is None else min(max(disp / max(disp, 1e-9) * 0.35, 0.1), 0.8)
+    # Data-calibrated per-bond sigma dispersion: the coefficient of variation of
+    # per-bond volatility across the 212 real CUSIPs (G file), clipped to a sane
+    # band.  Falls back to the structural default if the data is unavailable.
+    try:
+        rel_disp = min(max(bond_vol_dispersion(), 0.1), 0.8)
+        disp_source = "data (per-bond vol CV)"
+    except (FileNotFoundError, ValueError, KeyError) as exc:
+        rel_disp = 0.35
+        disp_source = f"structural default (data unavailable: {exc})"
+    print(f"per-bond sigma dispersion rel_disp = {rel_disp:.3f}  [{disp_source}]")
 
     rows = []
     print("=== rho(M) across universe sizes (calibrated sigma dispersion) ===")

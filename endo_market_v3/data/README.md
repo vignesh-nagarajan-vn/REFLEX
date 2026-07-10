@@ -12,7 +12,8 @@ sources with its four scripts (`fetch_data.py`, `build_datasets.py`,
 |------|-----------|---------|
 | `calibration/03_fitted_intensity_params.csv` | Exponential-intensity fits `λ(h) = A·exp(−k·h)` per (rating × regime), 2004–2021 window | `reflex.calibration` (simulator calibration), `reflex.analysis.fragility` (per-regime `k`, `h`) |
 | `calibration/reflex_I_calibration_params.csv` | Per-regime macro summary (VIX, yields, spreads, σ ranges) | cross-checks / tests |
-| `calibration/reflex_G2_bond_xsection_sigma.csv` | Monthly cross-sectional dispersion of 212 real-CUSIP bond returns | per-bond σ calibration (factor scaling, 1.5) |
+| `calibration/reflex_G2_bond_xsection_sigma.csv` | Monthly cross-sectional dispersion of 212 real-CUSIP bond returns | cross-checks (aggregated; cannot identify per-bond vol heterogeneity) |
+| `calibration/reflex_G_bond_returns_monthly.csv` | Per-bond monthly log returns for the 212 real CUSIPs (raw, unwinsorised) | per-bond σ dispersion for factor scaling (1.5): `loader.bond_vol_dispersion` drops stale (zero-vol) bonds, winsorises σ at p05/p95, returns the CV |
 | `calibration/scaler_stats.csv` | Feature μ/σ fit on the 2004–2019 calibration window | lookahead-safe normalisation |
 | `master/REFLEX_MASTER_DATASET.csv` | Daily 1990–2026 joined panel (9,218 rows × 36 cols; VIX spine) | the fragility index (`run_fragility`) |
 
