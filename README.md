@@ -91,7 +91,7 @@ flowchart LR
 | **Market model**      | Analytical linear-quadratic OTC bond | Structural multi-bond simulator (uninformed + toxic flow) | Structural OTC simulator + latent liquidity field | Same + genuine `N`-dealer shared informed pool |
 | **Learner**           | Closed-form fixed point | Learned operator `T_θ` + RRM loop | Same, refined | **Un-blinded `T_θ`** (windowed fit learns `dD/dφ`) + PerfGD-corrected loops (analytic & learned) |
 | **Control parameter** | Adversarialness `α`  | Adversariality `α ∈ [0,1]` | Feedback gain `ε` (`α` found to be confounded) | `ε`, dealer count `N`, universe size `d`, market regime |
-| **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` | Closed-form `ε < γ/β`, `ε < γ/(N_eff·β)`, `ρ(M) < 1` — predicted a-priori, then verified |
+| **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` | Closed-form `ε < γ/β`, `ε < γ/(N_eff·β)`, `ρ(M) < 1` - predicted a-priori, then verified |
 | **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | **Result reproduced**: `m` crosses 1 at `ε* ≈ 1.3`, then saturates | Theory+ML+data unified; **real-data fragility index** (headroom collapses 4×+ calm→crisis, peaks at Lehman & COVID) |
 | **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests + phase-diagram PNG & sweep CSV | **110 tests** + 9 experiments (21 artifacts; smoke-verified 8/8) |
 
@@ -101,7 +101,7 @@ learned-operator performative-prediction loop but couldn't cleanly tune the
 transition; `endo_market_v2` identified `ε` (not `α`) as the clean control and
 reproduced the `ε < γ/β` stability boundary; `endo_market_v3` unifies the ML,
 the five closed-form theory results, and the real-data calibration in one
-self-contained package (`reflex`) — and un-blinds the learned operator so the
+self-contained package (`reflex`) - and un-blinds the learned operator so the
 loop that theory says must diverge can be stabilised, analytically *and* by
 learning.
 
@@ -142,31 +142,31 @@ learning.
 A dealer's quoting policy `φ` induces the data distribution `D(φ)`: tighter
 quotes summon more informed ("toxic") flow that picks the dealer off. Under
 **repeated retraining (RRM)**, when does the policy↔distribution loop converge
-vs. diverge — and can the loop be *stabilised* by un-blinding it, analytically
+vs. diverge - and can the loop be *stabilised* by un-blinding it, analytically
 (closed-form PerfGD) or by learning (`dD/dφ` learned by the operator)?
 
 Nine experiments (`python -m experiments.run_all --profile smoke|full`):
 
 | Experiment | What it shows | Theory |
 |---|---|---|
-| `run_fragility` | **Real-data headline:** the daily 1990–2026 fragility index — stability headroom `ε*(t)` collapses ~4× (IG) / ~13× (HY) calm→crisis, peaking at Lehman (2008-10-06) and the March-2020 freeze | 1.1 on data |
+| `run_fragility` | **Real-data headline:** the daily 1990–2026 fragility index - stability headroom `ε*(t)` collapses ~4× (IG) / ~13× (HY) calm→crisis, peaking at Lehman (2008-10-06) and the March-2020 freeze | 1.1 on data |
 | `run_calibrated` | A-priori boundary per (rating × regime) from fitted `(A, k, σ, h)` | 1.1 + data |
 | `run_sweep` | Predict-then-verify phase diagram: analytic `m_pred(ε)` overlay + measured median/IQR + robust bands | 1.1 + 1.4 |
 | `run_perfgd` | Blind RRM diverges past `ε*`; PerfGD-analytic and PerfGD-learned converge; echo-chamber gap scan; the learned-vs-analytic toxic-slope seam | 1.2 |
 | `run_dealers` | `(N, ε)` systemic surface `m_N = N_eff·m₁`; genuine shared-pool market probes | 1.3 |
 | `run_universe` | `ρ(M)` at 128 correlated bonds via `O(d·k²)` Woodbury; truncation bound verified | 1.5 |
 | `run_triangulation` | Three independent `ε` estimators (BR-slope / Sinkhorn / CKS) vs the closed form | 1.1 |
-| `run_single` | One outer loop in any mode with seam diagnostics | — |
+| `run_single` | One outer loop in any mode with seam diagnostics | - |
 
 **Verified state:** 110 tests pass; the smoke suite runs 8/8 end to end
-(21 artifacts in `endo_market_v3/outputs/` — the fragility index, calibrated
+(21 artifacts in `endo_market_v3/outputs/` - the fragility index, calibrated
 boundaries and universe scaling are full-fidelity closed-form results; the ML
 artifacts are smoke-grade until the `--profile full` runs land).
 
 See [`endo_market_v3/README.md`](endo_market_v3/README.md) for methodology,
 layout, install/run and honest caveats.
 
-### Prior generation (`endo_market_v2`, superseded — result absorbed into v3)
+### Prior generation (`endo_market_v2`, superseded - result absorbed into v3)
 
 **v2's headline result** (reproduced, now also *predicted* by v3's closed
 forms): sweeping the performative-feedback gain `ε`
@@ -236,25 +236,25 @@ Full per-paper notes and BibTeX live in each collection's `README.md` and
 
 Where the simulator *measures* the stability boundary by sweeping, the
 [`new-methodology/math-theory/`](new-methodology/math-theory/) program **derives it
-in closed form** from the simulator's own microstructure primitives — then verifies
+in closed form** from the simulator's own microstructure primitives - then verifies
 each derivation against the code. All five priorities are **derived *and*
-implemented** as dependency-light closed-form modules — authoritative versions in
+implemented** as dependency-light closed-form modules - authoritative versions in
 [`endo_market_v3/reflex/theory/`](endo_market_v3/reflex/theory/) (originals frozen
 in `endo_market_v2`), each with tests:
 
 | # | Result | Key object | Novelty |
 |---|--------|-----------|---------|
-| **1.1** | Analytic boundary | `m = εβ/γ`, stable iff `ε < γ/β` | `γ`, `β`, `ε` are *computed* from GLFT fill-curve curvature + the toxic-flow slope `dτ/dh`, not treated as tuned Lipschitz constants — an *a-priori* boundary you can evaluate before running the loop. |
-| **1.2** | PerfGD un-blinding | `Δ = −β(h−ψ)ε`, `γ_PO` | The distribution response `dD/dφ` is supplied in *closed form* (no estimation), so the corrected loop is governed by the objective curvature `γ_PO` and converges where blind RRM diverges — past the boundary `ε*`. |
-| **1.3** | Multi-dealer systemic risk | `ε < γ/(N_eff·β)`, `N_c = 1/m₁` | A shared toxic pool makes competition a *synchronised common-mode cobweb*: the market destabilises a factor `N_eff` **before** any single dealer would — competition manufactures systemic fragility. |
+| **1.1** | Analytic boundary | `m = εβ/γ`, stable iff `ε < γ/β` | `γ`, `β`, `ε` are *computed* from GLFT fill-curve curvature + the toxic-flow slope `dτ/dh`, not treated as tuned Lipschitz constants - an *a-priori* boundary you can evaluate before running the loop. |
+| **1.2** | PerfGD un-blinding | `Δ = −β(h−ψ)ε`, `γ_PO` | The distribution response `dD/dφ` is supplied in *closed form* (no estimation), so the corrected loop is governed by the objective curvature `γ_PO` and converges where blind RRM diverges - past the boundary `ε*`. |
+| **1.3** | Multi-dealer systemic risk | `ε < γ/(N_eff·β)`, `N_c = 1/m₁` | A shared toxic pool makes competition a *synchronised common-mode cobweb*: the market destabilises a factor `N_eff` **before** any single dealer would - competition manufactures systemic fragility. |
 | **1.4** | Robust boundary | `ε̂_n + δ_n < γ/β`, `δ_n = O(1/√n)` | The parametric `1/√n` radius is *bought by the common-random-numbers probe* (a naive difference gives only `n^{−1/3}`); the crossing is statistically hard to pin (`n_req = O(Δ^{−2})`), separating statistical from structural uncertainty. |
-| **1.5** | Factor-model scaling | modulus matrix `M = βΓ⁻¹E`, `ρ(M)<1` | The curse of dimensionality is defused by the *same* factor structure that causes it — `Γ` is diagonal-plus-low-rank, so `ρ(M)` is `O(d·k²)` via Woodbury with a truncation error linear in the residual factor variance `λ_{k+1}(C)`. |
+| **1.5** | Factor-model scaling | modulus matrix `M = βΓ⁻¹E`, `ρ(M)<1` | The curse of dimensionality is defused by the *same* factor structure that causes it - `Γ` is diagonal-plus-low-rank, so `ρ(M)` is `O(d·k²)` via Woodbury with a truncation error linear in the residual factor variance `λ_{k+1}(C)`. |
 
 **The novelty in one line.** Performative-prediction theory (Perdomo et al., ICML
 2020) proves repeated retraining converges iff `ε < γ/β` but treats `γ`, `β`, `ε` as
 abstract constants of an unspecified loss. REFLEX pins them to a *structural* OTC
 market-making model and turns that single point boundary into a **predictive,
-un-blindable, multi-dealer, statistically-robust, 100+-bond** one — every claim
+un-blindable, multi-dealer, statistically-robust, 100+-bond** one - every claim
 stated as a closed form and made falsifiable against the simulator. See
 [`new-methodology/README.md`](new-methodology/README.md) for the full methodology and
 [`new-methodology/math-theory/`](new-methodology/math-theory/) for the derivations
@@ -265,20 +265,20 @@ stated as a closed form and made falsifiable against the simulator. See
 [`new-methodology/data_collection/`](new-methodology/data_collection/) and
 [`new-methodology/preprocessing/`](new-methodology/preprocessing/) hold a
 **real, public, verified** dataset used to calibrate the simulator's
-microstructure regime — ~36 years of daily and ~70 years of monthly series
+microstructure regime - ~36 years of daily and ~70 years of monthly series
 joined into `REFLEX_MASTER_DATASET.csv`:
 
 - **Macro / regime:** CBOE VIX (σ proxy, regime classifier), EIA WTI crude,
   Fed H.15 10-year Treasury (DV01), Shiller S&P 500 / CAPE, gold + BLS CPI.
 - **Bond microstructure:** Dickerson–Mueller–Robotti (2023 JFE) TRACE-derived
-  bond factors — the **liquidity risk factor** is the primary `ε` proxy — and
+  bond factors - the **liquidity risk factor** is the primary `ε` proxy - and
   monthly returns for **212 real-CUSIP** corporate bonds (the `D(φ)` proxy).
 - **Preprocessing:** cleaning/winsorisation/ADF, reconstructed `(h, q, τ)`
   proxies, an exponential-intensity `λ(h)=A·e^{−k·h}` fit per rating×regime, and
   lookahead-safe calibration / validation / held-out episode splits.
 
 **Honest provenance (stated in the paper, not a footnote):** this is *not*
-trade-level TRACE — dealer-side prints, per-dealer inventory `q`, and per-bond
+trade-level TRACE - dealer-side prints, per-dealer inventory `q`, and per-bond
 `A`/`k` require WRDS TRACE Enhanced (access pending), so those quantities are
 proxied from the closest free sources. See
 [`data_collection/docs/REJECTED_SOURCES.md`](new-methodology/data_collection/docs/REJECTED_SOURCES.md).
@@ -295,15 +295,15 @@ the math (`endo_market_v3`); real-data calibration wired in; all nine
 experiments verified end to end (110 tests, smoke suite 8/8). The remaining
 program, in order:
 
-1. **Paper-grade runs** — `python -m experiments.run_all --profile full` in
+1. **Paper-grade runs** - `python -m experiments.run_all --profile full` in
    `endo_market_v3/` (hours of CPU): the ε-sweep phase diagram
    (predicted-vs-measured crossing + robust bands), three-mode PerfGD loops,
    dealer probes, measured calibrated boundaries, more seeds for median + IQR.
    The fragility index, calibrated a-priori boundaries and universe scaling
    are already full-fidelity (closed forms on real data).
-2. **Analyze** — curate figures and raw data into
+2. **Analyze** - curate figures and raw data into
    [`new-methodology/results/`](new-methodology/results/).
-3. **Write the paper** — conference-ready for [ICAIF 2026](https://icaif2026.org/)
+3. **Write the paper** - conference-ready for [ICAIF 2026](https://icaif2026.org/)
    (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026).
 
 ## Goals

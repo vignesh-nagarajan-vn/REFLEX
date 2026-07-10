@@ -1,16 +1,16 @@
-# endo_market_v3 — the `reflex` package
+# endo_market_v3 - the `reflex` package
 
 **Performative prediction in an endogenous OTC corporate-bond market, third
 generation.** One self-contained package that unifies the three previously
 separate strands of the REFLEX program:
 
 1. the **structural simulator + learned Market Response Operator `T_theta`**
-   (lineage: `endo_market_v2`), with the operator **un-blinded** — it can now
+   (lineage: `endo_market_v2`), with the operator **un-blinded** - it can now
    *learn* the distribution response `dD/dphi` it was structurally blind to;
 2. the **five closed-form math-theory results** (1.1–1.5) as first-class
    modules (`reflex.theory`), woven into training and every experiment
    (predict-then-verify everywhere); and
-3. the **real-data calibration pipeline** (`reflex.calibration`) — regime-fitted
+3. the **real-data calibration pipeline** (`reflex.calibration`) - regime-fitted
    microstructure from 36 years of verified market data, shipped in `data/`.
 
 CPU-only, reproducible from `(config, seed)`, no GPU. Python >= 3.9.
@@ -26,7 +26,7 @@ CPU-only, reproducible from `(config, seed)`, no GPU. Python >= 3.9.
 | **1.5** | modulus matrix `M = beta*Gamma^-1*E`, `rho(M) < 1`, Woodbury `O(d k^2)` (`factor_scaling.py`) | per-bond sigmas calibrated from real cross-sectional dispersion | `run_universe` |
 
 Plus the **real-data headline**: `run_fragility` evaluates the 1.1 boundary on
-every trading day 1990–2026 — the *stability headroom* `eps*(t) = gamma(t)/beta`
+every trading day 1990–2026 - the *stability headroom* `eps*(t) = gamma(t)/beta`
 collapses ~4x (IG) / ~13x (HY) from calm to crisis, peaking at Lehman
 (2008-10-06) and the March-2020 freeze, while the modulus at observed spreads
 *falls* (defensive widening, live on real data). `run_calibrated` tables the
@@ -36,13 +36,13 @@ a-priori boundary per `(rating x regime)`.
 
 v2's operator conditioned on a policy summary that was ~constant within a
 deployment, so it could not learn how the induced distribution moves when the
-policy moves — the RRM loop was *blind* and diverged past `eps*`. v3 fits the
+policy moves - the RRM loop was *blind* and diverged past `eps*`. v3 fits the
 operator on a **window of recent deployments** (`operator.context_window`),
-each row carrying its own deployment's summary, so the summary-dependence — the
-learned `dD/dphi`, read out by `operator.distribution_response()` — is
+each row carrying its own deployment's summary, so the summary-dependence - the
+learned `dD/dphi`, read out by `operator.distribution_response()` - is
 identified. Optimisation then either stays frozen (blind baseline), adds the
 **closed-form** correction (`perfgd_analytic`), or lets gradients flow through
-the **live** summary (`perfgd_learned` — the fully-ML path). Every loop logs
+the **live** summary (`perfgd_learned` - the fully-ML path). Every loop logs
 the learned toxic slope next to the analytic `-psi*eps(h)`: the ML↔math seam.
 
 ## Layout
@@ -115,7 +115,7 @@ unchanged.
   variation across deployments; with a single deployment the learned slope is
   noise (the loop warns).
 - Multi-dealer runs inflate the shared liquidity field (combined-flow boost),
-  which can push informed volume into the `info_cap` saturation — scale
+  which can push informed volume into the `info_cap` saturation - scale
   `liq_flow_boost` down or `info_cap` up for flow-allocation studies (see
   `env/multi_dealer.py` docstring).
 - Smoke-profile outputs prove the pipeline, not the science; paper-grade
