@@ -39,3 +39,17 @@ __all__ += ["RRMIterate", "RRMTrajectory", "run_rrm"]
 from .loops import LOOP_MODES, LoopDiagnostics, LoopResult, run_loop  # noqa: E402
 
 __all__ += ["LOOP_MODES", "LoopDiagnostics", "LoopResult", "run_loop"]
+
+from .joint_loop import (  # noqa: E402
+    JointCobwebResult,
+    JointModulusResult,
+    measure_joint_modulus_sim,
+    run_joint_cobweb_sim,
+)
+
+__all__ += [
+    "JointCobwebResult",
+    "JointModulusResult",
+    "measure_joint_modulus_sim",
+    "run_joint_cobweb_sim",
+]

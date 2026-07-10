@@ -1,0 +1,34 @@
+# Smoke-profile sweep: 3 grid points x 2 seeds on the tiny market.
+# Proves the predict-then-verify pipeline end to end; NOT for scientific claims
+# (use sweep_feedback.yaml for the paper-grade phase diagram).
+seed: 0
+device: cpu
+dtype: float32
+
+base:
+  bonds:
+    n_bonds: 4
+    n_sectors: 2
+  clients:
+    alpha: 0.5
+  simulator:
+    horizon: 16
+  operator:
+    hidden: 32
+    epochs: 15
+  policy:
+    type: linear
+    inner_steps: 15
+    rollout_horizon: 8
+    n_rollouts: 6
+    init_half_spread: 0.8
+  rrm:
+    n_episodes: 4
+
+sweep:
+  variable: toxicity_feedback
+  grid: [0.0, 2.0, 6.0]
+  n_seeds: 2
+  seed_base: 0
+  h_ref: 1.0
+  delta: 0.25
