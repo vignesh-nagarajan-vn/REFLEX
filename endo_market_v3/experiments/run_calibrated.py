@@ -66,10 +66,28 @@ def main(argv=None) -> None:
                 import numpy as np
 
                 from reflex.estimators import measure_response_modulus
+                from reflex.theory.analytic_boundary import (
+                    beta as beta_of,
+                    epsilon as epsilon_of,
+                    gamma as gamma_of,
+                    reference_state,
+                )
 
+                # Probe at the observed spread (the quoting anchor -- where the
+                # learned pipeline operates), not at the analytic fixed point
+                # h*: at h* the learned best-response map is nearly flat and
+                # the probe has no signal.  The prediction is evaluated at the
+                # same spread so the comparison is apples-to-apples.
+                h_probe = float(info.h_100)
+                ref = reference_state(cfg)
+                g = gamma_of(cfg, h_probe, ref)
+                row["m_pred_at_hobs"] = (
+                    epsilon_of(cfg, h_probe, ref) * beta_of(cfg) / g
+                    if g > 0 else float("inf")
+                )
                 moduli = [
                     measure_response_modulus(
-                        cfg, seed=s, h_ref=ab.h_star, delta=0.25 * ab.h_star
+                        cfg, seed=s, h_ref=h_probe, delta=0.25 * h_probe
                     ).modulus
                     for s in range(args.seeds)
                 ]
