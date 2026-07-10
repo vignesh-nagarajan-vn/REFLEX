@@ -1,7 +1,11 @@
-# Literature for `endo_market` — Performative Prediction in an Endogenous OTC Bond Market
+# Literature for REFLEX (the `endo_market` lineage) — Performative Prediction in an Endogenous OTC Bond Market
+
+> Prose below refers to the research program by its historical working name
+> `endo_market`. The codebase generations are `endo_market_v1` (legacy) →
+> `endo_market_v2` → `endo_market_v3` (current, package `reflex`).
 
 This folder collects ten papers that together supply the mathematical scaffolding behind
-`endo_market` and, more importantly, a concrete menu of formal tools for **extending its
+the program and, more importantly, a concrete menu of formal tools for **extending its
 scale, scope, and technical depth**. The project's headline object — a best-response
 contraction modulus `m` that crosses 1 at a critical feedback gain `ε* ` , reproducing the
 performative-prediction stability boundary `ε < γ/β` inside a structural market model — sits
