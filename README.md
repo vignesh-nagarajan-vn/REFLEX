@@ -24,7 +24,6 @@ under repeated interaction with that same policy.
   <img src="https://img.shields.io/badge/Matplotlib-%23ffffff.svg?style=for-the-badge&logo=Matplotlib&logoColor=black">
   <img src="https://img.shields.io/badge/tqdm-%23FFC107.svg?style=for-the-badge&logo=tqdm&logoColor=black">
   <img src="https://img.shields.io/badge/Weights_&_Biases-%23FFBE00.svg?style=for-the-badge&logo=weightsandbiases&logoColor=black">
-  <img src="https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white">
 </p>
 
 <!--- Language, config & testing --->
