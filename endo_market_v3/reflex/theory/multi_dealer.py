@@ -63,7 +63,10 @@ from .analytic_boundary import (
     solve_fixed_point,
     tau as tau_of,
 )
-from ..estimators.br_slope import measure_response_modulus
+# NOTE: the torch-based BR-slope estimator is imported lazily inside the
+# empirical probe functions -- the closed forms here stay numpy-only and a
+# module-level import would create a cycle (estimators -> equilibrium ->
+# theory -> estimators).
 
 
 def n_eff(n_dealers: int, kappa: float) -> float:
@@ -333,6 +336,8 @@ def measure_common_mode_modulus(
     if h_ref is None:
         ref_eff = reference_state(cfg_eff, mispricing=mispricing, liquidity_ratio=liquidity_ratio)
         h_ref = solve_fixed_point(cfg_eff, ref_eff)
+    from ..estimators.br_slope import measure_response_modulus
+
     return measure_response_modulus(cfg_eff, seed=seed, h_ref=h_ref, delta=delta).modulus
 
 
@@ -358,6 +363,8 @@ def measure_differential_modulus(
         ref_eff = reference_state(cfg_eff, mispricing=mispricing, liquidity_ratio=liquidity_ratio)
         h_ref = solve_fixed_point(cfg_eff, ref_eff)
     cfg_diff = effective_config(cfg, 1.0 - float(kappa))
+    from ..estimators.br_slope import measure_response_modulus
+
     return measure_response_modulus(cfg_diff, seed=seed, h_ref=h_ref, delta=delta).modulus
 
 

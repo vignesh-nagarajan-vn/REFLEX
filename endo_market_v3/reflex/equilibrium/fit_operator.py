@@ -1,21 +1,30 @@
 """Fit the Market Response Operator ``T_theta`` by maximum likelihood.
 
-Given a batch of transitions collected under a fixed policy (one deployment), we
-build per-bond ``(feature, target)`` rows and fit the operator to maximise the
-held-out log-likelihood of the next-state deltas and P&L channels.  Early
-stopping on a validation split guards against overfitting the small dataset.
+Given transitions collected under deployed policies, we build per-bond
+``(feature, target)`` rows and fit the operator to maximise the held-out
+log-likelihood of the next-state deltas and P&L channels.  Early stopping on a
+validation split guards against overfitting the small dataset.
 
-The operator is **refit from scratch each RRM iteration** (plain repeated
-retraining): it sees only the current deployment's data, which is exactly why it
-cannot anticipate how the induced distribution shifts when the policy is
-redeployed.
+Two fitting conventions:
+
+* :func:`fit_operator` -- **one deployment** (plain repeated retraining, the v2
+  baseline): the policy summary is ~constant across the training rows, so the
+  operator cannot identify ``d(prediction)/d(summary)`` -- it is *blind* to the
+  distribution response ``dD/dphi``.
+* :func:`fit_operator_windowed` -- **a window of recent deployments** (v3
+  un-blinding): each deployment's rows carry *its own* policy summary (from the
+  policy snapshot deployed at the time), so the summary varies across the
+  training set and the operator's summary-dependence -- the learned ``dD/dphi``
+  read out by
+  :meth:`~reflex.operator.response_operator.MarketResponseOperator.distribution_response`
+  -- is identified.
 """
 
 from __future__ import annotations
 
 import copy
 from dataclasses import dataclass, field
-from typing import List, Sequence, Tuple
+from typing import Any, List, Sequence, Tuple
 
 import torch
 from torch import Tensor
@@ -91,6 +100,46 @@ def _nll(operator: MarketResponseOperator, X: Tensor, Y: Tensor) -> Tensor:
     return -operator.log_prob(X, Y).mean()
 
 
+@dataclass
+class DeploymentRecord:
+    """One deployment's data: its transitions plus the deployed-policy snapshot.
+
+    The snapshot (a deep copy taken at deployment time) is what makes windowed
+    fitting honest: each row's policy summary is computed from the policy that
+    actually generated it, not from whatever the policy has since become.
+    """
+
+    transitions: List[Transition]
+    policy: Any  # deep-copied DealerPolicy snapshot
+
+
+def fit_operator_windowed(
+    operator: MarketResponseOperator,
+    deployments: Sequence[DeploymentRecord],
+    cfg: OperatorConfig,
+    generator: torch.Generator | None = None,
+) -> FitResult:
+    """Fit ``operator`` on a window of deployments (the v3 un-blinding).
+
+    Rows from all deployments are pooled; each deployment's rows carry its own
+    policy summary, so the summary *varies* across the training set and the
+    operator can learn the distribution response ``dD/dphi``.  With a single
+    deployment this reduces exactly to :func:`fit_operator`.
+    """
+    feats: List[Tensor] = []
+    targs: List[Tensor] = []
+    for dep in deployments:
+        X_i, Y_i = build_dataset(dep.transitions, dep.policy)
+        if X_i.shape[0]:
+            feats.append(X_i)
+            targs.append(Y_i)
+    if not feats:
+        return FitResult(n_rows=0)
+    X = torch.cat(feats, dim=0)
+    Y = torch.cat(targs, dim=0)
+    return _train_operator(operator, X, Y, cfg, generator=generator)
+
+
 def fit_operator(
     operator: MarketResponseOperator,
     transitions: Sequence[Transition],
@@ -119,6 +168,17 @@ def fit_operator(
         Loss curves and the baseline/best held-out NLL.
     """
     X, Y = build_dataset(transitions, policy)
+    return _train_operator(operator, X, Y, cfg, generator=generator)
+
+
+def _train_operator(
+    operator: MarketResponseOperator,
+    X: Tensor,
+    Y: Tensor,
+    cfg: OperatorConfig,
+    generator: torch.Generator | None = None,
+) -> FitResult:
+    """Shared MLE training loop over pre-built rows (early stopping on val NLL)."""
     n = X.shape[0]
     result = FitResult(n_rows=n)
     if n == 0:

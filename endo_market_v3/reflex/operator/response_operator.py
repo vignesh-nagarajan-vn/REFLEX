@@ -165,6 +165,57 @@ class MarketResponseOperator(nn.Module):
         return self.forward(features).log_prob(target_norm)
 
     # ------------------------------------------------------------------ #
+    # Learned distribution response (the v3 un-blinding readout)           #
+    # ------------------------------------------------------------------ #
+    def distribution_response(
+        self, state: MarketState, quotes: Quotes, summary: Tensor
+    ) -> Tensor:
+        """Learned sensitivity of every predicted channel to the deployed spread.
+
+        Returns a detached length-``OUT_DIM`` tensor whose ``j``-th entry is
+
+            d E_hat[channel_j] / d summary_h ,
+
+        i.e. the autograd derivative of the operator's predicted per-bond mean
+        (averaged across bonds, in real units) with respect to the *policy
+        summary's central-half-spread component*.  This is the operator's
+        learned counterpart of the theory's distribution response: for the
+        adverse-selection channel the closed form is ``d(psi*tau)/dh =
+        -psi*epsilon(h)`` (theory 1.1/1.2), so a *windowed-fit* operator should
+        report a negative slope of comparable magnitude -- and an operator fit
+        on a single deployment (constant summary) has no signal to learn it
+        from.  This readout is the ML<->math seam of the package.
+        """
+        summ = summary.detach().clone().requires_grad_(True)
+        feats = self.build_features(
+            state.detach(),
+            Quotes(half_spread=quotes.half_spread.detach(), skew=quotes.skew.detach()),
+            summ,
+        )
+        mean_norm = self.forward(feats).mean  # [N, OUT_DIM] (standardized units)
+        mean_real = mean_norm * self.target_std + self.target_mean
+        per_channel = mean_real.mean(dim=0)  # [OUT_DIM]
+        grads = []
+        for j in range(per_channel.shape[0]):
+            (g,) = torch.autograd.grad(
+                per_channel[j], summ, retain_graph=(j < per_channel.shape[0] - 1)
+            )
+            grads.append(g[0])  # component 0 of the summary = mean half-spread
+        return torch.stack(grads).detach()
+
+    def toxic_slope(
+        self, state: MarketState, quotes: Quotes, summary: Tensor
+    ) -> float:
+        """Learned ``d E_hat[adverse_selection_loss] / d h`` (expected negative).
+
+        Convenience view of :meth:`distribution_response` restricted to the
+        adverse-selection channel.  Divide by the adverse severity ``psi``
+        (theory 1.1 §2.5) to convert into a learned ``epsilon_hat(h)``.
+        """
+        adverse_idx = len(DELTA_KEYS) + PNL_KEYS.index("adverse_selection_loss")
+        return float(self.distribution_response(state, quotes, summary)[adverse_idx])
+
+    # ------------------------------------------------------------------ #
     # Differentiable rollout (the object policy optimisation backprops through)
     # ------------------------------------------------------------------ #
     def rollout(
