@@ -4,7 +4,7 @@ A machine learning framework for markets where the data distribution is not fixe
 
 REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed point where the market dynamics induced by a trading policy are stable under repeated interaction with that same policy.
 
-> **Status note.** What is *done*: the literature review (18 papers, see `references.bib`); the five analytic derivations 1.1–1.5 (each **derived in closed form and implemented** as a tested module in `endo_market_v2/`, see §1); and the real-market calibration dataset (`data_collection/`, `preprocessing/`, all verified against known historical values). What is *not yet done*: running the calibrated model to **measure** the empirical phase diagrams (the RRM/PerfGD loops, the `ε`/`N`/universe-size sweeps, median + IQR bands over seeds), analyzing those results, and writing them up for ICAIF 2026. In short — the theory and data are in place; the calibrated empirical results and the paper are the live deliverables. Nothing below should be read as a *measured* result until it appears with data in `results/`.
+> **Status note.** What is *done*: the literature review (18 papers, see `references.bib`); the five analytic derivations 1.1–1.5 (derived in closed form, implemented and tested); the real-market calibration dataset (`data_collection/`, `preprocessing/`, verified against known historical values); and — as of `endo_market_v3` (the **`reflex`** package) — the integrated system: un-blinded operator (learned `dD/dφ`), PerfGD-corrected training loops (analytic + learned), a genuine `N`-dealer market, the three-way `ε`-estimator triangulation, regime-calibrated configs, and the daily 1990–2026 **market-fragility index**, all running end to end (110 tests; 9 experiments smoke-verified 8/8). What is *not yet done*: the **paper-grade full-profile runs** (`run_all --profile full`: many-seed sweeps with median + IQR bands, measured crossings vs predictions), curating those results into `results/`, and writing the ICAIF 2026 paper. Smoke-profile ML artifacts prove the pipeline, not the science; the fragility index, calibrated a-priori boundaries and factor-scaling results are already full-fidelity (closed forms on real data).
 
 ## What it does
 
@@ -198,9 +198,9 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Derive closed-form `γ` and `β` from GLFT/Avellaneda–Stoikov value function — see [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §2–3
 - [x] Derive `dτ/dh` from Barzykin et al. (2025) perturbation expansion — closed form in [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.1
 - [x] Build BR-slope estimator for `ε` (finite-difference, from simulator logs) — exists as `analysis/response_modulus.py`; wired into the validation protocol (§7)
-- [ ] Build Sinkhorn/Wasserstein-based estimator for `ε`
-- [ ] Build CKS-implied informed-flow slope estimator for `ε`
-- [ ] Verify agreement across all three `ε` estimators (triangulation)
+- [x] Build Sinkhorn/Wasserstein-based estimator for `ε` — [`endo_market_v3/reflex/estimators/sinkhorn.py`](../endo_market_v3/reflex/estimators/sinkhorn.py) (exact 1-D quantile `W1` + debiased log-domain Sinkhorn, CRN toxic-flow samples)
+- [x] Build CKS-implied informed-flow slope estimator for `ε` — [`endo_market_v3/reflex/estimators/cks.py`](../endo_market_v3/reflex/estimators/cks.py) (fitted `λ(h) = C0 + C1·exp(−c·h)` flow curve)
+- [x] Verify agreement across all three `ε` estimators (triangulation) — [`endo_market_v3/reflex/estimators/triangulate.py`](../endo_market_v3/reflex/estimators/triangulate.py) + `run_triangulation`; smoke-verified (Sinkhorn/CKS legs agree within ~12%), paper-grade agreement table pending the full-profile run
 - [x] Prove the analytic stability boundary theorem (Priority 1) — [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.4
 - [x] Implement PerfGD using the analytic `dD/dφ` — closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; implemented in [`endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) (+ shared [`analysis/analytic_boundary.py`](../endo_market_v2/endo_market/analysis/analytic_boundary.py))
 - [x] Prove PerfGD convergence rate to the performative optimum (Priority 2) — [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §4–5 (`O(1/k)`, linear at `1−η·γ_PO`, stable beyond `ε*`)
@@ -218,7 +218,7 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure — hybrid approach adopted; regime-level params grounded in real data (data/processed/reflex_I_calibration_params.csv), trade-level microstructure simulator-generated pending TRACE access (docs/REJECTED_SOURCES.md)
 - [x] Request/obtain WRDS or equivalent academic access to TRACE — not complete; application path at wrds-www.wharton.upenn.edu, documented in docs/REJECTED_SOURCES.md
 - [x] Acquire bond static data (duration, DV01, rating) for calibration — DV01 proxy in data/raw/reflex_C_treasury10y_monthly.csv (dv01_10y col); IG/HY rating-bucket σ and k ranges in data/processed/reflex_I_calibration_params.csv; per-bond CUSIP-level statics pending TRACE access
-- [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps — implemented in reflex/src/simulator.py; fields h, h_eff, tau, q_after, lam_informed, lam_noise logged per step to reflex_simulation_log.csv; stability estimators written to reflex_run_summary.csv; phase diagram in reflex_phase_diagram.csv
+- [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps — the live implementation is the `reflex` package ([`endo_market_v3/`](../endo_market_v3/)): per-step transitions carry `(h, informed_volume, q_after, gross_volume)`; sweeps/loops write per-point CSVs to `endo_market_v3/outputs/` (the earlier prototype logging schema in the preprocessing docs described the same fields)
 
 ### Preprocessing
 - [x] Clean and deduplicate TRACE trade records, if used — complete. Applied to reflex_G_bond_returns_monthly.csv (212 real CUSIPs): exact duplicate removal, missing-return drops, winsorisation at p01/p99 (244 rows clipped), stale-bond filter (< 6 months dropped 4 bonds). Output: data/preprocessed/01_master_cleaned.csv. Note: raw TRACE trade prints unavailable (WRDS pending) — cleaning applied to closest free proxy. Documented in docs/REJECTED_SOURCES.md.
@@ -228,21 +228,21 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Define episode-level (not trade-level) calibration/held-out split — complete. Split on ε: calibration ≤ 0.75 (832), validation 0.75–0.85 (104), held-out > 0.85 (104). Real-data split by date in icaif_split column. → data/preprocessed/05_calibration_episodes.csv, 05_heldout_episodes.csv.
 
 ### Model architecture
-- [ ] Select architecture for learned operator `T_θ`
-- [ ] Implement GLFT/Avellaneda–Stoikov baseline policy
-- [x] Implement PerfGD correction module — [`equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) (`perfgd_correction`, `perfgd_gradient`, `run_perfgd`)
-- [x] Implement `N`-dealer multi-agent extension — [`analysis/multi_dealer_modulus.py`](../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py) (analytic boundary + genuine `N`-dim joint cobweb `run_joint_rrm`)
-- [ ] Implement BR-slope, Sinkhorn, and CKS estimator heads as diagnostics
+- [x] Select architecture for learned operator `T_θ` — settled and implemented in v3: MLP encoder + Gaussian/mixture head over per-bond features, **conditioned on a per-deployment policy summary and fit over a window of deployments** so `d(prediction)/d(summary)` — the learned `dD/dφ` — is identified ([`endo_market_v3/reflex/operator/response_operator.py`](../endo_market_v3/reflex/operator/response_operator.py), `distribution_response`)
+- [x] Implement GLFT/Avellaneda–Stoikov baseline policy — [`endo_market_v3/reflex/policy/glft_baseline.py`](../endo_market_v3/reflex/policy/glft_baseline.py) (closed-form `h_SP` / `h_PO` quoting)
+- [x] Implement PerfGD correction module — analytic 1-D machinery in [`endo_market_v3/reflex/theory/perfgd.py`](../endo_market_v3/reflex/theory/perfgd.py); the *training-loop* correction hooks in [`reflex/equilibrium/optimize_policy.py`](../endo_market_v3/reflex/equilibrium/optimize_policy.py)
+- [x] Implement `N`-dealer multi-agent extension — analytic boundary in [`reflex/theory/multi_dealer.py`](../endo_market_v3/reflex/theory/multi_dealer.py) **plus the genuine shared-pool market** [`reflex/env/multi_dealer.py`](../endo_market_v3/reflex/env/multi_dealer.py) (bit-for-bit single-dealer reduction at `N=1`) and the simulated joint cobweb/probes [`reflex/equilibrium/joint_loop.py`](../endo_market_v3/reflex/equilibrium/joint_loop.py)
+- [x] Implement BR-slope, Sinkhorn, and CKS estimator heads as diagnostics — [`endo_market_v3/reflex/estimators/`](../endo_market_v3/reflex/estimators/)
 
 ### Training and tuning
-- [ ] Implement baseline RRM training loop
-- [ ] Implement PerfGD-corrected training loop
-- [ ] Add stability-aware loss penalties (collapse, fragmentation, `m` divergence)
-- [ ] Sweep lazy-deploy `K` and report effect on `γ_eff`
-- [ ] Sweep `ε`, `N`, and universe size across multiple seeds for phase diagrams
+- [x] Implement baseline RRM training loop — [`endo_market_v3/reflex/equilibrium/loops.py`](../endo_market_v3/reflex/equilibrium/loops.py) (`run_loop(mode="rrm")`; the v2-compatible `rrm_loop.py` kept as the frozen baseline)
+- [x] Implement PerfGD-corrected training loop — `run_loop(mode="perfgd_analytic")` (closed-form surrogate gradient) and `run_loop(mode="perfgd_learned")` (live summary; the operator's learned `dD/dφ` enters the gradient), with per-iteration learned-vs-analytic slope diagnostics
+- [x] Add stability-aware loss penalties (collapse, fragmentation, `m` divergence) — wired into [`reflex/equilibrium/optimize_policy.py`](../endo_market_v3/reflex/equilibrium/optimize_policy.py) via the `stability` config weights (entropy / HHI / toxicity / Lipschitz)
+- [ ] Sweep lazy-deploy `K` and report effect on `γ_eff` (`rrm.rgd_steps` is the knob; the sweep experiment is pending)
+- [ ] Sweep `ε`, `N`, and universe size across multiple seeds for phase diagrams — infrastructure complete (`run_sweep`, `run_dealers`, `run_universe`); **paper-grade full-profile runs pending** (`run_all --profile full`)
 - [ ] Tune Sinkhorn entropic regularization strength
 - [ ] Tune ambiguity-set radius for robust stability point
-- [ ] Report median + IQR bands (not single-seed point estimates) for all phase diagrams
+- [x] Report median + IQR bands (not single-seed point estimates) for all phase diagrams — built into `run_sweep` (median + IQR + the 1.4 robust bands per grid point); applies to every full-profile run
 - [ ] Include LEAN validation (justification for all mathematical proofs)
 
 ### ICAIF-specific submission requirements

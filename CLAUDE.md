@@ -22,52 +22,62 @@ best-response contraction modulus `m ≈ εβ/γ`; the loop is stable iff `ε < 
 
 | Path | Status | Notes |
 |------|--------|-------|
-| `endo_market_v2/` | **CURRENT — work here** | The live experiment and library (simulator + all five analytic modules). |
-| `new-methodology/` | **Active — research program** | The forward roadmap and its deliverables: `math-theory/` (closed-form derivations 1.1–1.5, all **derived + coded**), the real-data pipeline (`data_collection/`, `preprocessing/`), plus still-placeholder `simulator/`, `experiments/`, `results/`. See "The research program" below. |
+| `endo_market_v3/` | **CURRENT — work here** | The self-contained third generation: package **`reflex`** (un-blinded ML + theory 1.1–1.5 + real-data calibration + all experiments). |
+| `new-methodology/` | Active reference | The research roadmap, the canonical math derivations (`math-theory/`, with LaTeX/PDF), and the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v3 ships copies of its outputs). |
 | `literature/literature-vignesh/` | Active reference | 10 foundational papers + reading map; PDFs downloaded. |
 | `literature/literature-raghav/` | Active reference | Superset: same 10 + 8 extension papers (18 total) + research roadmap. |
-| `endo_market_v1/` | **Legacy** | Earlier iteration (formerly `endo_market/`) superseded by `endo_market_v2`. Don't extend it. |
+| `endo_market_v2/` | **Superseded** | Second generation; its result (the ε* crossing) and modules were absorbed into v3. Keep frozen — don't extend it. |
+| `endo_market_v1/` | **Legacy** | Earliest Python iteration (formerly `endo_market/`). Don't extend it. |
 | `edl_simulator_v1/` | **Legacy prototype** | HTML/JS mockup; the earliest analytical version, superseded. |
 
 When asked to change "the code" or "the experiment," default to
-`endo_market_v2/` unless the user names a legacy folder explicitly. The
-analytic-theory *code* also lives in `endo_market_v2/` (in `analysis/` and
-`equilibrium/`); `new-methodology/` holds its written derivations, the dataset,
-and the roadmap.
+`endo_market_v3/` unless the user names an older folder explicitly. v3 is
+deliberately **self-contained**: derivation copies in `theory/`, data copies in
+`data/`, experiments and tests inside the folder.
 
-## `endo_market_v2` internals
+## `endo_market_v3` internals (package `reflex`)
 
-Package root: `endo_market_v2/endo_market/`. Pipeline mirrors the RRM loop:
+Package root: `endo_market_v3/reflex/`. The three strands and where they live:
 
-- `env/` — the market simulator (`simulator.py`), `bonds.py`, `clients.py`
-  (toxic/informed flow; the `toxicity_feedback` gain `ε` lives here, plus the
-  multi-dealer `n_dealers` / `toxic_spillover` knobs for 1.3),
-  `liquidity_field.py`.
-- `policy/dealer_policy.py` — the dealer's quoting policy `φ` (bid–ask
-  half-spread `h`).
-- `operator/` — the learned market response operator `T_θ` (`response_operator.py`,
-  `heads.py`). Note: `T_θ` conditions on a `policy_summary` frozen within a
-  deployment, so it is **blind to `dD/dφ`** — this is the central modeled
-  limitation (PerfGD, paper #4, is the intended fix, now implemented in
-  `perfgd_loop.py`).
-- `equilibrium/` — the RRM machinery: `data_collection.py` → `fit_operator.py`
-  → `optimize_policy.py`, orchestrated by `rrm_loop.py`; **plus `perfgd_loop.py`**
-  (the analytic PerfGD-corrected loop, math-theory 1.2).
-- `objective/` — `reward.py` (P&L, inventory penalty) and `stability.py`.
-- `analysis/` — diagnostics **and the closed-form analytic-theory modules**:
-  `response_modulus.py` (the model-free BR-slope modulus `m`), plus the
-  math-theory implementations `analytic_boundary.py` (1.1: closed-form `γ`, `β`,
-  `ε`, `τ`, `ψ`, `h*`, `m` — the shared foundation), `multi_dealer_modulus.py`
-  (1.3: `ε < γ/(N_eff·β)`, joint Jacobian/spectrum, mean-field limit),
-  `robust_boundary.py` (1.4: ambiguity radius, robust certificate, `O(1/√n)`
-  rate), `factor_reduction.py` (1.5: `d×d` modulus matrix, Woodbury reduction,
-  truncation bound); and `convergence.py`, `metrics.py`, `sweep.py`, `plots.py`.
-- `utils/` — `seeding.py` (everything is reproducible from `(config, seed)`),
-  `logging.py`.
+- **Environment (`env/`)** — `simulator.py` (single-dealer `T_true`),
+  `clients.py` (toxic/informed flow; the `toxicity_feedback` gain `ε`),
+  `bonds.py`, `liquidity_field.py`, and **`multi_dealer.py`** (genuine
+  `N`-dealer market sharing one informed pool with spillover `κ`; reduces
+  bit-for-bit to the single-dealer market at `N = 1`).
+- **Policies (`policy/`)** — `dealer_policy.py` (linear/MLP) and
+  `glft_baseline.py` (non-learned closed-form baseline quoting the analytic
+  `h_SP` or `h_PO`).
+- **Operator (`operator/`)** — `response_operator.py`: `T_θ` with the v3
+  un-blinding: `distribution_response()` / `toxic_slope()` read the *learned*
+  `dD/dφ` out by autograd w.r.t. the policy summary. Whether it can learn that
+  depends on **windowed fitting** (`operator.context_window` deployments per
+  fit); frozen-summary optimisation keeps the blind v2 baseline available.
+- **Theory (`theory/`)** — the five closed-form modules, numpy-only:
+  `analytic_boundary` (1.1), `perfgd` (1.2), `multi_dealer` (1.3), `robust`
+  (1.4), `factor_scaling` (1.5). Derivation documents ship in
+  `endo_market_v3/theory/` with a code map.
+- **Loops (`equilibrium/`)** — `loops.py` `run_loop(mode=...)`:
+  `rrm` (blind baseline) | `perfgd_analytic` (closed-form correction
+  `Δ = −β(h−ψ)ε(h)` as a surrogate gradient) | `perfgd_learned` (live summary —
+  the learned `dD/dφ` enters the gradient). Every iteration logs the learned
+  toxic slope next to the analytic one (the ML↔math seam). `joint_loop.py`
+  runs the simulated `N`-dealer cobweb + CRN joint-modulus probes.
+  `rrm_loop.py` is the frozen v2-compatible baseline.
+- **Estimators (`estimators/`)** — the three-way `ε` triangulation:
+  `br_slope` (CRN best-response probe), `sinkhorn` (exact 1-D quantile W1 +
+  debiased log-domain Sinkhorn), `cks` (fitted informed-flow-curve slope),
+  `triangulate` (all three vs the closed form).
+- **Calibration (`calibration/`)** — `loader.py` (shipped data CSVs),
+  `mapping.py` (`(rating, regime) → Config`; the package's single
+  unit-conversion point), `regimes.py` (VIX regimes).
+- **Analysis (`analysis/`)** — `fragility.py` (the daily 1990–2026
+  market-fragility index from real data), `phase.py` (analytic prediction
+  curves, `(N, ε)` surface), plus `convergence`, `metrics`, `sweep`, `plots`.
 
-Experiments: `experiments/run_single.py` and `experiments/run_sweep.py`.
-Configs: `configs/{default,sweep_feedback,sweep_adversariality}.yaml`.
-Outputs (phase-diagram PNG + sweep CSV) are written to `outputs/`.
+Experiments (`experiments/`): `run_single`, `run_sweep` (predict-then-verify +
+robust bands), `run_perfgd` (`--ml` for the three-mode loops), `run_dealers`,
+`run_universe`, `run_triangulation`, `run_fragility`, `run_calibrated`, and
+`run_all --profile smoke|full`. Configs in `configs/`; artifacts in `outputs/`.
 
 ## Conventions & gotchas
 
@@ -80,32 +90,54 @@ Outputs (phase-diagram PNG + sweep CSV) are written to `outputs/`.
   "fix" this — it's a documented feature. Use `sweep_feedback.yaml` for the
   headline result.
 - **The modulus saturates (~1.25) past the boundary** rather than blowing up —
-  defensive widening into a low-curvature (`γ → 0`) region. Expected behavior.
+  defensive widening into a low-curvature (`γ → 0`) region. Expected behavior
+  (now derived in closed form: theory 1.1 §6.3).
+- **Calibrated configs use real units** (per-$100-par, h ~ 0.4–3.5 per 100 par;
+  one step ~ one trading day). Never hard-code absolute spread constants —
+  probe widths, tolerances and caps must be *relative* to the configured spread
+  scale. `reflex/calibration/mapping.py` is the only unit-conversion point.
+- **Only `(A, k, σ, h)` are data-identified**; the toxic channel is
+  structurally scaled (documented ratios in `mapping.py`). The crisis-regime
+  intensity fit is degenerate (`k = 0`) — crisis boundaries sit on the anchor
+  floor and are flagged. State all of this plainly in any write-up.
+- **`summary_mode` is the blind/un-blinded switch.** Frozen summary = blind RRM
+  (v2 convention); live summary + `operator.context_window ≥ 2` = the learned
+  `dD/dφ` enters the gradient. `perfgd_learned` with window 1 is noise (the
+  loop warns).
+- **Multi-dealer runs can saturate `info_cap`**: the combined gross flow of `N`
+  dealers inflates the shared liquidity field. Scale `liq_flow_boost` down or
+  `info_cap` up for flow-allocation studies (see `env/multi_dealer.py`).
+- **Smoke vs full profiles:** `run_all --profile smoke` proves the pipeline
+  (tiny settings, ~minutes); scientific claims need `--profile full` (hours).
+- **Console prints must stay ASCII** — the Windows console (cp1252) crashes on
+  `λ`, `ε`, `m̂` etc. in `print()`. Unicode in matplotlib labels/docstrings is
+  fine.
 - **Math notation:** code/READMEs sometimes use ASCII (`phi`, `epsilon`, `gamma`,
   `dtau/dh`) and sometimes Unicode (`φ`, `ε`, `γ`). Match the surrounding file.
 - This is a **Windows** environment with **PowerShell** as the primary shell; a
   Bash tool is also available. The repo path itself contains a space
-  (`GitHub Projects`) — quote paths.
+  (`GitHub Projects`) — quote paths. Python 3.9 is the system interpreter
+  (venv at `.venv/`); the code targets ≥ 3.9.
 
-## Build / test / run (`endo_market_v2/`)
+## Build / test / run (`endo_market_v3/`)
 
 ```
-pip install -e .
-pytest -q -m "not slow"        # 59 fast tests
-pytest -q -m slow              # +4 slow end-to-end / boundary tests (~min each)
+../.venv/Scripts/python -m pip install -e .        # or: pip install -e .  (in the venv)
+../.venv/Scripts/python -m pytest -q -m "not slow" # 103 fast tests
+../.venv/Scripts/python -m pytest -q -m slow       # +7 slow end-to-end tests
 
-python -m experiments.run_single --config configs/default.yaml --seed 0
-python -m experiments.run_sweep  --config configs/sweep_feedback.yaml
+../.venv/Scripts/python -m experiments.run_all --profile smoke   # everything, ~minutes
+../.venv/Scripts/python -m experiments.run_all --profile full    # paper-grade, hours
+../.venv/Scripts/python -m experiments.run_fragility             # real-data index, seconds
 ```
 
-63 tests total across 9 files (`test_simulator`, `test_policy`, `test_operator`,
-`test_rrm_convergence`, plus one per analytic module: `test_analytic_boundary`,
-`test_perfgd_loop`, `test_multi_dealer`, `test_robust_boundary`,
-`test_factor_reduction`). Run these from inside `endo_market_v2/`. Always run the
-fast tests after changing the library. **Note:** the default environment here has
-no `torch` — the run-the-model phase needs `pip install -e .` first. See
-`endo_market_v2/README.md` for full methodology, the locked P&L identity, and
-honest caveats.
+110 tests total across 15 files (the 9 inherited from v2 — simulator, policy,
+operator, rrm-convergence, the five analytic modules — plus `test_glft_baseline`,
+`test_calibration`, `test_fragility`, `test_estimators`, `test_unblinded_operator`,
+`test_perfgd_ml`, `test_multi_dealer_env`). Run from inside `endo_market_v3/`,
+using the repo venv (`.venv/` at the repo root — system Python has no torch).
+Always run the fast tests after changing the library. See
+`endo_market_v3/README.md` for methodology, layout, and honest caveats.
 
 ## Working with the literature
 
@@ -121,43 +153,40 @@ fetched per-collection via `download_pdfs.sh` (open-access arXiv preprints).
 The novelty claim: derive the performativity stability boundary analytically
 from microstructure primitives instead of sweeping it by hand. Structure:
 
-- `math-theory/` — five derivations, **all DONE (derived + coded)**:
-  1.1 analytic boundary `m = εβ/γ`, 1.2 PerfGD un-blinding, 1.3 multi-dealer
-  systemic risk `ε < γ/(N_eff·β)`, 1.4 robust boundary `O(1/√n)`, 1.5
-  factor-model scaling to 100+ bonds. Each `.md` has a compilable `.tex` twin
-  (PDFs under `math-theory/latex-papers/`) and maps to a module in
-  `endo_market_v2/endo_market/analysis/` (see the code map in
-  `math-theory/README.md`). Remaining math sub-items: the Sinkhorn and
-  CKS-implied `ε` estimators and the three-way triangulation.
-- `data_collection/` + `preprocessing/` — the **real-data calibration dataset**
-  (the "newly uploaded dataset"). ~36 yrs daily / 70 yrs monthly of *public,
-  verified* macro + bond-factor series (CBOE VIX, EIA WTI, Fed H.15 10y,
-  Shiller, gold/CPI, Dickerson–Mueller–Robotti TRACE bond factors, 212 real-CUSIP
-  bond returns) joined into `REFLEX_MASTER_DATASET.csv`, then cleaned/enriched
-  into calibration + held-out episode splits. **Provenance gotcha (state this
-  plainly in the paper):** it is *not* trade-level TRACE — `h`, per-dealer `q`,
-  and real per-bond `A`/`k` need WRDS TRACE Enhanced (pending); the pipeline uses
-  the closest free proxies (VIX-implied spreads, Dickerson liquidity/credit
-  factors). See `data_collection/docs/REJECTED_SOURCES.md`.
-- `simulator/`, `experiments/`, `results/` — still placeholders; they fill in
-  during the run-the-model phase below.
+- `math-theory/` — the five canonical derivations (1.1 analytic boundary
+  `m = εβ/γ`, 1.2 PerfGD un-blinding, 1.3 multi-dealer `ε < γ/(N_eff·β)`,
+  1.4 robust boundary `O(1/√n)`, 1.5 factor scaling), each `.md` with a
+  compilable `.tex` twin (PDFs under `latex-papers/`). **Authoritative
+  implementations now live in `endo_market_v3/reflex/theory/`** (copies of the
+  documents ship in `endo_market_v3/theory/`); the older
+  `endo_market_v2/endo_market/analysis/` modules are the frozen originals.
+- `data_collection/` + `preprocessing/` — the **canonical real-data pipeline**:
+  ~36 yrs daily / 70 yrs monthly of *public, verified* macro + bond-factor
+  series (CBOE VIX, EIA WTI, Fed H.15 10y, Shiller, gold/CPI,
+  Dickerson–Mueller–Robotti TRACE bond factors, 212 real-CUSIP bond returns)
+  joined into `REFLEX_MASTER_DATASET.csv`, cleaned/enriched, with fitted
+  intensity params per (rating × regime). v3 ships copies of the artifacts it
+  consumes (`endo_market_v3/data/`). **Provenance gotcha (state this plainly
+  in the paper):** it is *not* trade-level TRACE — `h`, per-dealer `q`, and
+  real per-bond `A`/`k` need WRDS TRACE Enhanced (pending); the pipeline uses
+  the closest free proxies. See `data_collection/docs/REJECTED_SOURCES.md`.
+- `simulator/`, `experiments/`, `results/` — placeholders; the corresponding
+  live code/experiments are inside `endo_market_v3/`; `results/` is the home
+  for the paper-grade figures once the full-profile runs land.
 
 ## Current phase & next steps
 
-Theory (1.1–1.5) is derived and coded; the real-data calibration pipeline is
-built. The **live to-do**, in order:
+Theory (1.1–1.5) derived and coded; the ML is un-blinded and integrated with
+the math; calibration + all nine experiments run end to end (smoke-verified,
+8/8). The **live to-do**, in order:
 
-1. **Run the model applying the math theory + the dataset** — calibrate the
-   simulator/analytic modules from the `new-methodology/` dataset, run the RRM
-   and PerfGD loops and the `ε`/`N`/universe-size sweeps, and generate output
-   data (phase diagrams, echo-chamber gap, multi-dealer boundary) with
-   median + IQR bands over seeds.
-2. **Analyze** the results (`new-methodology/results/` is the home for figures +
-   raw data).
+1. **Paper-grade runs** — `python -m experiments.run_all --profile full`
+   (hours of CPU): the ε-sweep phase diagram with predicted-vs-measured
+   crossing + robust bands, the three-mode PerfGD loops, dealer probes, and
+   measured calibrated boundaries; more seeds for median + IQR bands.
+   (The fragility index, calibrated a-priori boundaries and universe scaling
+   are already full-fidelity — they are closed forms on real data.)
+2. **Analyze** the results (curate into `new-methodology/results/`).
 3. **Write the ICAIF 2026 paper** (conference-ready; ACM `sigconf`, 8 pages,
-   double-blind, deadline Aug 2 2026). The submission checklist is in
+   double-blind, deadline Aug 2 2026). Checklist in
    `new-methodology/README.md` (§ To-Do → ICAIF-specific requirements).
-
-Most unchecked To-Do items now live under "Training and tuning" (run the loops,
-sweeps, phase diagrams) and the paper — not the math. See
-`new-methodology/README.md#to-do` for the authoritative checklist.

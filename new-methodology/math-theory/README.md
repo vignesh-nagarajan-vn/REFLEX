@@ -17,21 +17,23 @@ what is established in prior literature from what this project derives.
 
 ## Code
 
-The implementations of these derivations live in the **`endo_market_v2`** library
-(the authoritative package, per the root `CLAUDE.md`), so every analytic claim runs
-and is tested against the simulator:
+The **authoritative implementations** live in the `reflex` package
+(**`endo_market_v3/`**, per the root `CLAUDE.md`) as the numpy-only subpackage
+`reflex.theory`; copies of these documents ship with the package under
+`endo_market_v3/theory/`. The original `endo_market_v2` modules are kept frozen.
 
-| Priority | Module | Contents |
-|----------|--------|----------|
-| **1.1** | [`analysis/analytic_boundary.py`](../../endo_market_v2/endo_market/analysis/analytic_boundary.py) | Closed-form `gamma`, `beta`, `epsilon`, `tau`, `psi`, the best-response map, the fixed point `h*`, and the modulus `m`. Shared foundation for 1.2 and 1.3. |
-| **1.2** | [`equilibrium/perfgd_loop.py`](../../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) | The analytic PerfGD correction `Delta`, the performative optimum `h_PO`, `gamma_PO`, the echo-chamber gap, and the RRM-cobweb-vs-PerfGD demonstration. |
-| **1.3** | [`analysis/multi_dealer_modulus.py`](../../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py) | The `N`-dealer boundary, the joint Jacobian and its spectrum, the mean-field limits, the genuine `N`-dim joint cobweb, and the in-phase / anti-phase empirical probes (+ config fields `clients.n_dealers`, `clients.toxic_spillover`). |
-| **1.4** | [`analysis/robust_boundary.py`](../../endo_market_v2/endo_market/analysis/robust_boundary.py) | The ambiguity radius, the robust certificate (stable / unstable / undecided), the `O(Δ^{-2})` sample-complexity curve, the `O(1/√n)` log-log rate check, the structural floor `eta_mod`, and a cross-seed empirical harness over the existing probe. |
-| **1.5** | [`analysis/factor_reduction.py`](../../endo_market_v2/endo_market/analysis/factor_reduction.py) | The `d×d` modulus matrix `M = beta·Gamma^{-1}·E` and `rho(M)`, the `O(d·k^2)` Woodbury reduction, the `O(lambda_{k+1}(C))` truncation error bound, duration-calibrated `sigma_i`, and the 1.3×1.5 systemic composition. |
+| Priority | Module (authoritative) | Contents |
+|----------|------------------------|----------|
+| **1.1** | [`reflex/theory/analytic_boundary.py`](../../endo_market_v3/reflex/theory/analytic_boundary.py) | Closed-form `gamma`, `beta`, `epsilon`, `tau`, `psi`, the best-response map, the fixed point `h*`, and the modulus `m`. Shared foundation for 1.2 and 1.3. |
+| **1.2** | [`reflex/theory/perfgd.py`](../../endo_market_v3/reflex/theory/perfgd.py) | The analytic PerfGD correction `Delta`, the performative optimum `h_PO`, `gamma_PO`, the echo-chamber gap, and the RRM-cobweb-vs-PerfGD demonstration. The *training-loop* realisation (analytic + learned correction modes) is `reflex/equilibrium/loops.py`. |
+| **1.3** | [`reflex/theory/multi_dealer.py`](../../endo_market_v3/reflex/theory/multi_dealer.py) | The `N`-dealer boundary, the joint Jacobian and its spectrum, the mean-field limits, and the empirical probes. The *genuine* simulated `N`-dealer market is `reflex/env/multi_dealer.py` + `reflex/equilibrium/joint_loop.py`. |
+| **1.4** | [`reflex/theory/robust.py`](../../endo_market_v3/reflex/theory/robust.py) | The ambiguity radius, the robust certificate (stable / unstable / undecided), the `O(Δ^{-2})` sample-complexity curve, the `O(1/√n)` log-log rate check, the structural floor `eta_mod`; robust bands are wired into every `run_sweep`. |
+| **1.5** | [`reflex/theory/factor_scaling.py`](../../endo_market_v3/reflex/theory/factor_scaling.py) | The `d×d` modulus matrix `M = beta·Gamma^{-1}·E` and `rho(M)`, the `O(d·k^2)` Woodbury reduction, the `O(lambda_{k+1}(C))` truncation error bound, data-calibrated `sigma_i`, and the 1.3×1.5 systemic composition. |
 
-Tests: `endo_market_v2/tests/test_analytic_boundary.py`, `test_perfgd_loop.py`,
-`test_multi_dealer.py`, `test_robust_boundary.py`, `test_factor_reduction.py` (run
-`pytest -q -m "not slow"` from inside `endo_market_v2/`).
+Tests: `endo_market_v3/tests/` (110 tests; run `pytest -q -m "not slow"` from
+inside `endo_market_v3/` using the repo venv). The model-free measurement side
+(the `epsilon` triangulation) is `reflex/estimators/`; the real-data fragility
+index built on 1.1 is `reflex/analysis/fragility.py`.
 
 > **PDF build.** All priorities (1.1 through 1.5) have compiled PDFs in
 > [`latex-papers/`](latex-papers/). Created via Overleaf and LaTeX.
