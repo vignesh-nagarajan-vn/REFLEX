@@ -27,7 +27,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from reflex.analysis import load_sweep_spec, run_sweep
-from reflex.analysis.phase import predicted_crossing, predicted_epsilon_sweep
+from reflex.analysis.phase import (
+    predicted_crossing,
+    predicted_epsilon_sweep,
+    predicted_epsilon_sweep_at,
+)
 from reflex.analysis.sweep import _config_from_base
 from reflex.theory.robust import empirical_radius, robust_certificate
 
@@ -44,19 +48,36 @@ def main(argv=None) -> None:
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # 1) Predict (closed form, before any simulation).
+    # 1) Predict (closed form, before any simulation).  Two curves:
+    #    * at the probe's fixed h_ref -- the apples-to-apples overlay for the
+    #      measured BR-slope sweep (same spread, same object), and
+    #    * at the drifting self-consistent fixed point h*(f) -- the theory's
+    #      own boundary statement, which saturates by defensive widening
+    #      (1.1 Section 6.3) and is reported as context, not as the overlay.
     predicted = None
+    predicted_fp = None
     f_star_pred = None
-    if variable == "toxicity_feedback":
+    if variable in ("toxicity_feedback", "alpha"):
         base_cfg = _config_from_base(spec)
         grid = [float(x) for x in spec["sweep"]["grid"]]
-        predicted = predicted_epsilon_sweep(base_cfg, grid)
+        h_ref_probe = float(spec["sweep"].get("h_ref", 1.0))
+        predicted = predicted_epsilon_sweep_at(base_cfg, grid, h_ref_probe,
+                                               variable=variable)
+        predicted_fp = predicted_epsilon_sweep(base_cfg, grid, variable=variable)
         f_star_pred = predicted_crossing(predicted)
         print("=== analytic prediction (theory 1.1, evaluated before the sweep) ===")
-        for p in predicted:
-            print(f"  f={p.value:6.2f}: m_pred={p.m_pred:.3f} (h*={p.h_star:.3f})")
+        print(f"    at the probe spread h_ref={h_ref_probe:.3f} (overlay) and at h*(f) (context)")
+        for p, pf in zip(predicted, predicted_fp):
+            print(f"  f={p.value:6.2f}: m_pred(h_ref)={p.m_pred:.3f}   "
+                  f"m(h*)={pf.m_pred:.3f} (h*={pf.h_eval:.3f})")
         if f_star_pred is not None:
-            print(f"predicted boundary crossing f* ~ {f_star_pred:.3f}")
+            print(f"predicted boundary crossing at h_ref: f* ~ {f_star_pred:.3f}")
+        f_star_fp = predicted_crossing(predicted_fp)
+        if f_star_fp is not None:
+            print(f"fixed-point-curve crossing: f* ~ {f_star_fp:.3f}")
+        else:
+            print("fixed-point curve m(h*(f)) does not cross 1 on this grid "
+                  "(defensive-widening saturation, 1.1 Section 6.3)")
 
     # 2) Measure.
     print(f"\n=== measured sweep over '{variable}' ===")
@@ -79,8 +100,9 @@ def main(argv=None) -> None:
         row["robust_upper"] = certs[i].upper
         row["robust_lower"] = certs[i].lower
         if predicted is not None:
-            row["m_pred"] = predicted[i].m_pred
-            row["h_star_pred"] = predicted[i].h_star
+            row["m_pred"] = predicted[i].m_pred  # at the probe h_ref
+            row["m_pred_hstar"] = predicted_fp[i].m_pred  # at h*(f), saturating
+            row["h_star_pred"] = predicted_fp[i].h_eval
     csv_path = outdir / f"sweep_{variable}_results.csv"
     with open(csv_path, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
@@ -105,7 +127,9 @@ def main(argv=None) -> None:
         )
         if predicted is not None:
             ax.plot(result.values, [p.m_pred for p in predicted], "k--",
-                    label="analytic m_pred (1.1)")
+                    label="analytic m_pred at h_ref (1.1)")
+            ax.plot(result.values, [p.m_pred for p in predicted_fp], "k:",
+                    lw=1.2, label="analytic m at h*(f) (saturating, 1.1 §6.3)")
         ax.axhline(1.0, color="gray", ls=":", lw=1.0)
         if result.critical_value is not None:
             ax.axvline(result.critical_value, color="C0", ls="--", lw=0.9,

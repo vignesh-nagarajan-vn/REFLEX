@@ -1,21 +1,23 @@
-# Adversariality sweep: run RRM across a grid of alpha and build the phase
-# diagram locating the critical alpha* where the empirical contraction modulus
-# L_hat crosses 1 (stable -> divergent).
+# SECONDARY (documented-confound) sweep: the adversariality alpha.
 #
-# `base` mirrors the single-run config (kept small for CPU); `sweep` lists the
-# grid + number of seeds. Each (alpha, seed) cell runs a full RRM trajectory.
+# Sweeping alpha is confounded by design (theory 1.1 Section 6.4): it moves
+# both the feedback slope epsilon (numerator) and the operating regime /
+# fixed point (the dealer widens into the low-curvature region), so the net
+# modulus trend flattens or reverses -- a reported finding, not the headline
+# result.  Use sweep_feedback.yaml for the clean control variable.
+#
+# v3 spec format: the sweep probes the CRN BR-slope modulus at h_ref per
+# (value, seed) cell; the closed-form overlay is evaluated at the same h_ref.
+seed: 0
+device: cpu
+dtype: float32
+
 base:
-  seed: 0
-  device: cpu
-  dtype: float32
   bonds:
-    n_bonds: 6
+    n_bonds: 8
     n_sectors: 2
   clients:
-    alpha: 0.15
-    base_arrival_rate: 1.0
-    demand_elasticity: 1.5
-    info_signal_noise: 0.6
+    alpha: 0.5
     info_intensity: 1.4
     info_base_intensity: 0.6
     info_spread_decay: 1.5
@@ -25,36 +27,29 @@ base:
   simulator:
     horizon: 40
     fundamental_vol: 0.25
-    impact: 0.30
-    mid_reversion: 0.10
-    mid_move_cap: 4.0
     init_mispricing_vol: 0.5
+    mid_move_cap: 4.0
   operator:
-    hidden: 48
+    hidden: 64
     head_type: gaussian
-    lr: 0.001
-    epochs: 40
-    patience: 6
+    epochs: 50
   policy:
     type: linear
-    lr: 0.03
-    inner_steps: 40
-    rollout_horizon: 12
-    n_rollouts: 12
+    inner_steps: 60
+    rollout_horizon: 16
+    n_rollouts: 16
     init_half_spread: 0.8
   reward:
     inv_risk_weight: 0.05
     quote_anchor_weight: 0.25
     quote_anchor_ref: 1.0
-  stability:
-    lipschitz_w: 0.0
   rrm:
-    max_iters: 12
-    tol: 0.001
     n_episodes: 16
-    eval_episodes: 10
 
 sweep:
-  alpha_grid: [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.80]
-  n_seeds: 3
+  variable: alpha
+  grid: [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.80]
+  n_seeds: 5
   seed_base: 100
+  h_ref: 1.0
+  delta: 0.25
