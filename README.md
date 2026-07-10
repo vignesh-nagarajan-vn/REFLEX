@@ -124,12 +124,13 @@ learning.
     |- literature/                  ← two curated literature collections
     |  |- literature-vignesh/       ← 10 foundational papers + reading map (PDFs downloaded)
     |  \- literature-raghav/        ← same core + 8 extension papers + research roadmap
-    |- new-methodology/             ← research roadmap, canonical math derivations + data pipeline
+    |- research/                    ← the research program around endo_market_v3: theory, data, runs, analyses
     |  |- README.md                 ← full methodology write-up and the To-Do checklist
     |  |- math-theory/              ← canonical derivations 1.1–1.5 (.md + .tex + PDFs)
     |  |- data_collection/          ← real macro + bond-factor dataset (raw/processed/master) + verification
     |  |- preprocessing/            ← cleaning, calibration fit (A,k), episode splits
-    |  \- simulator|experiments|results/ ← placeholders (live code sits in endo_market_v3/)
+    |  |- results/                  ← executed paper-grade runs (artifacts per experiment + logs)
+    |  \- analysis/                 ← written analyses of those runs (tables, figures, breakdowns)
     |- endo_market_v2/              ← superseded second generation (result absorbed into v3)
     |- endo_market_v1/              ← earliest Python iteration (formerly endo_market/)
     \- edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
@@ -231,10 +232,10 @@ Full per-paper notes and BibTeX live in each collection's `README.md` and
 `references.bib`. PDFs land in each collection's `pdfs/` after running its
 `download_pdfs.sh`.
 
-## Analytic stability theory (`new-methodology/`)
+## Analytic stability theory (`research/`)
 
 Where the simulator *measures* the stability boundary by sweeping, the
-[`new-methodology/math-theory/`](new-methodology/math-theory/) program **derives it
+[`research/math-theory/`](research/math-theory/) program **derives it
 in closed form** from the simulator's own microstructure primitives - then verifies
 each derivation against the code. All five priorities are **derived *and*
 implemented** as dependency-light closed-form modules - authoritative versions in
@@ -255,14 +256,14 @@ abstract constants of an unspecified loss. REFLEX pins them to a *structural* OT
 market-making model and turns that single point boundary into a **predictive,
 un-blindable, multi-dealer, statistically-robust, 100+-bond** one - every claim
 stated as a closed form and made falsifiable against the simulator. See
-[`new-methodology/README.md`](new-methodology/README.md) for the full methodology and
-[`new-methodology/math-theory/`](new-methodology/math-theory/) for the derivations
+[`research/README.md`](research/README.md) for the full methodology and
+[`research/math-theory/`](research/math-theory/) for the derivations
 (each with a compilable LaTeX companion) and the module-by-module code map.
 
 ## Data (real-market calibration)
 
-[`new-methodology/data_collection/`](new-methodology/data_collection/) and
-[`new-methodology/preprocessing/`](new-methodology/preprocessing/) hold a
+[`research/data_collection/`](research/data_collection/) and
+[`research/preprocessing/`](research/preprocessing/) hold a
 **real, public, verified** dataset used to calibrate the simulator's
 microstructure regime - ~36 years of daily and ~70 years of monthly series
 joined into `REFLEX_MASTER_DATASET.csv`:
@@ -280,7 +281,7 @@ joined into `REFLEX_MASTER_DATASET.csv`:
 trade-level TRACE - dealer-side prints, per-dealer inventory `q`, and per-bond
 `A`/`k` require WRDS TRACE Enhanced (access pending), so those quantities are
 proxied from the closest free sources. See
-[`data_collection/docs/REJECTED_SOURCES.md`](new-methodology/data_collection/docs/REJECTED_SOURCES.md).
+[`data_collection/docs/REJECTED_SOURCES.md`](research/data_collection/docs/REJECTED_SOURCES.md).
 
 `endo_market_v3` **ships copies** of the artifacts it consumes
 ([`endo_market_v3/data/`](endo_market_v3/data/)) so the package is
@@ -301,7 +302,7 @@ program, in order:
    The fragility index, calibrated a-priori boundaries and universe scaling
    are already full-fidelity (closed forms on real data).
 2. **Analyze** - curate figures and raw data into
-   [`new-methodology/results/`](new-methodology/results/).
+   [`research/results/`](research/results/).
 3. **Write the paper** - conference-ready for [ICAIF 2026](https://icaif2026.org/)
    (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026).
 
@@ -310,17 +311,17 @@ program, in order:
 The research program targets one novelty claim: derive the performativity
 stability boundary analytically from microstructure primitives instead of
 sweeping it by hand. In priority order (full checklist in
-[`new-methodology/README.md`](new-methodology/README.md#to-do)):
+[`research/README.md`](research/README.md#to-do)):
 
 - [x] **Analytic boundary (P1):** derive `γ`, `β`, and the toxic slope `dτ/dh` in closed form (GLFT/Avellaneda-Stoikov + Barzykin adverse selection). *Derived + coded* ([`reflex/theory/analytic_boundary.py`](endo_market_v3/reflex/theory/analytic_boundary.py)); the three-way `ε` triangulation (BR-slope / Sinkhorn / CKS) is *built and smoke-verified* ([`reflex/estimators/`](endo_market_v3/reflex/estimators/)).
 - [x] **Un-blind the operator (P2):** PerfGD-corrected loop using the analytic `dD/dφ` **and** the learned `dD/dφ` (windowed operator + live summary). *Derived + coded* ([`reflex/theory/perfgd.py`](endo_market_v3/reflex/theory/perfgd.py), [`reflex/equilibrium/loops.py`](endo_market_v3/reflex/equilibrium/loops.py)).
 - [x] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, **and a genuine `N`-dealer simulated market**. *Derived + coded* ([`reflex/theory/multi_dealer.py`](endo_market_v3/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](endo_market_v3/reflex/env/multi_dealer.py)).
 - [x] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`; robust bands wired into every sweep. *Derived + coded* ([`reflex/theory/robust.py`](endo_market_v3/reflex/theory/robust.py)).
 - [x] **Scale and calibrate (P5):** 100+ correlated bonds via factor-model reduction (`ρ(M)<1`, `O(d·k²)` Woodbury) with data-calibrated per-bond σ; regime-calibrated microstructure from the real dataset. *Derived + coded* ([`reflex/theory/factor_scaling.py`](endo_market_v3/reflex/theory/factor_scaling.py), [`reflex/calibration/`](endo_market_v3/reflex/calibration/)); trade-level TRACE calibration remains pending WRDS access.
-- [ ] Paper-grade full-profile runs → curated results (`new-methodology/results/`).
+- [ ] Paper-grade full-profile runs → curated results (`research/results/`).
 - [ ] Secure a research placement at a top AI lab (with affiliation).
 - [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance; deadline Aug 2, 2026) or another main-track venue.
 
-See the [To-Do section of `new-methodology/README.md`](new-methodology/README.md#to-do)
+See the [To-Do section of `research/README.md`](research/README.md#to-do)
 for the full task breakdown across math, data, preprocessing, architecture,
 training, and ICAIF submission requirements.

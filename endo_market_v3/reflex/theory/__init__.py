@@ -1,8 +1,8 @@
-"""Closed-form math-theory modules (new-methodology priorities 1.1-1.5).
+"""Closed-form math-theory modules (research priorities 1.1-1.5).
 
 Each module implements, as pure functions of :class:`reflex.config.Config`
 (numpy/scipy only -- no torch), one derivation from ``theory/`` (the copies of
-``new-methodology/math-theory/`` shipped with this package):
+``research/math-theory/`` shipped with this package):
 
 * :mod:`.analytic_boundary` -- 1.1: closed-form ``gamma``, ``beta``,
   ``epsilon``, the fixed point ``h*`` and the modulus ``m = epsilon*beta/gamma``.

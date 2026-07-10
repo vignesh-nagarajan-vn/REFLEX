@@ -6,7 +6,7 @@ common-random-numbers (CRN) best-response probe
 :func:`measure_response_modulus` from a finite number ``n`` of simulated episodes,
 so the crossing ``m = 1`` is a random event.  This module turns the point boundary
 into a **statistically defensible** one, following
-``new-methodology/math-theory/04-robust-uncertainty.md``:
+``research/math-theory/04-robust-uncertainty.md``:
 
 * the estimator concentrates at the **parametric rate** ``|m_hat_n - m| =
   O_p(1/sqrt(n))`` -- a property *bought by the CRN construction* in the probe (a

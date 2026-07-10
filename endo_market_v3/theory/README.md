@@ -1,7 +1,7 @@
 # theory/ — the five closed-form derivations (shipped copies)
 
 Self-contained copies of the REFLEX math-theory derivations (canonical originals
-live in `../../new-methodology/math-theory/`, including `.tex` sources and
+live in `../../research/math-theory/`, including `.tex` sources and
 compiled PDFs under `latex-papers/`). Each maps to a module in
 [`../reflex/theory/`](../reflex/theory/):
 

@@ -1,7 +1,7 @@
 """Multi-dealer competition and systemic performative instability (math-theory 1.3).
 
 Lifts the single-dealer boundary of
-``new-methodology/math-theory/01-analytic-stability-boundary.md`` to ``N``
+``research/math-theory/01-analytic-stability-boundary.md`` to ``N``
 symmetric dealers who share one informed-flow pool with cross-dealer spillover
 ``kappa in [0, 1]``.  When *any* dealer tightens it summons toxic flow that picks
 off *all* of them, so the joint best-response Jacobian is a rank-one common-mode

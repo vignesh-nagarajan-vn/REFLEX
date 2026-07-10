@@ -3,7 +3,7 @@
 This module is the *analytic* companion to the model-free probe in
 :mod:`reflex.estimators.br_slope`.  It implements, as pure functions of
 :class:`~reflex.config.Config`, the closed forms derived in
-``new-methodology/math-theory/01-analytic-stability-boundary.md`` (§2--§4): the
+``research/math-theory/01-analytic-stability-boundary.md`` (§2--§4): the
 strong-convexity constant ``gamma``, the joint-smoothness constant ``beta``, the
 distribution-sensitivity ``epsilon(h)``, the toxic-flow level ``tau(h)``, the
 adverse severity ``psi``, the best-response map, its fixed point ``h*``, and the

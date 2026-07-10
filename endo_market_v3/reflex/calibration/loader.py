@@ -1,7 +1,7 @@
 """Load the shipped real-data calibration artifacts.
 
 The package ships (under ``endo_market_v3/data/``) small, verified extracts of
-the REFLEX data pipeline (``new-methodology/{data_collection,preprocessing}``):
+the REFLEX data pipeline (``research/{data_collection,preprocessing}``):
 
 * ``calibration/03_fitted_intensity_params.csv`` -- the exponential-intensity
   fits ``lambda(h) = A * exp(-k*h)`` per ``(rating_bucket, regime)`` from the

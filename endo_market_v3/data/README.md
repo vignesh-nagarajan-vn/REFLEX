@@ -3,7 +3,7 @@
 Self-contained copies of the REFLEX data pipeline's outputs so `endo_market_v3`
 runs without reaching outside its folder. The **canonical pipeline** (fetch,
 build, verify, preprocess — with full docs, verification logs and rejected
-sources) lives in [`../../new-methodology/`](../../new-methodology/)
+sources) lives in [`../../research/`](../../research/)
 (`data_collection/` + `preprocessing/`). Regenerate everything from public
 sources with its four scripts (`fetch_data.py`, `build_datasets.py`,
 `verify_data.py`, `preprocess.py`).
@@ -26,5 +26,5 @@ are VIX-proxy-based; consequently only the **(A, k, σ, h) regime structure** is
 data-identified, while the toxic/informed channel in `reflex.calibration.mapping`
 is *structurally scaled* (documented ratios). State this plainly in any paper
 that uses these calibrations. Full source citations and verification values:
-[`../../new-methodology/data_collection/README.md`](../../new-methodology/data_collection/README.md)
+[`../../research/data_collection/README.md`](../../research/data_collection/README.md)
 and its `docs/` folder.
