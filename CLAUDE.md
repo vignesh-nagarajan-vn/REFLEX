@@ -89,9 +89,14 @@ robust bands), `run_perfgd` (`--ml` for the three-mode loops), `run_dealers`,
   modulus flattens or reverses (its sign isn't robust to universe size). Don't
   "fix" this — it's a documented feature. Use `sweep_feedback.yaml` for the
   headline result.
-- **The modulus saturates (~1.25) past the boundary** rather than blowing up —
-  defensive widening into a low-curvature (`γ → 0`) region. Expected behavior
-  (now derived in closed form: theory 1.1 §6.3).
+- **The modulus saturates past the boundary** rather than blowing up —
+  defensive widening into a low-curvature region (derived in closed form:
+  theory 1.1 §6.3; at default-like constants the self-consistent fixed point
+  never crosses `m = 1` at all). Beyond the boundary the *measured* probe
+  readings scatter widely (seed-level bifurcation) — they are
+  finite-difference diagnostics there, not local slopes. (The historical
+  "saturates at ~1.25" figure was measured under the inflated-jitter
+  protocol; see `research/analysis/pre-run-audit-2026-07.md` §1.6.)
 - **Calibrated configs use real units** (per-$100-par, h ~ 0.4–3.5 per 100 par;
   one step ~ one trading day). Never hard-code absolute spread constants —
   probe widths, tolerances and caps must be *relative* to the configured spread
@@ -108,7 +113,7 @@ robust bands), `run_perfgd` (`--ml` for the three-mode loops), `run_dealers`,
   dealers inflates the shared liquidity field. Scale `liq_flow_boost` down or
   `info_cap` up for flow-allocation studies (see `env/multi_dealer.py`).
 - **Smoke vs full profiles:** `run_all --profile smoke` proves the pipeline
-  (tiny settings, ~minutes); scientific claims need `--profile full` (hours).
+  (tiny settings, ~minutes); scientific claims need `--profile full` (~10-15 min measured on current configs).
 - **Console prints must stay ASCII** — the Windows console (cp1252) crashes on
   `λ`, `ε`, `m̂` etc. in `print()`. Unicode in matplotlib labels/docstrings is
   fine.
@@ -127,7 +132,7 @@ robust bands), `run_perfgd` (`--ml` for the three-mode loops), `run_dealers`,
 ../.venv/Scripts/python -m pytest -q -m slow       # +7 slow end-to-end tests
 
 ../.venv/Scripts/python -m experiments.run_all --profile smoke   # everything, ~minutes
-../.venv/Scripts/python -m experiments.run_all --profile full    # paper-grade, hours
+../.venv/Scripts/python -m experiments.run_all --profile full    # paper-grade, ~10-15 min
 ../.venv/Scripts/python -m experiments.run_fragility             # real-data index, seconds
 ```
 
@@ -181,17 +186,29 @@ from microstructure primitives instead of sweeping it by hand. Structure:
 
 ## Current phase & next steps
 
-Theory (1.1–1.5) derived and coded; the ML is un-blinded and integrated with
-the math; calibration + all nine experiments run end to end (smoke-verified,
-8/8). The **live to-do**, in order:
+Theory (1.1–1.5) derived and coded; the ML un-blinded and integrated; the
+measurement layer **audited against the theory** (July 2026: six
+probe/protocol defects found and fixed — sum-vs-mean dealer coupling, railed
+probes, wrong probe points, mismatched prediction spreads, a dispersion
+no-op, and inflated collection jitter; see
+`research/analysis/pre-run-audit-2026-07.md`); the **paper-grade
+full-profile suite executed** (8/8, ~10 min CPU — the "hours" estimate was
+conservative) and curated into `research/results/full-2026-07/` with the
+per-experiment analysis in `research/analysis/ANALYSIS-full-2026-07.md`.
+The **live to-do**, in order:
 
-1. **Paper-grade runs** — `python -m experiments.run_all --profile full`
-   (hours of CPU): the ε-sweep phase diagram with predicted-vs-measured
-   crossing + robust bands, the three-mode PerfGD loops, dealer probes, and
-   measured calibrated boundaries; more seeds for median + IQR bands.
-   (The fragility index, calibrated a-priori boundaries and universe scaling
-   are already full-fidelity — they are closed forms on real data.)
-2. **Analyze** the results (curate into `research/results/`).
-3. **Write the ICAIF 2026 paper** (conference-ready; ACM `sigconf`, 8 pages,
-   double-blind, deadline Aug 2 2026). Checklist in
-   `research/README.md` (§ To-Do → ICAIF-specific requirements).
+1. **Write the ICAIF 2026 paper** (conference-ready; ACM `sigconf`, 8 pages,
+   double-blind, deadline Aug 2 2026). Checklist in `research/README.md`
+   (§ To-Do → ICAIF-specific requirements). Scoping is settled in the
+   analysis: closed forms + real-data fragility + probe-level verifications
+   are the headline; loop-level PerfGD stabilisation is reported as a
+   diagnosed open gap (the ML artifacts are seam diagnostics).
+2. **(Stretch)** close the loop-level gap: make the corrected *learned* loop
+   find `h_PO` (operator `dJ/dh` anchored to the GLFT structural form,
+   bias-compensating corrections, stability-penalty regularisation against
+   the echo-chamber collapse).
+
+Gotcha for future measurement work: probe protocols matter at first order —
+keep `rrm.collection_jitter = 0.05` (0.2 inflates the CRN BR-slope probe
+~3x), probe at the operating spread (not the analytic fixed point), and
+compare against the *realized-state* closed form (1.1 §9).
