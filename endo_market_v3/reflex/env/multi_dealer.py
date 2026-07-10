@@ -3,14 +3,18 @@
 ``N`` symmetric dealers quote the same bond universe and share **one informed
 pool**: an informed trader routes to the dealer whose quotes are easiest to
 pick off, with cross-dealer spillover ``kappa``.  Dealer ``i``'s toxic
-spread-responsiveness mirrors the coupled form of the 1.3 derivation exactly:
+spread-responsiveness mirrors the coupled form of the 1.3 derivation exactly
+(A2-multi):
 
-    spread_resp_i = (1 - kappa) * exp(-c_t * h_i)
-                    + kappa * mean_j exp(-c_t * h_j)                (1.3 §2.1)
+    spread_resp_i = exp(-c_t * h_i)
+                    + kappa * Sum_{j != i} exp(-c_t * h_j)          (1.3 §2.1)
 
-so ``kappa = 0`` decouples the dealers and ``kappa = 1`` makes toxicity a pure
-common-pool quantity.  Uninformed (relationship) flow stays dealer-specific
-with the usual GLFT demand curve in the dealer's own spread.
+so ``kappa = 0`` decouples the dealers and ``kappa = 1`` makes the informed
+pool track the *aggregate* market attractiveness -- one dealer tightening
+raises the toxic notional routed at every dealer, which is what produces the
+``N_eff = 1 + kappa*(N-1)`` common-mode amplification of the joint modulus.
+Uninformed (relationship) flow stays dealer-specific with the usual GLFT
+demand curve in the dealer's own spread.
 
 **Exact single-dealer reduction.**  At ``N = 1`` the coupled factor collapses
 to ``exp(-c_t*h)`` and this simulator draws its random variates in *exactly*
@@ -182,9 +186,14 @@ class MultiDealerSimulator:
         liq_ratio = (state.liquidity / self.liq_mean).clamp_min(0.0)
 
         hs = [q.half_spread.clamp_min(0.0) for q in quotes]
-        # The coupled toxic responsiveness (1.3 §2.1): own + spillover pool.
+        # The coupled toxic responsiveness (1.3 §2.1, A2-multi): own response
+        # plus a kappa-discounted copy of every competitor's response.  The
+        # *sum* (not mean) is what the derivation writes -- the informed pool
+        # grows with aggregate market attractiveness -- and it is what makes
+        # the common-mode slope N_eff * m_1.  A mean-normalised pool would
+        # cancel the amplification entirely (common-mode slope m_1 for all N).
         own_resp = [torch.exp(-c.info_spread_decay * h) for h in hs]
-        pool_resp = torch.stack(own_resp, dim=0).mean(dim=0)
+        sum_resp = torch.stack(own_resp, dim=0).sum(dim=0)
 
         dealers: List[DealerStepResult] = []
         S_total = torch.zeros(n)
@@ -206,7 +215,7 @@ class MultiDealerSimulator:
             signal = mispricing + c.info_signal_noise * torch.randn(n, generator=generator)
             edge_scale = max(c.info_signal_noise, 1e-6)
             gate = torch.tanh(signal.abs() / edge_scale)
-            spread_resp = (1.0 - self.kappa) * own_resp[i] + self.kappa * pool_resp
+            spread_resp = own_resp[i] + self.kappa * (sum_resp - own_resp[i])
             toxic = gate * (
                 c.info_base_intensity
                 + c.alpha * c.toxicity_feedback * c.info_intensity * spread_resp

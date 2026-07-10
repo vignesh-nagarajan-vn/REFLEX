@@ -136,6 +136,39 @@ def run_joint_cobweb_sim(
     return result
 
 
+def interior_probe_config(
+    cfg: Config,
+    n_dealers: int,
+    f_probe: Optional[float] = None,
+) -> Config:
+    """A config copy prepared for a *meaningful* joint-modulus probe.
+
+    Two documented failure modes make the raw config unusable for probing:
+
+    * **BR railing.**  Deep past the boundary (e.g. the default
+      ``toxicity_feedback = 5``) the closed-form best response to the measured
+      toxic level is pinned at ``policy.max_half_spread`` for every probe arm,
+      so the finite difference is identically zero.  The probe must run at a
+      feedback gain where the BR stays interior; ``f_probe`` (default ``1.0``)
+      sets it.
+    * **Liquidity inflation** (module docstring gotcha).  The shared liquidity
+      boost is driven by the *total* gross flow of ``N`` dealers, inflating the
+      liquidity ratio and pushing informed volume into the ``info_cap``
+      saturation.  Scaling ``liq_flow_boost`` by ``1/N`` keeps the field's
+      stimulus per unit of single-dealer flow comparable across ``N`` -- the
+      normalisation under which the 1.3 prediction ``m_N = N_eff * m_1``
+      is an apples-to-apples statement.
+    """
+    import copy as _copy
+
+    out = _copy.deepcopy(cfg)
+    out.clients.n_dealers = int(n_dealers)
+    if f_probe is not None:
+        out.clients.toxicity_feedback = float(f_probe)
+    out.simulator.liq_flow_boost = float(cfg.simulator.liq_flow_boost) / max(int(n_dealers), 1)
+    return out
+
+
 @dataclass
 class JointModulusResult:
     """CRN-probed joint moduli next to their 1.3 closed-form predictions."""
@@ -146,6 +179,7 @@ class JointModulusResult:
     delta: float
     n_dealers: int
     kappa: float
+    br_clipped: bool = False  # any probe arm's BR pinned at a spread bound
 
 
 def measure_joint_modulus_sim(
@@ -169,9 +203,16 @@ def measure_joint_modulus_sim(
     ref = reference_state(cfg)
     delta = 0.25 * h_ref if delta is None else float(delta)
 
+    h_max = float(cfg.policy.max_half_spread)
+    clip_tol = 1e-6 * max(h_max, 1.0)
+    clipped = {"any": False}
+
     def br_vector(h_vec: np.ndarray) -> np.ndarray:
         tau_hat = _measure_toxic_levels(cfg, simulator, h_vec, seed=seed, n_episodes=n_episodes)
-        return np.array([best_response(cfg, float(t), ref) for t in tau_hat])
+        brs = np.array([best_response(cfg, float(t), ref) for t in tau_hat])
+        if np.any(brs >= h_max - clip_tol) or np.any(brs <= clip_tol):
+            clipped["any"] = True
+        return brs
 
     # In-phase (common-mode) probe: all dealers together.
     br_plus = br_vector(np.full(N, h_ref + delta))
@@ -193,6 +234,12 @@ def measure_joint_modulus_sim(
     else:
         modulus_diff = float("nan")
 
+    if clipped["any"]:
+        print(
+            "[joint_loop] WARNING: best response pinned at a spread bound during "
+            "the probe -- the measured modulus is not a local slope. Probe at a "
+            "lower feedback gain (see interior_probe_config)."
+        )
     return JointModulusResult(
         modulus_common=modulus_common,
         modulus_differential=modulus_diff,
@@ -200,4 +247,5 @@ def measure_joint_modulus_sim(
         delta=delta,
         n_dealers=N,
         kappa=simulator.kappa,
+        br_clipped=clipped["any"],
     )
