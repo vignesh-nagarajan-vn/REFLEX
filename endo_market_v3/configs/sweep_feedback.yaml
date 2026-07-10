@@ -47,7 +47,7 @@ base:
 sweep:
   variable: toxicity_feedback          # the epsilon knob (clients.toxicity_feedback)
   grid: [0.0, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0]
-  n_seeds: 5
+  n_seeds: 8                           # paper-grade median + IQR bands
   seed_base: 0
   h_ref: 1.0                           # reference spread for the BR-slope probe
   delta: 0.25
