@@ -43,6 +43,7 @@ __all__ += ["LOOP_MODES", "LoopDiagnostics", "LoopResult", "run_loop"]
 from .joint_loop import (  # noqa: E402
     JointCobwebResult,
     JointModulusResult,
+    interior_probe_config,
     measure_joint_modulus_sim,
     run_joint_cobweb_sim,
 )
@@ -50,6 +51,7 @@ from .joint_loop import (  # noqa: E402
 __all__ += [
     "JointCobwebResult",
     "JointModulusResult",
+    "interior_probe_config",
     "measure_joint_modulus_sim",
     "run_joint_cobweb_sim",
 ]

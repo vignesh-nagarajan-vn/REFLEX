@@ -10,7 +10,11 @@ import torch
 
 from reflex.config import load_config
 from reflex.env import MultiDealerSimulator, StructuralSimulator
-from reflex.equilibrium import measure_joint_modulus_sim, run_joint_cobweb_sim
+from reflex.equilibrium import (
+    interior_probe_config,
+    measure_joint_modulus_sim,
+    run_joint_cobweb_sim,
+)
 from reflex.theory.multi_dealer import n_eff
 from reflex.types import Quotes
 
@@ -139,14 +143,17 @@ def test_joint_modulus_amplifies_with_dealers(cfg):
     """The measured in-phase (common-mode) modulus must exceed the single-dealer
     modulus and move with N_eff, and dominate the differential modulus."""
     cfg.clients.toxic_spillover = 1.0
-    cfg_1 = copy.deepcopy(cfg)
-    cfg_1.clients.n_dealers = 1
-    cfg_3 = copy.deepcopy(cfg)
-    cfg_3.clients.n_dealers = 3
+    # Probe in the interior regime (theory 1.3 predicts a *local* slope; the
+    # default feedback gain rails the closed-form BR at the spread cap for
+    # N >= 2, where the finite difference is meaningless -- see
+    # interior_probe_config).
+    cfg_1 = interior_probe_config(cfg, 1, f_probe=0.5)
+    cfg_3 = interior_probe_config(cfg, 3, f_probe=0.5)
 
     m1 = measure_joint_modulus_sim(cfg_1, h_ref=1.0, seed=0, n_episodes=4)
     m3 = measure_joint_modulus_sim(cfg_3, h_ref=1.0, seed=0, n_episodes=4)
 
+    assert not m1.br_clipped and not m3.br_clipped
     assert m3.modulus_common > 1.5 * m1.modulus_common  # theory: x N_eff = 3
     ratio = m3.modulus_common / max(m1.modulus_common, 1e-9)
     expected = n_eff(3, 1.0)  # = 3

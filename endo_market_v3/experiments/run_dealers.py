@@ -32,7 +32,11 @@ import numpy as np
 
 from reflex.analysis.phase import dealer_phase_grid
 from reflex.config import load_config
-from reflex.equilibrium import measure_joint_modulus_sim, run_joint_cobweb_sim
+from reflex.equilibrium import (
+    interior_probe_config,
+    measure_joint_modulus_sim,
+    run_joint_cobweb_sim,
+)
 from reflex.theory.multi_dealer import multi_dealer_boundary, n_eff
 
 
@@ -48,6 +52,10 @@ def main(argv=None) -> None:
     ap.add_argument("--probe", action="store_true",
                     help="also run the CRN joint-modulus probes on the real env")
     ap.add_argument("--episodes", type=int, default=4)
+    ap.add_argument("--probe-feedback", type=float, default=0.5,
+                    help="feedback gain for the probe layer (must keep the BR "
+                         "interior; the default config's gain rails the BR at "
+                         "the spread cap for N >= 2)")
     args = ap.parse_args(argv)
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -102,12 +110,12 @@ def main(argv=None) -> None:
 
     # ---- layer 3: measured joint moduli vs prediction ---------------------- #
     if args.probe:
-        print("\n=== CRN joint-modulus probes on the real environment ===")
+        print(f"\n=== CRN joint-modulus probes on the real environment "
+              f"(probe f={args.probe_feedback}, liq boost scaled 1/N) ===")
         rows = []
         m1_ref = None
         for n in (1, 2, 3):
-            cfg = copy.deepcopy(base)
-            cfg.clients.n_dealers = n
+            cfg = interior_probe_config(base, n, f_probe=args.probe_feedback)
             res = measure_joint_modulus_sim(
                 cfg, h_ref=1.0, seed=args.seed, n_episodes=args.episodes
             )
@@ -116,12 +124,15 @@ def main(argv=None) -> None:
             pred = n_eff(n, args.kappa) * (m1_ref if m1_ref else float("nan"))
             rows.append({
                 "n_dealers": n,
+                "probe_feedback": args.probe_feedback,
                 "modulus_common_measured": res.modulus_common,
                 "modulus_common_predicted": pred,
                 "modulus_differential": res.modulus_differential,
+                "br_clipped": res.br_clipped,
             })
             print(f"  N={n}: common={res.modulus_common:.3f} (pred {pred:.3f})  "
-                  f"diff={res.modulus_differential:.3f}")
+                  f"diff={res.modulus_differential:.3f}"
+                  + ("  [BR CLIPPED - not a slope]" if res.br_clipped else ""))
         probe_csv = outdir / "dealer_joint_moduli.csv"
         with open(probe_csv, "w", newline="") as fh:
             writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
