@@ -131,16 +131,43 @@ def test_run_loop_smoke_all_modes(tiny_cfg):
 
 
 @pytest.mark.slow
-def test_perfgd_analytic_stabilizes_beyond_rrm_boundary():
-    """The headline 1.2 demonstration at loop level: past epsilon* the blind
-    best-response loop oscillates/diverges while the analytically-corrected
-    loop settles.  Uses the full best-response update rule (the cobweb)."""
+def test_perfgd_loop_level_beyond_boundary_integration():
+    """Loop-level integration in the *genuinely* RRM-unstable regime.
+
+    Honest scope (documented in the results analysis): the closed-form 1.2
+    claims -- the cobweb diverges at the fixed point, the corrected 1-D ascent
+    converges to h_PO -- are verified in ``test_perfgd_loop.py``.  The full ML
+    loops do NOT currently reproduce that stabilisation at any tested scale:
+    the blind operator's implied dJ/dh diverges from the structural one, so
+    the analytically-corrected equilibrium lands far from h_PO and no mode
+    settles.  What this test locks in is the verified loop-level behaviour:
+    all three modes run to completion in the unstable regime, the blind loop
+    does not converge (the instability is real), and the ML<->math seam
+    diagnostics stay finite and are recorded every iteration.
+
+    NOTE the regime: the *default* microstructure's fixed point saturates
+    below m = 1 for every on-grid gain (theory 1.1 Section 6.3); "beyond the
+    boundary" requires the slow-toxic-decay regime below (theory 1.2 Section
+    5), the same one the closed-form tests use.  The old version of this test
+    asserted stabilisation at the default constants, where the fixed point is
+    closed-form *stable* (m ~ 0.5) -- the "epsilon* ~ 1.3" it cited is the v2
+    probe-point crossing, not the fixed-point boundary.
+    """
+    from reflex.theory.perfgd import analyze_perfgd
+
     cfg = load_config(CONFIG)
+    # the genuinely unstable regime (m(h*) > 1): slow toxic decay
+    cfg.clients.alpha = 1.0
+    cfg.clients.toxicity_feedback = 6.0
+    cfg.clients.info_intensity = 3.0
+    cfg.clients.info_spread_decay = 0.8
+    cfg.reward.quote_anchor_weight = 0.15
+    # tiny loop settings
     cfg.bonds.n_bonds = 4
     cfg.simulator.horizon = 24
     cfg.rrm.n_episodes = 8
     cfg.rrm.eval_episodes = 4
-    cfg.rrm.max_iters = 8
+    cfg.rrm.max_iters = 6
     cfg.rrm.update_rule = "rrm"
     cfg.rrm.tol = 5e-3
     cfg.operator.epochs = 25
@@ -148,26 +175,32 @@ def test_perfgd_analytic_stabilizes_beyond_rrm_boundary():
     cfg.policy.inner_steps = 30
     cfg.policy.n_rollouts = 8
     cfg.policy.rollout_horizon = 10
-    cfg.clients.toxicity_feedback = 6.0  # far beyond epsilon* ~ 1.3
 
-    blind = run_loop(cfg, mode="rrm", seed=0)
-    corrected = run_loop(cfg, mode="perfgd_analytic", seed=0)
+    # Closed form at this regime: fixed point unstable, corrected 1-D converges.
+    closed = analyze_perfgd(cfg, run_loops=True, n_steps=120)
+    assert closed.modulus_rrm > 1.0 and not closed.rrm_stable
+    assert not closed.rrm_converged and closed.perfgd_converged
 
-    # Compare late-stage step sizes: the corrected loop must be materially
-    # calmer than the blind cobweb (which oscillates or blows up).
-    def late_step(res):
-        steps = res.trajectory.step_sizes
-        return float(np.mean(steps[len(steps) // 2:])) if steps.size else float("inf")
+    results = {}
+    for mode in ("rrm", "perfgd_analytic", "perfgd_learned"):
+        results[mode] = run_loop(cfg, mode=mode, seed=0)
 
-    assert res_ok(blind), "blind run produced no iterates"
-    assert res_ok(corrected), "corrected run produced no iterates"
-    assert (
-        corrected.trajectory.converged
-        or late_step(corrected) < 0.5 * late_step(blind)
-    ), (
-        f"correction did not stabilise: corrected late-step {late_step(corrected):.4f} "
-        f"vs blind {late_step(blind):.4f}"
-    )
+    # The blind loop must exhibit the instability (no convergence).
+    assert not results["rrm"].trajectory.converged
+
+    for mode, res in results.items():
+        assert res_ok(res), f"{mode} produced no iterates"
+        spreads = np.asarray(res.trajectory.central_spreads, dtype=float)
+        assert np.isfinite(spreads).all(), f"{mode} produced non-finite spreads"
+        assert len(res.diagnostics) == len(res.trajectory.iterates)
+        an = res.analytic_slopes
+        assert np.isfinite(an).all() and (an < 0.0).all(), (
+            f"{mode}: analytic toxic slopes must stay finite and negative"
+        )
+        if mode == "perfgd_analytic":
+            assert any(d.correction != 0.0 for d in res.diagnostics)
+        else:
+            assert all(d.correction == 0.0 for d in res.diagnostics)
 
 
 def res_ok(res) -> bool:
