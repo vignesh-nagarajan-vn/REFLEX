@@ -166,6 +166,25 @@ class RRMConfig:
 
 
 @dataclass
+class CalibrationConfig:
+    """Real-data calibration (maps the shipped dataset to simulator params).
+
+    When ``enabled`` the experiment entry points pass the config through
+    :func:`reflex.calibration.apply_calibration`, which overwrites the
+    microstructure sections (clients/simulator/policy/reward scale-dependent
+    fields) with the regime-fitted values from ``data/calibration/`` -- see
+    ``reflex/calibration/mapping.py`` for the unit conventions and the list of
+    *structural* (non-data-identified) ratios.
+    """
+
+    enabled: bool = False
+    rating: str = "IG"  # {"IG", "HY"} rating bucket of the fitted params
+    regime: str = "normal"  # {"calm","normal","elevated","stress","crisis"}
+    anchor_stiffness: float = 5.0  # quoting-anchor stiffness S: w = S * A / h0
+    data_dir: str = ""  # override for the calibration data directory ("" = shipped)
+
+
+@dataclass
 class LoggingConfig:
     """Output / logging behaviour."""
 
@@ -190,6 +209,7 @@ class Config:
     reward: RewardConfig = field(default_factory=RewardConfig)
     stability: StabilityConfig = field(default_factory=StabilityConfig)
     rrm: RRMConfig = field(default_factory=RRMConfig)
+    calibration: CalibrationConfig = field(default_factory=CalibrationConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 
