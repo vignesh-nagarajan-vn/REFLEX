@@ -11,6 +11,7 @@ from .convergence import (
     fixed_point_residual,
     is_oscillating,
 )
+from .fragility import FragilityResult, compute_fragility, save_fragility
 from .metrics import MarketMetrics, compute_metrics
 from .sweep import SweepPoint, SweepResult, load_sweep_spec, run_sweep
 
@@ -19,6 +20,9 @@ __all__ = [
     "empirical_lipschitz",
     "fixed_point_residual",
     "is_oscillating",
+    "FragilityResult",
+    "compute_fragility",
+    "save_fragility",
     "MarketMetrics",
     "compute_metrics",
     "SweepPoint",
