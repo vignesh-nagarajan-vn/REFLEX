@@ -147,9 +147,9 @@ correction, `h_PO`, `gamma_PO`, echo-chamber gap, RRM-diverges-vs-PerfGD-converg
 spectrum, mean-field limit), `analysis/robust_boundary.py` (1.4: ambiguity radius,
 robust certificate, `O(1/sqrt(n))` rate), `analysis/factor_reduction.py` (1.5:
 `d x d` modulus matrix, Woodbury reduction, truncation bound). Derivations and the
-module-by-module map are in `../new-methodology/math-theory/`.
+module-by-module map are in `../research/math-theory/`.
 
-**Calibration dataset.** `../new-methodology/{data_collection,preprocessing}/` hold
+**Calibration dataset.** `../research/{data_collection,preprocessing}/` hold
 a real (public, verified) macro + bond-factor dataset used to calibrate the
 microstructure regime; it is *not* trade-level TRACE (that needs WRDS access),
 so `h`, per-dealer `q`, and per-bond `A`/`k` are proxied -- stated plainly, not

@@ -23,7 +23,7 @@ best-response contraction modulus `m ≈ εβ/γ`; the loop is stable iff `ε < 
 | Path | Status | Notes |
 |------|--------|-------|
 | `endo_market_v3/` | **CURRENT — work here** | The self-contained third generation: package **`reflex`** (un-blinded ML + theory 1.1–1.5 + real-data calibration + all experiments). |
-| `new-methodology/` | Active reference | The research roadmap, the canonical math derivations (`math-theory/`, with LaTeX/PDF), and the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v3 ships copies of its outputs). |
+| `research/` | Active — the program folder | The research roadmap, the canonical math derivations (`math-theory/`, with LaTeX/PDF), the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v3 ships copies of its outputs), the **executed paper-grade runs** (`results/`), and their written **analyses** (`analysis/`). An extension/application of `endo_market_v3`, not a second implementation. |
 | `literature/literature-vignesh/` | Active reference | 10 foundational papers + reading map; PDFs downloaded. |
 | `literature/literature-raghav/` | Active reference | Superset: same 10 + 8 extension papers (18 total) + research roadmap. |
 | `endo_market_v2/` | **Superseded** | Second generation; its result (the ε* crossing) and modules were absorbed into v3. Keep frozen — don't extend it. |
@@ -148,7 +148,7 @@ extension), consult `literature-raghav/README.md` first — it names the target
 theorem, required papers, and deliverable for each roadmap priority. PDFs are
 fetched per-collection via `download_pdfs.sh` (open-access arXiv preprints).
 
-## The research program & dataset (`new-methodology/`)
+## The research program & dataset (`research/`)
 
 The novelty claim: derive the performativity stability boundary analytically
 from microstructure primitives instead of sweeping it by hand. Structure:
@@ -170,9 +170,14 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   in the paper):** it is *not* trade-level TRACE — `h`, per-dealer `q`, and
   real per-bond `A`/`k` need WRDS TRACE Enhanced (pending); the pipeline uses
   the closest free proxies. See `data_collection/docs/REJECTED_SOURCES.md`.
-- `simulator/`, `experiments/`, `results/` — placeholders; the corresponding
-  live code/experiments are inside `endo_market_v3/`; `results/` is the home
-  for the paper-grade figures once the full-profile runs land.
+- `results/` — the executed paper-grade runs (one dated folder per
+  `run_all --profile full` execution: raw per-experiment artifacts + logs,
+  each recording the producing commit). Raw copies only; no post-processing.
+- `analysis/` — the written analyses of those runs (derived tables, figures,
+  predicted-vs-measured breakdowns, honest caveats) plus the pre-run
+  measurement-layer audit. The live code/experiments themselves are inside
+  `endo_market_v3/` — this folder is the *application* of that package, not a
+  second implementation.
 
 ## Current phase & next steps
 
@@ -186,7 +191,7 @@ the math; calibration + all nine experiments run end to end (smoke-verified,
    measured calibrated boundaries; more seeds for median + IQR bands.
    (The fragility index, calibrated a-priori boundaries and universe scaling
    are already full-fidelity — they are closed forms on real data.)
-2. **Analyze** the results (curate into `new-methodology/results/`).
+2. **Analyze** the results (curate into `research/results/`).
 3. **Write the ICAIF 2026 paper** (conference-ready; ACM `sigconf`, 8 pages,
    double-blind, deadline Aug 2 2026). Checklist in
-   `new-methodology/README.md` (§ To-Do → ICAIF-specific requirements).
+   `research/README.md` (§ To-Do → ICAIF-specific requirements).

@@ -5,7 +5,7 @@ that is its own best response *given* the toxic flow it induces.  It is blind to
 the fact that its own quoting *moves* that flow, so it is not the maximiser of the
 true objective.  PerfGD (Izzo et al., 2021) adds exactly the missing total-
 derivative term.  Because
-``new-methodology/math-theory/01-analytic-stability-boundary.md`` supplies the
+``research/math-theory/01-analytic-stability-boundary.md`` supplies the
 distribution response ``d tau/d h = -epsilon(h)`` in closed form, the correction
 
     Delta(h) = dJ/dT * (d tau/d h) = -beta * (h - psi) * epsilon(h)         (1.2 §2)

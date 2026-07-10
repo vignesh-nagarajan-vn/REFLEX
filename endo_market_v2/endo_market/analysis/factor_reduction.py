@@ -1,7 +1,7 @@
 """Scaling to 100+ correlated bonds: the modulus matrix and factor reduction (1.5).
 
 Lifts the scalar boundary of 1.1 from one bond to a universe of ``d`` correlated
-bonds, following ``new-methodology/math-theory/05-factor-model-scaling.md``.  The
+bonds, following ``research/math-theory/05-factor-model-scaling.md``.  The
 scalar modulus ``m = epsilon*beta/gamma`` becomes the ``d x d`` **modulus matrix**
 
     M = beta * Gamma^{-1} * E ,     Gamma = D_gamma + zeta' * G * Sigma * G ,
