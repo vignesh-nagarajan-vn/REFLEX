@@ -33,6 +33,24 @@ from reflex.config import load_config
 from reflex.theory.perfgd import analyze_perfgd
 
 
+def _unstable_demo_config(base):
+    """A regime whose *fixed point* is genuinely RRM-unstable (theory 1.2 §5).
+
+    With the default microstructure the self-consistent fixed point saturates
+    below ``m = 1`` for every reasonable gain (defensive widening, theory 1.1
+    §6.3), so "beyond the boundary" is empty on the config's own grid.  Slow
+    toxic decay keeps ``epsilon`` alive at the fixed point; this is the same
+    regime the closed-form tests use (``tests/test_perfgd_loop.py``).
+    """
+    cfg = copy.deepcopy(base)
+    cfg.clients.alpha = 1.0
+    cfg.clients.toxicity_feedback = 6.0
+    cfg.clients.info_intensity = 3.0
+    cfg.clients.info_spread_decay = 0.8
+    cfg.reward.quote_anchor_weight = 0.15
+    return cfg
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description="PerfGD-vs-RRM stability + echo-chamber gap.")
     ap.add_argument("--config", default="configs/default.yaml")
@@ -82,14 +100,27 @@ def main(argv=None) -> None:
         writer.writerows(rows)
     print(f"saved gap scan -> {csv_path}")
 
-    # Exact dynamics at a gain beyond the boundary.
+    # Exact dynamics at a gain beyond the boundary.  If no on-grid gain
+    # destabilises the fixed point (the default microstructure saturates,
+    # theory 1.1 §6.3), demonstrate the beyond-boundary dynamics in the
+    # genuinely unstable regime instead -- honestly labeled.
     unstable = [r for r in rows if not r["rrm_stable"]]
-    f_demo = unstable[0]["toxicity_feedback"] if unstable else args.grid[-1]
-    cfg = copy.deepcopy(base)
-    cfg.clients.toxicity_feedback = float(f_demo)
-    demo = analyze_perfgd(cfg, run_loops=True, n_steps=60)
+    if unstable:
+        f_demo = unstable[0]["toxicity_feedback"]
+        demo_cfg = copy.deepcopy(base)
+        demo_cfg.clients.toxicity_feedback = float(f_demo)
+        demo_label = f"f={f_demo}"
+    else:
+        demo_cfg = _unstable_demo_config(base)
+        f_demo = demo_cfg.clients.toxicity_feedback
+        demo_label = (f"unstable demo regime: f={f_demo}, alpha=1, I=3, "
+                      f"c_t=0.8, w=0.15")
+        print("\nNOTE: no on-grid gain destabilises the fixed point "
+              "(saturation, 1.1 Section 6.3); using the unstable demo regime "
+              "for the beyond-boundary dynamics.")
+    demo = analyze_perfgd(demo_cfg, run_loops=True, n_steps=60)
     print(
-        f"\n1-D dynamics at f={f_demo} (m_rrm={demo.modulus_rrm:.2f}): "
+        f"\n1-D dynamics at {demo_label} (m_rrm={demo.modulus_rrm:.2f}): "
         f"cobweb {'converged' if demo.rrm_converged else 'did NOT converge'}, "
         f"PerfGD {'converged' if demo.perfgd_converged else 'did NOT converge'}"
     )
@@ -100,7 +131,8 @@ def main(argv=None) -> None:
     axes[0].axhline(demo.h_sp, color="gray", ls=":", lw=0.8, label="h_SP")
     axes[0].axhline(demo.h_po, color="black", ls="--", lw=0.8, label="h_PO")
     axes[0].set_xlabel("iteration"); axes[0].set_ylabel("half-spread h")
-    axes[0].set_title(f"Beyond the boundary (f={f_demo}, m={demo.modulus_rrm:.2f})")
+    axes[0].set_title(f"Beyond the boundary ({demo_label}, m={demo.modulus_rrm:.2f})",
+                      fontsize=9)
     axes[0].legend(fontsize=8)
     fs = [r["toxicity_feedback"] for r in rows]
     axes[1].plot(fs, [r["decision_gap"] for r in rows], "o-", label="decision gap h_SP - h_PO")
@@ -114,13 +146,16 @@ def main(argv=None) -> None:
     print(f"saved figure -> {fig_path}")
 
     # ---- layer 2: the full ML loops --------------------------------------- #
+    # Run in the same regime as the dynamics demo.  Honest framing: at every
+    # tested scale the ML loops do NOT reproduce the closed-form stabilisation
+    # (the operator's implied dJ/dh diverges from the structural one); the
+    # artifact is the ML<->math *seam diagnostic*, not a stabilisation proof.
     if args.ml:
         from reflex.equilibrium import run_loop
 
-        cfg = copy.deepcopy(base)
-        cfg.clients.toxicity_feedback = float(f_demo)
+        cfg = copy.deepcopy(demo_cfg)
         cfg.rrm.max_iters = int(args.iters)
-        print(f"\n=== ML loops at f={f_demo} ({args.iters} iterations each) ===")
+        print(f"\n=== ML loops at {demo_label} ({args.iters} iterations each) ===")
         results = {}
         for mode in ("rrm", "perfgd_analytic", "perfgd_learned"):
             results[mode] = run_loop(cfg, mode=mode, seed=args.seed, verbose=True)

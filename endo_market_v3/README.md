@@ -111,12 +111,31 @@ unchanged.
   `data/README.md`.
 - The crisis-regime intensity fit is **degenerate** (`k = 0`, n = 74 days);
   crisis boundaries sit on the anchor floor and are flagged as such.
+- **The self-consistent fixed point saturates below `m = 1`** at default-like
+  constants (defensive widening, theory 1.1 §6.3): the empirical boundary
+  crossing is a statement about the *local* retraining map at the probe
+  spread (the loop's operating region), not about the fixed point.  The sweep
+  overlays the closed form at both spreads and labels them.
+- **The measured modulus is protocol-dependent**: the BR-slope probe measures
+  the finite-budget retraining map, whose slope depends on the per-deployment
+  optimisation budget (the lazy-deploy knob, 1.1 §6.2).  Probes use the
+  loop's own budget; levels are comparable within a protocol, not across.
+- **Loop-level PerfGD does not yet stabilise the learned loop.**  The 1.2
+  claims hold in closed form (verified: the cobweb diverges in the unstable
+  regime, the corrected 1-D ascent converges to `h_PO`), but in the full ML
+  loop the blind operator's implied `dJ/dh` diverges from the structural one,
+  the corrected equilibrium lands far from `h_PO`, and on-trajectory learned
+  `dD/dphi` flips sign in the unstable regime.  `run_perfgd --ml` therefore
+  reports the ML<->math *seam diagnostics*, not a stabilisation proof - the
+  gap is a documented finding, not a hidden one.
 - The learned `dD/dphi` needs `operator.context_window >= 2` and enough spread
   variation across deployments; with a single deployment the learned slope is
   noise (the loop warns).
 - Multi-dealer runs inflate the shared liquidity field (combined-flow boost),
   which can push informed volume into the `info_cap` saturation - scale
-  `liq_flow_boost` down or `info_cap` up for flow-allocation studies (see
-  `env/multi_dealer.py` docstring).
+  `liq_flow_boost` down or `info_cap` up for flow-allocation studies, and
+  probe the joint modulus only in the interior regime
+  (`interior_probe_config`; deep past the boundary the closed-form BR rails
+  at the spread cap and the probe reads 0, flagged by `br_clipped`).
 - Smoke-profile outputs prove the pipeline, not the science; paper-grade
   figures come from `--profile full`.
