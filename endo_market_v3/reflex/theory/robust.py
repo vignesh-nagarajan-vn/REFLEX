@@ -46,7 +46,9 @@ from scipy.stats import norm
 
 from ..config import Config
 from .analytic_boundary import analytic_boundary
-from ..estimators.br_slope import measure_response_modulus
+# NOTE: the torch-based BR-slope estimator is imported lazily inside
+# measure_modulus_estimates -- keeps the closed forms numpy-only and avoids
+# the estimators -> equilibrium -> theory -> estimators import cycle.
 
 
 def _z(confidence: float, two_sided: bool = False) -> float:
@@ -183,11 +185,13 @@ def measure_modulus_estimates(
     ``n_episodes`` overrides ``cfg.rrm.n_episodes`` (the ``n`` of the ``O(1/sqrt(n))``
     rate); left ``None`` it uses the config's value.
     """
+    from ..estimators.br_slope import measure_response_modulus as _measure
+
     cfg_local = copy.deepcopy(cfg)
     if n_episodes is not None:
         cfg_local.rrm.n_episodes = int(n_episodes)
     return [
-        measure_response_modulus(cfg_local, seed=int(s), h_ref=h_ref, delta=delta).modulus
+        _measure(cfg_local, seed=int(s), h_ref=h_ref, delta=delta).modulus
         for s in seeds
     ]
 

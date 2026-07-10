@@ -105,6 +105,13 @@ class OperatorConfig:
     patience: int = 8  # early-stopping patience on held-out NLL
     min_logstd: float = -4.0
     max_logstd: float = 2.0
+    # v3 un-blinding: fit T_theta on the last ``context_window`` deployments
+    # (each row carrying its own deployment's policy summary).  With window 1
+    # the summary is ~constant in the training data and the operator is blind
+    # to dD/dphi (the v2 RRM convention); with window > 1 the summary varies,
+    # so d(prediction)/d(summary) -- the learned distribution response -- is
+    # identified and PerfGD-learned becomes meaningful.
+    context_window: int = 4
 
 
 @dataclass
@@ -163,6 +170,14 @@ class RRMConfig:
     update_rule: str = "rgd"
     rgd_steps: int = 5  # number of gradient steps per deployment when update_rule="rgd"
     rgd_lr: float = 0.08  # step size for the repeated-gradient-descent update
+    # v3 outer-loop mode (equilibrium/loops.py):
+    #   "rrm"             -- blind repeated retraining (frozen summary; v2 baseline)
+    #   "perfgd_analytic" -- frozen summary + the closed-form PerfGD correction
+    #                        Delta(h) = -beta*(h-psi)*epsilon(h) from reflex.theory
+    #   "perfgd_learned"  -- live summary + windowed operator: the correction is
+    #                        implicit (gradients flow through the operator's
+    #                        learned summary-dependence, i.e. the learned dD/dphi)
+    loop_mode: str = "rrm"
 
 
 @dataclass
