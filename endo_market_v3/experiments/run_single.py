@@ -16,22 +16,25 @@ from reflex.analysis import (
     classify_run,
     compute_metrics,
     empirical_lipschitz,
-    measure_response_modulus,
 )
+from reflex.estimators import measure_response_modulus
 from reflex.analysis.plots import plot_rrm_trajectory
 from reflex.config import load_config
 from reflex.env import StructuralSimulator
-from reflex.equilibrium import run_rrm
+from reflex.equilibrium import run_loop
 from reflex.policy import build_policy
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description="Run a single RRM experiment.")
+def main(argv=None) -> None:
+    ap = argparse.ArgumentParser(description="Run a single outer-loop experiment.")
     ap.add_argument("--config", default="configs/default.yaml")
     ap.add_argument("--seed", type=int, default=None)
+    ap.add_argument("--mode", default=None,
+                    help="loop mode: rrm | perfgd_analytic | perfgd_learned "
+                         "(default: config rrm.loop_mode)")
     ap.add_argument("--outdir", default="outputs")
     ap.add_argument("--no-plot", action="store_true")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
 
     cfg = load_config(args.config)
     seed = args.seed if args.seed is not None else cfg.seed
@@ -39,20 +42,29 @@ def main() -> None:
     outdir.mkdir(parents=True, exist_ok=True)
 
     eps = cfg.clients.toxicity_feedback
-    print(f"=== single RRM run: alpha={cfg.clients.alpha}, epsilon(toxicity_feedback)={eps}, seed={seed} ===")
+    mode = args.mode or cfg.rrm.loop_mode
+    print(f"=== single {mode} run: alpha={cfg.clients.alpha}, "
+          f"epsilon(toxicity_feedback)={eps}, seed={seed} ===")
 
-    # 1) RRM trajectory.
-    traj = run_rrm(cfg, seed=seed, verbose=True)
+    # 1) Outer-loop trajectory (with the ML<->math seam diagnostics).
+    loop_res = run_loop(cfg, mode=mode, seed=seed, verbose=True)
+    traj = loop_res.trajectory
+    if loop_res.diagnostics:
+        d = loop_res.diagnostics[-1]
+        print(
+            f"seam diagnostics (final iter): learned d[adv]/dh={d.learned_toxic_slope:.4f}  "
+            f"analytic -psi*eps(h)={d.analytic_toxic_slope:.4f}  window={d.window_len}"
+        )
     h = traj.central_spreads
     L_traj = empirical_lipschitz(h, burn_in=1)
     cls = classify_run(h, tol=cfg.rrm.tol)
-    print(f"\ntrajectory: stop={traj.stop_reason}  trajectory-L̂={L_traj:.3f}  class={cls}")
+    print(f"\ntrajectory: stop={traj.stop_reason}  trajectory-L_hat={L_traj:.3f}  class={cls}")
 
     # 2) Robust modulus via the best-response-slope probe.
     mod = measure_response_modulus(cfg, seed=seed)
     print(
-        f"best-response modulus m̂={mod.modulus:.3f}  "
-        f"(BR(h+δ)={mod.br_plus:.3f}, BR(h-δ)={mod.br_minus:.3f})  "
+        f"best-response modulus m_hat={mod.modulus:.3f}  "
+        f"(BR(h+d)={mod.br_plus:.3f}, BR(h-d)={mod.br_minus:.3f})  "
         f"=> {'UNSTABLE (diverges)' if mod.modulus > 1 else 'stable (contracts)'}"
     )
 

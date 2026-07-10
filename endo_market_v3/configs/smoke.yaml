@@ -1,0 +1,37 @@
+# Smoke-test configuration: the smallest market that still exercises every
+# code path (simulator, operator fit, policy optimisation, loops, probes).
+# Used by `experiments/run_all.py --profile smoke`; NOT for scientific claims.
+seed: 0
+device: cpu
+dtype: float32
+
+bonds:
+  n_bonds: 4
+  n_sectors: 2
+
+clients:
+  alpha: 0.5
+  toxicity_feedback: 5.0   # beyond the boundary so instability paths get exercised
+
+simulator:
+  horizon: 16
+
+operator:
+  hidden: 32
+  epochs: 15
+  context_window: 3
+
+policy:
+  type: linear
+  inner_steps: 15
+  rollout_horizon: 8
+  n_rollouts: 6
+
+rrm:
+  max_iters: 4
+  n_episodes: 4
+  eval_episodes: 2
+
+logging:
+  outdir: outputs
+  verbose: true
