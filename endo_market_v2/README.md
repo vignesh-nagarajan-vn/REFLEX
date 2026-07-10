@@ -1,5 +1,13 @@
 # endo_market_v2 (6-17-26)
 
+> **Superseded by [`endo_market_v3/`](../endo_market_v3/) (the `reflex`
+> package).** v3 absorbs this library (simulator, operator, loops, the five
+> analytic modules) and extends it: un-blinded operator (learned `dD/dphi`),
+> PerfGD-corrected loops, a genuine N-dealer market, the epsilon-estimator
+> triangulation, and real-data calibration. This folder is kept frozen as the
+> generation that first reproduced the `epsilon* ~ 1.3` boundary crossing --
+> don't extend it.
+
 **Performative prediction in an endogenous OTC corporate-bond market-making
 environment.** A dealer's quoting policy `phi` induces the data distribution
 `D(phi)`: tighter quotes summon more informed ("toxic") flow that picks the

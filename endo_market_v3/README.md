@@ -70,7 +70,7 @@ the learned toxic slope next to the analytic `-psi*eps(h)`: the ML↔math seam.
     |- experiments/              <- run_single | run_sweep | run_perfgd | run_dealers | run_universe
     |                               | run_triangulation | run_fragility | run_calibrated | run_all
     |- outputs/                  <- CSVs + PNGs land here
-    \- tests/                    <- 15 files, 103 fast + 6 slow tests
+    \- tests/                    <- 15 files, 103 fast + 7 slow tests (110 total)
 
 ## Install, test, run
 
