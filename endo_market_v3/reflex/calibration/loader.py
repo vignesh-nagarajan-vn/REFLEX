@@ -126,6 +126,51 @@ def load_xsection_sigma(data_dir: Optional[Union[str, Path]] = None) -> pd.DataF
     return df
 
 
+def load_bond_returns(data_dir: Optional[Union[str, Path]] = None) -> pd.DataFrame:
+    """Per-bond monthly log returns for the 212 real CUSIPs (``reflex_G``)."""
+    d = _resolve(data_dir)
+    df = pd.read_csv(d / "calibration" / "reflex_G_bond_returns_monthly.csv",
+                     parse_dates=["date"])
+    return df
+
+
+def bond_vol_dispersion(
+    data_dir: Optional[Union[str, Path]] = None,
+    min_months: int = 12,
+) -> float:
+    """Relative cross-sectional dispersion of per-bond volatility.
+
+    Computes each bond's time-series return volatility from the shipped
+    per-CUSIP monthly returns (bonds with at least ``min_months`` observations)
+    and returns the coefficient of variation ``std(sigma_i) / mean(sigma_i)``
+    across bonds -- the data-identified heterogeneity of per-bond sigmas that
+    theory 1.5 scales the universe's idiosyncratic vols by.  The aggregated G2
+    panel cannot identify this (a single cross-sectional sigma per month mixes
+    vol heterogeneity with factor exposure), hence the per-bond file.
+    """
+    df = load_bond_returns(data_dir)
+    counts = df.groupby("cusip")["log_ret_monthly"].count()
+    keep = counts[counts >= int(min_months)].index
+    sigmas = (
+        df[df["cusip"].isin(keep)]
+        .groupby("cusip")["log_ret_monthly"]
+        .std(ddof=1)
+        .dropna()
+    )
+    # Zero-vol bonds are stale marks (flat price series), not zero-risk bonds;
+    # drop them, then winsorise the sigma distribution at p05/p95 (the pipeline's
+    # own tail-trimming convention) before taking the coefficient of variation.
+    sigmas = sigmas[sigmas > 0.0]
+    if len(sigmas) < 10:
+        raise ValueError(
+            f"too few bonds with >= {min_months} months of non-stale returns "
+            f"({len(sigmas)}) to estimate vol dispersion"
+        )
+    lo, hi = sigmas.quantile(0.05), sigmas.quantile(0.95)
+    w = sigmas.clip(lo, hi)
+    return float(w.std(ddof=1) / w.mean())
+
+
 def load_scaler_stats(data_dir: Optional[Union[str, Path]] = None) -> pd.DataFrame:
     """Calibration-window feature mu/sigma (``scaler_stats.csv``)."""
     d = _resolve(data_dir)
