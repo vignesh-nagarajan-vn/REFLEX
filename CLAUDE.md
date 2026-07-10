@@ -26,7 +26,7 @@ best-response contraction modulus `m ≈ εβ/γ`; the loop is stable iff `ε < 
 | `new-methodology/` | **Active — research program** | The forward roadmap and its deliverables: `math-theory/` (closed-form derivations 1.1–1.5, all **derived + coded**), the real-data pipeline (`data_collection/`, `preprocessing/`), plus still-placeholder `simulator/`, `experiments/`, `results/`. See "The research program" below. |
 | `literature/literature-vignesh/` | Active reference | 10 foundational papers + reading map; PDFs downloaded. |
 | `literature/literature-raghav/` | Active reference | Superset: same 10 + 8 extension papers (18 total) + research roadmap. |
-| `endo_market/` | **Legacy** | Earlier iteration superseded by `endo_market_v2`. Don't extend it. |
+| `endo_market_v1/` | **Legacy** | Earlier iteration (formerly `endo_market/`) superseded by `endo_market_v2`. Don't extend it. |
 | `edl_simulator_v1/` | **Legacy prototype** | HTML/JS mockup; the earliest analytical version, superseded. |
 
 When asked to change "the code" or "the experiment," default to

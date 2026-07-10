@@ -78,11 +78,11 @@ governed by a single feedback parameter*, each more structural than the last:
 ```mermaid
 flowchart LR
     A["edl_simulator_v1<br/>(HTML/JS mockup)<br/>analytical LQ model"]
-      --> B["endo_market<br/>(Python / PyTorch)<br/>learned operator + RRM"]
+      --> B["endo_market_v1<br/>(Python / PyTorch)<br/>learned operator + RRM"]
       --> C["endo_market_v2<br/>(Python / PyTorch)<br/>refined, result reproduced"]
 ```
 
-|                       | **edl_simulator_v1** | **endo_market** | **endo_market_v2** |
+|                       | **edl_simulator_v1** | **endo_market_v1** | **endo_market_v2** |
 |-----------------------|----------------------|-----------------|--------------------|
 | **Role**              | Earliest prototype   | Legacy iteration | **Current** |
 | **Implementation**    | HTML/JS browser mockup | Python (PyTorch, CPU) | Python (PyTorch, CPU) |
@@ -94,7 +94,7 @@ flowchart LR
 | **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests (simulator + all five analytic modules) + phase-diagram PNG & sweep CSV |
 
 The progression: `edl_simulator_v1` proved the *concept* (one parameter flips a
-market between convergence and chaos) analytically; `endo_market` rebuilt it as a
+market between convergence and chaos) analytically; `endo_market_v1` rebuilt it as a
 learned-operator performative-prediction loop but couldn't cleanly tune the
 transition; `endo_market_v2` identified `ε` (not `α`) as the clean control and
 reproduced the `ε < γ/β` stability boundary.
@@ -129,7 +129,7 @@ reproduced the `ε < γ/β` stability boundary.
     |  |- simulator/                ← (placeholder) operator, multi-dealer, estimators
     |  |- experiments/              ← (placeholder) sweeps and phase diagrams
     |  \- results/                  ← (placeholder) figures and tables
-    |- endo_market/                 ← earlier Python iteration (superseded by endo_market_v2)
+    |- endo_market_v1/              ← earlier Python iteration (superseded by endo_market_v2)
     \- edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
 
 ## Experiments

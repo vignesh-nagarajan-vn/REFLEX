@@ -1,5 +1,9 @@
-# Literature for `endo_market`
+# Literature for REFLEX (the `endo_market` lineage)
 ## Performative Prediction in an Endogenous OTC Bond Market
+
+> Prose below refers to the research program by its historical working name
+> `endo_market`. The codebase generations are `endo_market_v1` (legacy) →
+> `endo_market_v2` → `endo_market_v3` (current, package `reflex`).
 
 ---
 
