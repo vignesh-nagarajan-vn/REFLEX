@@ -3,7 +3,7 @@
 > **Renamed.** This folder was previously `endo_market/`; it is the first Python
 > iteration of the REFLEX program, superseded by `endo_market_v2/` and now
 > `endo_market_v3/`. Kept frozen for lineage; don't extend it. (The *inner*
-> Python package it ships is still named `endo_market` — code unchanged.)
+> Python package it ships is still named `endo_market` - code unchanged.)
 
 **Performative prediction in an endogenous OTC corporate-bond market-making
 environment.** The dealer's quoting policy `phi` induces the data distribution

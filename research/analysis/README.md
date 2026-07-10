@@ -1,4 +1,4 @@
-# analysis/ — written analyses of the executed runs
+# analysis/ - written analyses of the executed runs
 
 The interpretation layer over [`../results/`](../results/): derived tables,
 comparison figures, predicted-vs-measured breakdowns, and honest caveats.

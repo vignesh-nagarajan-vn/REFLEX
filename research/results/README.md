@@ -1,11 +1,12 @@
-# results/ — executed paper-grade runs
+# results/ - executed paper-grade runs
 
 Raw artifacts from the `endo_market_v3` experiment suite executed against the
 shipped real-data calibrations. One dated folder per full-profile execution:
 
     results/
-    |- full-YYYY-MM/           one complete `run_all --profile full` execution
+    |- MM-DD-YYYY/             one complete `run_all --profile full` execution (e.g. 07-10-2026/)
     |  |- README.md            what ran, at which commit, timings, environment
+    |  |- REPORT.md            the complete illustrated report (all figures + findings)
     |  |- logs/                full console logs of the suite
     |  |- fragility/           per-experiment artifacts (CSVs + PNGs) + notes.md
     |  |- calibrated/          ...

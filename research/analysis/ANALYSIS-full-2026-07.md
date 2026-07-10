@@ -4,7 +4,7 @@ The master analysis of the paper-grade experiment suite
 (`endo_market_v3`, `python -m experiments.run_all --profile full` plus the
 alpha-confound appendix sweep), executed against the shipped real-data
 calibrations after the [measurement-layer audit](pre-run-audit-2026-07.md).
-Raw artifacts: [`../results/full-2026-07/`](../results/full-2026-07/).
+Raw artifacts: [`../results/07-10-2026/`](../results/07-10-2026/).
 Derived figures: [`figures/`](figures/).
 
 **Reading order.** §1 is the one-page summary. §2–§9 are per-experiment

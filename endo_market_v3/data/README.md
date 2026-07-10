@@ -1,8 +1,8 @@
-# data/ — shipped calibration artifacts (provenance)
+# data/ - shipped calibration artifacts (provenance)
 
 Self-contained copies of the REFLEX data pipeline's outputs so `endo_market_v3`
 runs without reaching outside its folder. The **canonical pipeline** (fetch,
-build, verify, preprocess — with full docs, verification logs and rejected
+build, verify, preprocess - with full docs, verification logs and rejected
 sources) lives in [`../../research/`](../../research/)
 (`data_collection/` + `preprocessing/`). Regenerate everything from public
 sources with its four scripts (`fetch_data.py`, `build_datasets.py`,

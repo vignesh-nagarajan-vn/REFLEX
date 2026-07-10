@@ -1,7 +1,7 @@
 
 ## Overview
 
-This repository contains the full data collection and preprocessing pipeline for REFLEX. All data is real and verified against known historical values — no synthetic data is included. Large generated files are excluded from git; run the four pipeline scripts below to regenerate them locally.
+This repository contains the full data collection and preprocessing pipeline for REFLEX. All data is real and verified against known historical values - no synthetic data is included. Large generated files are excluded from git; run the four pipeline scripts below to regenerate them locally.
 
 ---
 
@@ -54,18 +54,18 @@ All six sources are public domain or freely redistributable. No TRACE, Bloomberg
 
 | File | Source | What it contains | Timespan | Rows |
 |------|--------|-----------------|----------|------|
-| `reflex_A_vix_daily.csv` | CBOE Volatility Index | Daily VIX OHLC — primary σ proxy and regime classifier | 1990–2026 | 9,218 |
-| `reflex_B_wti_daily.csv` | US EIA | WTI crude oil spot price — macro stress co-indicator | 1986–2026 | 10,191 |
-| `reflex_C_treasury10y_monthly.csv` | Federal Reserve H.15 | 10-year Treasury yield — DV01 calibration | 1953–2026 | 878 |
-| `reflex_D_shiller_monthly.csv` | Robert Shiller / Yale | S&P 500, earnings, GS10, CAPE — equity σ and regime context | 1871–2023 | 1,833 |
-| `reflex_E_gold_cpi_monthly.csv` | World Gold Council + BLS | Gold price and US CPI-U — real yield calculation | 1833–2026 | 2,321 |
-| `reflex_F_dickerson_bond_factors.csv` | Dickerson, Mueller & Robotti (2023) JFE | TRACE-derived bond market factors including Liquidity Risk Factor — primary ε proxy | 2004–2021 | 209 |
-| `reflex_G_bond_returns_monthly.csv` | QuhiQuhihi / real CUSIPs | Monthly log returns for 212 real US corporate bonds — D(φ) proxy | 2014–2023 | 12,111 |
+| `reflex_A_vix_daily.csv` | CBOE Volatility Index | Daily VIX OHLC - primary σ proxy and regime classifier | 1990–2026 | 9,218 |
+| `reflex_B_wti_daily.csv` | US EIA | WTI crude oil spot price - macro stress co-indicator | 1986–2026 | 10,191 |
+| `reflex_C_treasury10y_monthly.csv` | Federal Reserve H.15 | 10-year Treasury yield - DV01 calibration | 1953–2026 | 878 |
+| `reflex_D_shiller_monthly.csv` | Robert Shiller / Yale | S&P 500, earnings, GS10, CAPE - equity σ and regime context | 1871–2023 | 1,833 |
+| `reflex_E_gold_cpi_monthly.csv` | World Gold Council + BLS | Gold price and US CPI-U - real yield calculation | 1833–2026 | 2,321 |
+| `reflex_F_dickerson_bond_factors.csv` | Dickerson, Mueller & Robotti (2023) JFE | TRACE-derived bond market factors including Liquidity Risk Factor - primary ε proxy | 2004–2021 | 209 |
+| `reflex_G_bond_returns_monthly.csv` | QuhiQuhihi / real CUSIPs | Monthly log returns for 212 real US corporate bonds - D(φ) proxy | 2014–2023 | 12,111 |
 | `reflex_G2_bond_xsection_sigma.csv` | Derived from G | Cross-sectional return dispersion per month | 2014–2023 | 106 |
 
 ### How to Access the Raw Data
 
-Each source is downloaded directly from its public GitHub mirror using `src/fetch_data.py`, which calls `codeload.github.com` — no API keys or credentials required.
+Each source is downloaded directly from its public GitHub mirror using `src/fetch_data.py`, which calls `codeload.github.com` - no API keys or credentials required.
 
 | Source | Direct link | FRED / official equivalent |
 |--------|------------|---------------------------|
@@ -75,7 +75,7 @@ Each source is downloaded directly from its public GitHub mirror using `src/fetc
 | EIA WTI Oil | https://github.com/datasets/oil-prices | https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm |
 | BLS CPI | https://github.com/datasets/cpi-us | https://www.bls.gov/cpi/ |
 | Dickerson TRACE factors | https://github.com/Alexander-M-Dickerson/TRACE-corporate-bond-processing | Dickerson et al. (2023) JFE replication package |
-| Bond returns (real CUSIPs) | https://github.com/QuhiQuhihi/Factor-Strategy-for-Corporate-Bond- | — |
+| Bond returns (real CUSIPs) | https://github.com/QuhiQuhihi/Factor-Strategy-for-Corporate-Bond- | - |
 
 ### Verification
 
@@ -92,15 +92,15 @@ Every source was checked against known historical values before inclusion. All 3
 | Dickerson | Sep 2008 MKTB (Lehman shock) | very negative | **−8.26%** ✓ |
 | Bond returns | CUSIP format (9-char alphanumeric) | e.g. `00138GAB5` | **verified** ✓ |
 
-Direct TRACE access requires WRDS (pending). The workaround uses Dickerson et al. (2023) JFE — a peer-reviewed paper that processed the full TRACE Enhanced feed and released derived factor returns publicly. Their Liquidity Risk Factor (LRF) and Credit Risk Factor (CRF) carry real bond microstructure signal and are citable. From these, plus VIX and GS10, we reconstruct all REFLEX calibration quantities. Parameter ranges are validated against published estimates: Bao et al. (2011) report IG Amihud illiquidity 0.2–0.8; Dick-Nielsen et al. (2012) report IG effective half-spreads of 20–80 bps.
+Direct TRACE access requires WRDS (pending). The workaround uses Dickerson et al. (2023) JFE - a peer-reviewed paper that processed the full TRACE Enhanced feed and released derived factor returns publicly. Their Liquidity Risk Factor (LRF) and Credit Risk Factor (CRF) carry real bond microstructure signal and are citable. From these, plus VIX and GS10, we reconstruct all REFLEX calibration quantities. Parameter ranges are validated against published estimates: Bao et al. (2011) report IG Amihud illiquidity 0.2–0.8; Dick-Nielsen et al. (2012) report IG effective half-spreads of 20–80 bps.
 
 ### What is Not Available from Free Sources
 
 Three quantities require TRACE Enhanced access (WRDS academic subscription) and are not in this dataset:
 
-- **Trade-level bid-ask spread `h`** — TRACE dealer-side trade prints needed
-- **Per-dealer inventory paths `q`** — TRACE dealer IDs are masked in public tier
-- **Per-bond arrival rate `A` fitted from real prints** — requires trade-level timestamps
+- **Trade-level bid-ask spread `h`** - TRACE dealer-side trade prints needed
+- **Per-dealer inventory paths `q`** - TRACE dealer IDs are masked in public tier
+- **Per-bond arrival rate `A` fitted from real prints** - requires trade-level timestamps
 
 These are documented gaps. WRDS application: https://wrds-www.wharton.upenn.edu/
 
@@ -108,19 +108,19 @@ These are documented gaps. WRDS application: https://wrds-www.wharton.upenn.edu/
 
 ## Preprocessing
 
-All preprocessing is implemented in `src/preprocess.py` and runs on `REFLEX_MASTER_DATASET.csv` as the single input. Every step adds columns to the same 9,218-row daily panel — nothing is dropped.
+All preprocessing is implemented in `src/preprocess.py` and runs on `REFLEX_MASTER_DATASET.csv` as the single input. Every step adds columns to the same 9,218-row daily panel - nothing is dropped.
 
-### Step 1 — Clean
+### Step 1 - Clean
 
-**Null handling.** Two columns groups have expected nulls due to source coverage gaps: Dickerson bond factors start August 2004 (3,695 nulls pre-2004) and cross-sectional bond sigma starts December 2014 (6,276 nulls pre-2014). Neither gap causes rows to be dropped — nulls are filled with regime-conditional means and a `bond_factors_available` indicator column marks which rows had real vs imputed values.
+**Null handling.** Two columns groups have expected nulls due to source coverage gaps: Dickerson bond factors start August 2004 (3,695 nulls pre-2004) and cross-sectional bond sigma starts December 2014 (6,276 nulls pre-2014). Neither gap causes rows to be dropped - nulls are filled with regime-conditional means and a `bond_factors_available` indicator column marks which rows had real vs imputed values.
 
 **Winsorisation.** Eleven continuous columns are clipped at the 1st/99th percentile. Percentile bounds are fit on the pre-2022 calibration window only to prevent any lookahead into the held-out period. A `_clipped` indicator column is added for each.
 
 **Stationarity (ADF test).** Seven key features are tested with the Augmented Dickey-Fuller test at α = 0.05. Two are found to have unit roots: `gs10_yield` and `real_yield`. Both receive a `_diff1` column (first difference) which is used as the model feature instead of the level.
 
-**Autocorrelation.** Lag-1 autocorrelation is computed for key features. All are highly persistent (ρ(1) = 0.96–0.99), confirming that rows must not be split i.i.d. — only time-aware splits are valid.
+**Autocorrelation.** Lag-1 autocorrelation is computed for key features. All are highly persistent (ρ(1) = 0.96–0.99), confirming that rows must not be split i.i.d. - only time-aware splits are valid.
 
-### Step 2 — Enrich
+### Step 2 - Enrich
 
 Four REFLEX-specific quantities are reconstructed from the master's own columns:
 
@@ -128,21 +128,21 @@ Four REFLEX-specific quantities are reconstructed from the master's own columns:
 
 **`q_proxy` (inventory path proxy).** 3-month cumulative `bond_mkt_ret` normalised by 12-month rolling volatility, clipped to [−3σ, +3σ] to match the simulator's `q_after` scale. Pre-TRACE window (pre-2004) defaults to 0 (neutral inventory).
 
-**`tau_proxy` (informed-flow fraction).** `|credit_rf| / (|credit_rf| + |liquidity_rf| + ε)` — the share of the combined factor signal attributable to adverse selection (credit risk) vs pure illiquidity. Bounded [0, 1]. Mean = 0.74, stress mean = 0.56.
+**`tau_proxy` (informed-flow fraction).** `|credit_rf| / (|credit_rf| + |liquidity_rf| + ε)` - the share of the combined factor signal attributable to adverse selection (credit risk) vs pure illiquidity. Bounded [0, 1]. Mean = 0.74, stress mean = 0.56.
 
 **`D_phi_sigma` (order-flow distribution proxy).** Cross-sectional return dispersion `ret_sigma_xs` where available (2014–2023); imputed as `sp500_sigma_12m × 0.35` for the pre-2014 window.
 
-### Step 3 — Fit (A, k)
+### Step 3 - Fit (A, k)
 
 Exponential intensity model `λ(h) = A · exp(−k · h)` is fit per rating bucket (IG, HY) per regime (calm through crisis) using `scipy.optimize.curve_fit` MLE. Observations are the master's own `A_IG_estimate` / `A_HY_estimate` columns against `h_IG_decimal` / `h_HY_decimal`, using only the TRACE-available window (2004–2021). Results are written to `03_fitted_intensity_params.csv` and merged back into the master panel as `A_fitted_mean` and `k_decay_mean`.
 
-ADF is run on the fit residuals — IG calm through elevated pass (stationary residuals), stress and crisis do not, reflecting higher non-stationarity in extreme regimes. This is documented in the output file.
+ADF is run on the fit residuals - IG calm through elevated pass (stationary residuals), stress and crisis do not, reflecting higher non-stationarity in extreme regimes. This is documented in the output file.
 
-### Step 4 — Normalise Simulator Logs
+### Step 4 - Normalise Simulator Logs
 
-Simulator output columns are renamed to match the master schema (`h` → `h_halfspread`, `tau` → `tau_toxicfrac`, `q_after` → `q_inventory`). Z-scores are computed using means and standard deviations from the master's calibration window (2004–2019) — not from the simulator data itself — so real and simulated quantities are on a common scale. `data_is_synthetic = True` is set on every simulator row. Stability labels are encoded as numeric codes (stable=0, oscillating=1, collapsed\_saturated=2).
+Simulator output columns are renamed to match the master schema (`h` → `h_halfspread`, `tau` → `tau_toxicfrac`, `q_after` → `q_inventory`). Z-scores are computed using means and standard deviations from the master's calibration window (2004–2019) - not from the simulator data itself - so real and simulated quantities are on a common scale. `data_is_synthetic = True` is set on every simulator row. Stability labels are encoded as numeric codes (stable=0, oscillating=1, collapsed\_saturated=2).
 
-### Step 5 — Episode-Level Split
+### Step 5 - Episode-Level Split
 
 Two parallel splits are maintained:
 
@@ -150,7 +150,7 @@ Two parallel splits are maintained:
 
 **Real-data split** on date: pre-sample 1990–2003 (no bond factors), calibration 2004–2019 (full TRACE window), validation 2020–2021 (COVID shock + recovery), held-out 2022–2026 (rate-hike cycle, out-of-sample). Stored in `icaif_split` column on every row.
 
-### Step 6 — Final Panel
+### Step 6 - Final Panel
 
 All steps are merged into `MASTER_PREPROCESSED.csv` (9,218 rows × 88 columns). Z-scores for all 23 continuous features are computed using calibration-window statistics only (`scaler_stats.csv` stores the μ/σ values for inference-time use). `lookahead_safe = True` is set on every row and verified by checking that the calibration-window z-score mean is exactly 0.000.
 

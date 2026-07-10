@@ -153,7 +153,7 @@ Nine experiments (`python -m experiments.run_all --profile smoke|full`):
 | `run_fragility` | **Real-data headline:** the daily 1990–2026 fragility index - stability headroom `ε*(t)` collapses ~4.4× (IG) / ~4.3× (HY) calm→crisis (HY >10× below IG throughout), saturating at its crisis plateau through the GFC (from 2008-10-06) and the March-2020 freeze | 1.1 on data |
 | `run_calibrated` | A-priori boundary per (rating × regime) from fitted `(A, k, σ, h)` | 1.1 + data |
 | `run_sweep` | Predict-then-verify phase diagram: analytic `m_pred(ε)` overlay + measured median/IQR + robust bands | 1.1 + 1.4 |
-| `run_perfgd` | Closed form verified: the cobweb diverges in the genuinely unstable regime while 1-D PerfGD converges to `h_PO`; echo-chamber gaps `O(ε)`/`O(ε²)` confirmed. The ML loops are the **seam diagnostic** (learned vs analytic toxic slope) — loop-level stabilisation is a documented open gap | 1.2 |
+| `run_perfgd` | Closed form verified: the cobweb diverges in the genuinely unstable regime while 1-D PerfGD converges to `h_PO`; echo-chamber gaps `O(ε)`/`O(ε²)` confirmed. The ML loops are the **seam diagnostic** (learned vs analytic toxic slope) - loop-level stabilisation is a documented open gap | 1.2 |
 | `run_dealers` | `(N, ε)` systemic surface `m_N = N_eff·m₁`; genuine shared-pool market probes | 1.3 |
 | `run_universe` | `ρ(M)` at 128 correlated bonds via `O(d·k²)` Woodbury; truncation bound verified | 1.5 |
 | `run_triangulation` | Three independent `ε` estimators (BR-slope / Sinkhorn / CKS) vs the closed form | 1.1 |
@@ -162,7 +162,7 @@ Nine experiments (`python -m experiments.run_all --profile smoke|full`):
 **Verified state (July 2026):** 110 tests pass; the **paper-grade
 full-profile suite has been executed end to end (8/8, ~10 min CPU)** after a
 measurement-layer audit fixed five probe/protocol defects. The curated
-artifacts live in [`research/results/full-2026-07/`](research/results/full-2026-07/)
+artifacts live in [`research/results/07-10-2026/`](research/results/07-10-2026/)
 and the per-experiment analysis (tables, figures, honest caveats) in
 [`research/analysis/ANALYSIS-full-2026-07.md`](research/analysis/ANALYSIS-full-2026-07.md);
 `endo_market_v3/outputs/` carries the same artifacts in place.
@@ -179,7 +179,7 @@ theoretical `ε < γ/β` condition (Perdomo et al., ICML 2020).
 *Post-audit note (July 2026):* the v3 audit traced ~3× of the measured level
 to the probe protocol's exploration jitter; under the clean protocol the
 measured crossing is `ε* ≈ 3.2` against a closed-form prediction of 4.7
-(a-priori state) / ~2.8–3.0 (realised state) — the v2 *trend* stands, its
+(a-priori state) / ~2.8–3.0 (realised state) - the v2 *trend* stands, its
 absolute crossing was protocol-contaminated (see
 [`research/analysis/pre-run-audit-2026-07.md`](research/analysis/pre-run-audit-2026-07.md) §1.6):
 
@@ -304,7 +304,7 @@ with the math (`endo_market_v3`); real-data calibration wired in; the
 measurement layer **audited against the theory** (five probe/protocol defects
 found and fixed; 110 tests); the **paper-grade full-profile runs executed**
 (8/8, ~10 min CPU + clean-protocol sweeps) and **curated + analyzed** in
-[`research/results/full-2026-07/`](research/results/full-2026-07/) and
+[`research/results/07-10-2026/`](research/results/07-10-2026/) and
 [`research/analysis/`](research/analysis/). The remaining program:
 
 1. **Write the paper** - conference-ready for [ICAIF 2026](https://icaif2026.org/)
@@ -330,7 +330,7 @@ sweeping it by hand. In priority order (full checklist in
 - [x] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, **and a genuine `N`-dealer simulated market**. *Derived + coded* ([`reflex/theory/multi_dealer.py`](endo_market_v3/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](endo_market_v3/reflex/env/multi_dealer.py)).
 - [x] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`; robust bands wired into every sweep. *Derived + coded* ([`reflex/theory/robust.py`](endo_market_v3/reflex/theory/robust.py)).
 - [x] **Scale and calibrate (P5):** 100+ correlated bonds via factor-model reduction (`ρ(M)<1`, `O(d·k²)` Woodbury) with data-calibrated per-bond σ; regime-calibrated microstructure from the real dataset. *Derived + coded* ([`reflex/theory/factor_scaling.py`](endo_market_v3/reflex/theory/factor_scaling.py), [`reflex/calibration/`](endo_market_v3/reflex/calibration/)); trade-level TRACE calibration remains pending WRDS access.
-- [x] Paper-grade full-profile runs → curated results — executed July 2026 after the measurement-layer audit; artifacts in [`research/results/full-2026-07/`](research/results/full-2026-07/), analysis in [`research/analysis/`](research/analysis/).
+- [x] Paper-grade full-profile runs → curated results - executed July 2026 after the measurement-layer audit; artifacts in [`research/results/07-10-2026/`](research/results/07-10-2026/), analysis in [`research/analysis/`](research/analysis/).
 - [ ] Secure a research placement at a top AI lab (with affiliation).
 - [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance; deadline Aug 2, 2026) or another main-track venue.
 
