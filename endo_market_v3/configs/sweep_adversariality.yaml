@@ -45,6 +45,7 @@ base:
     quote_anchor_ref: 1.0
   rrm:
     n_episodes: 16
+    collection_jitter: 0.05  # clean probe protocol (see sweep_feedback.yaml)
 
 sweep:
   variable: alpha

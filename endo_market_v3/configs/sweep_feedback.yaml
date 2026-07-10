@@ -43,6 +43,8 @@ base:
     quote_anchor_ref: 1.0
   rrm:
     n_episodes: 16
+    collection_jitter: 0.05  # clean probe protocol: 0.2 inflates the measured
+                             # modulus ~3x (reads ~0.5 at zero feedback)
 
 sweep:
   variable: toxicity_feedback          # the epsilon knob (clients.toxicity_feedback)

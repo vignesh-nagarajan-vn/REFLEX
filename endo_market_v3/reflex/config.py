@@ -157,7 +157,11 @@ class RRMConfig:
     max_iters: int = 15
     tol: float = 1e-3  # stop when ||phi_{k+1}-phi_k|| < tol
     n_episodes: int = 24  # episodes of T_true data collected per iteration
-    collection_jitter: float = 0.20  # exploration noise on quotes during collection
+    # Exploration noise on quotes during collection.  Matches default.yaml:
+    # 0.2 inflates the CRN BR-slope probe ~3x (measured m ~ 0.5 at zero
+    # feedback where the structural modulus is 0); at 0.05 the probe tracks
+    # the closed form within ~5% in the contracting regime.
+    collection_jitter: float = 0.05
     eval_episodes: int = 16  # fresh T_true rollouts to estimate performative risk
     warm_start_policy: bool = True  # re-optimize from previous iterate (vs. fresh init)
     refit_window: int = 1  # number of recent iterations' data used to fit T_theta
