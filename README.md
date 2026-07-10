@@ -91,8 +91,8 @@ flowchart LR
 | **Learner**           | Closed-form fixed point | Learned operator `T_θ` + RRM loop | Same, refined | **Un-blinded `T_θ`** (windowed fit learns `dD/dφ`) + PerfGD-corrected loops (analytic & learned) |
 | **Control parameter** | Adversarialness `α`  | Adversariality `α ∈ [0,1]` | Feedback gain `ε` (`α` found to be confounded) | `ε`, dealer count `N`, universe size `d`, market regime |
 | **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` | Closed-form `ε < γ/β`, `ε < γ/(N_eff·β)`, `ρ(M) < 1` - predicted a-priori, then verified |
-| **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | **Result reproduced**: `m` crosses 1 at `ε* ≈ 1.3`, then saturates | Theory+ML+data unified; **real-data fragility index** (headroom collapses 4×+ calm→crisis, peaks at Lehman & COVID) |
-| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests + phase-diagram PNG & sweep CSV | **110 tests** + 9 experiments (21 artifacts; smoke-verified 8/8) |
+| **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | **Result reproduced**: `m` crosses 1 at `ε* ≈ 1.3`, then saturates | Theory+ML+data unified; **real-data fragility index** (headroom collapses ~4.4× calm→crisis, HY >10× below IG, plateauing through the GFC & COVID) |
+| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests + phase-diagram PNG & sweep CSV | **110 tests** + 9 experiments, **full-profile verified 8/8** (curated in `research/results/`) |
 
 The progression: `edl_simulator_v1` proved the *concept* (one parameter flips a
 market between convergence and chaos) analytically; `endo_market_v1` rebuilt it as a
@@ -101,8 +101,9 @@ transition; `endo_market_v2` identified `ε` (not `α`) as the clean control and
 reproduced the `ε < γ/β` stability boundary; `endo_market_v3` unifies the ML,
 the five closed-form theory results, and the real-data calibration in one
 self-contained package (`reflex`) - and un-blinds the learned operator so the
-loop that theory says must diverge can be stabilised, analytically *and* by
-learning.
+loop that theory says must diverge can be stabilised in closed form
+(loop-level stabilisation *by learning* remains a documented open gap; see
+`research/analysis/`).
 
 ## Repository layout
 
@@ -149,30 +150,38 @@ Nine experiments (`python -m experiments.run_all --profile smoke|full`):
 
 | Experiment | What it shows | Theory |
 |---|---|---|
-| `run_fragility` | **Real-data headline:** the daily 1990–2026 fragility index - stability headroom `ε*(t)` collapses ~4× (IG) / ~13× (HY) calm→crisis, peaking at Lehman (2008-10-06) and the March-2020 freeze | 1.1 on data |
+| `run_fragility` | **Real-data headline:** the daily 1990–2026 fragility index - stability headroom `ε*(t)` collapses ~4.4× (IG) / ~4.3× (HY) calm→crisis (HY >10× below IG throughout), saturating at its crisis plateau through the GFC (from 2008-10-06) and the March-2020 freeze | 1.1 on data |
 | `run_calibrated` | A-priori boundary per (rating × regime) from fitted `(A, k, σ, h)` | 1.1 + data |
 | `run_sweep` | Predict-then-verify phase diagram: analytic `m_pred(ε)` overlay + measured median/IQR + robust bands | 1.1 + 1.4 |
-| `run_perfgd` | Blind RRM diverges past `ε*`; PerfGD-analytic and PerfGD-learned converge; echo-chamber gap scan; the learned-vs-analytic toxic-slope seam | 1.2 |
+| `run_perfgd` | Closed form verified: the cobweb diverges in the genuinely unstable regime while 1-D PerfGD converges to `h_PO`; echo-chamber gaps `O(ε)`/`O(ε²)` confirmed. The ML loops are the **seam diagnostic** (learned vs analytic toxic slope) — loop-level stabilisation is a documented open gap | 1.2 |
 | `run_dealers` | `(N, ε)` systemic surface `m_N = N_eff·m₁`; genuine shared-pool market probes | 1.3 |
 | `run_universe` | `ρ(M)` at 128 correlated bonds via `O(d·k²)` Woodbury; truncation bound verified | 1.5 |
 | `run_triangulation` | Three independent `ε` estimators (BR-slope / Sinkhorn / CKS) vs the closed form | 1.1 |
 | `run_single` | One outer loop in any mode with seam diagnostics | - |
 
-**Verified state:** 110 tests pass; the smoke suite runs 8/8 end to end
-(21 artifacts in `endo_market_v3/outputs/` - the fragility index, calibrated
-boundaries and universe scaling are full-fidelity closed-form results; the ML
-artifacts are smoke-grade until the `--profile full` runs land).
+**Verified state (July 2026):** 110 tests pass; the **paper-grade
+full-profile suite has been executed end to end (8/8, ~10 min CPU)** after a
+measurement-layer audit fixed five probe/protocol defects. The curated
+artifacts live in [`research/results/full-2026-07/`](research/results/full-2026-07/)
+and the per-experiment analysis (tables, figures, honest caveats) in
+[`research/analysis/ANALYSIS-full-2026-07.md`](research/analysis/ANALYSIS-full-2026-07.md);
+`endo_market_v3/outputs/` carries the same artifacts in place.
 
 See [`endo_market_v3/README.md`](endo_market_v3/README.md) for methodology,
 layout, install/run and honest caveats.
 
 ### Prior generation (`endo_market_v2`, superseded - result absorbed into v3)
 
-**v2's headline result** (reproduced, now also *predicted* by v3's closed
-forms): sweeping the performative-feedback gain `ε`
-(`clients.toxicity_feedback`), the best-response contraction modulus `m`
-crosses the stability boundary `m = 1` near `ε* ≈ 1.3`, reproducing the
-theoretical `ε < γ/β` condition (Perdomo et al., ICML 2020):
+**v2's headline result** (historical): sweeping the performative-feedback
+gain `ε` (`clients.toxicity_feedback`), the best-response contraction modulus
+`m` crosses the stability boundary `m = 1` near `ε* ≈ 1.3`, reproducing the
+theoretical `ε < γ/β` condition (Perdomo et al., ICML 2020).
+*Post-audit note (July 2026):* the v3 audit traced ~3× of the measured level
+to the probe protocol's exploration jitter; under the clean protocol the
+measured crossing is `ε* ≈ 3.2` against a closed-form prediction of 4.7
+(a-priori state) / ~2.8–3.0 (realised state) — the v2 *trend* stands, its
+absolute crossing was protocol-contaminated (see
+[`research/analysis/pre-run-audit-2026-07.md`](research/analysis/pre-run-audit-2026-07.md) §1.6):
 
 | ε    | 0.0  | 2.0   | 3.0   | 4.0   | 6.0   | 8.0  |
 |-----:|-----:|------:|------:|------:|------:|-----:|
@@ -290,21 +299,24 @@ four scripts.
 
 ## Status & next steps
 
-Theory (1.1–1.5) **derived + coded**; the ML **un-blinded and integrated** with
-the math (`endo_market_v3`); real-data calibration wired in; all nine
-experiments verified end to end (110 tests, smoke suite 8/8). The remaining
-program, in order:
+Theory (1.1–1.5) **derived + coded**; the ML **un-blinded and integrated**
+with the math (`endo_market_v3`); real-data calibration wired in; the
+measurement layer **audited against the theory** (five probe/protocol defects
+found and fixed; 110 tests); the **paper-grade full-profile runs executed**
+(8/8, ~10 min CPU + clean-protocol sweeps) and **curated + analyzed** in
+[`research/results/full-2026-07/`](research/results/full-2026-07/) and
+[`research/analysis/`](research/analysis/). The remaining program:
 
-1. **Paper-grade runs** - `python -m experiments.run_all --profile full` in
-   `endo_market_v3/` (hours of CPU): the ε-sweep phase diagram
-   (predicted-vs-measured crossing + robust bands), three-mode PerfGD loops,
-   dealer probes, measured calibrated boundaries, more seeds for median + IQR.
-   The fragility index, calibrated a-priori boundaries and universe scaling
-   are already full-fidelity (closed forms on real data).
-2. **Analyze** - curate figures and raw data into
-   [`research/results/`](research/results/).
-3. **Write the paper** - conference-ready for [ICAIF 2026](https://icaif2026.org/)
-   (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026).
+1. **Write the paper** - conference-ready for [ICAIF 2026](https://icaif2026.org/)
+   (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026), on the
+   curated results. The scoping decisions are already made in the analysis:
+   closed forms + real-data fragility + probe-level verifications are the
+   headline; loop-level PerfGD stabilisation is reported as a diagnosed open
+   gap, not a claim.
+2. **(Stretch)** close that gap - make the corrected *learned* loop actually
+   find `h_PO` (operator architectures anchored to the GLFT structural form;
+   corrections that compensate operator bias; stability-penalty
+   regularisation against the echo-chamber collapse).
 
 ## Goals
 
@@ -318,7 +330,7 @@ sweeping it by hand. In priority order (full checklist in
 - [x] **Multi-dealer / systemic risk (P3):** `N`-dealer PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, **and a genuine `N`-dealer simulated market**. *Derived + coded* ([`reflex/theory/multi_dealer.py`](endo_market_v3/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](endo_market_v3/reflex/env/multi_dealer.py)).
 - [x] **Robust uncertainty (P4):** distributionally robust `ε*` with an ambiguity radius shrinking at `O(1/√n)`; robust bands wired into every sweep. *Derived + coded* ([`reflex/theory/robust.py`](endo_market_v3/reflex/theory/robust.py)).
 - [x] **Scale and calibrate (P5):** 100+ correlated bonds via factor-model reduction (`ρ(M)<1`, `O(d·k²)` Woodbury) with data-calibrated per-bond σ; regime-calibrated microstructure from the real dataset. *Derived + coded* ([`reflex/theory/factor_scaling.py`](endo_market_v3/reflex/theory/factor_scaling.py), [`reflex/calibration/`](endo_market_v3/reflex/calibration/)); trade-level TRACE calibration remains pending WRDS access.
-- [ ] Paper-grade full-profile runs → curated results (`research/results/`).
+- [x] Paper-grade full-profile runs → curated results — executed July 2026 after the measurement-layer audit; artifacts in [`research/results/full-2026-07/`](research/results/full-2026-07/), analysis in [`research/analysis/`](research/analysis/).
 - [ ] Secure a research placement at a top AI lab (with affiliation).
 - [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance; deadline Aug 2, 2026) or another main-track venue.
 

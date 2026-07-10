@@ -27,10 +27,11 @@ CPU-only, reproducible from `(config, seed)`, no GPU. Python >= 3.9.
 
 Plus the **real-data headline**: `run_fragility` evaluates the 1.1 boundary on
 every trading day 1990–2026 - the *stability headroom* `eps*(t) = gamma(t)/beta`
-collapses ~4x (IG) / ~13x (HY) from calm to crisis, peaking at Lehman
-(2008-10-06) and the March-2020 freeze, while the modulus at observed spreads
-*falls* (defensive widening, live on real data). `run_calibrated` tables the
-a-priori boundary per `(rating x regime)`.
+collapses ~4.4x (IG) / ~4.3x (HY) from calm to crisis (and HY sits >10x below
+IG in every regime), saturating at its crisis plateau through the GFC (from
+2008-10-06, Lehman aftermath) and the March-2020 freeze, while the modulus at
+observed spreads *falls* (defensive widening, live on real data).
+`run_calibrated` tables the a-priori boundary per `(rating x regime)`.
 
 ## The ML upgrade in one paragraph
 
@@ -80,7 +81,7 @@ the learned toxic slope next to the analytic `-psi*eps(h)`: the ML↔math seam.
 
     # everything, small settings (~20 min CPU; artifacts in outputs/):
     python -m experiments.run_all --profile smoke
-    # paper-grade (hours):
+    # paper-grade (~10-15 min measured):
     python -m experiments.run_all --profile full
 
     # individual experiments:

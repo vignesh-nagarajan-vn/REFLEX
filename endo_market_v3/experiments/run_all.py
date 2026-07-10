@@ -5,8 +5,8 @@ Profiles:
 * ``smoke`` -- every experiment end to end on tiny settings (~15-25 min CPU).
   Proves the pipeline and produces real artifacts in ``outputs/``; not for
   scientific claims.
-* ``full``  -- paper-grade settings (hours of CPU).  Run overnight; the same
-  artifact names are overwritten with the real results.
+* ``full``  -- paper-grade settings (~10-15 min CPU measured on the current
+  configs).  The same artifact names are overwritten with the real results.
 
 Usage::
 
