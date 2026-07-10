@@ -1,0 +1,27 @@
+=== analytic prediction (theory 1.1, evaluated before the sweep) ===
+    at the probe spread h_ref=1.000 (overlay) and at h*(f) (context)
+  f=  0.05: m_pred(h_ref)=0.106   m(h*)=0.065 (h*=1.568)
+  f=  0.15: m_pred(h_ref)=0.319   m(h*)=0.177 (h*=1.649)
+  f=  0.25: m_pred(h_ref)=0.532   m(h*)=0.269 (h*=1.716)
+  f=  0.35: m_pred(h_ref)=0.745   m(h*)=0.349 (h*=1.773)
+  f=  0.45: m_pred(h_ref)=0.958   m(h*)=0.418 (h*=1.823)
+  f=  0.55: m_pred(h_ref)=1.171   m(h*)=0.479 (h*=1.868)
+  f=  0.65: m_pred(h_ref)=1.384   m(h*)=0.534 (h*=1.908)
+  f=  0.80: m_pred(h_ref)=1.703   m(h*)=0.607 (h*=1.962)
+predicted boundary crossing at h_ref: f* ~ 0.470
+fixed-point curve m(h*(f)) does not cross 1 on this grid (defensive-widening saturation, 1.1 Section 6.3)
+
+=== measured sweep over 'alpha' ===
+  alpha=  0.05: median m=0.080 [0.04,0.14] frac_unstable=0.00 (21s)
+  alpha=  0.15: median m=0.181 [0.16,0.40] frac_unstable=0.00 (21s)
+  alpha=  0.25: median m=0.417 [0.32,0.47] frac_unstable=0.00 (20s)
+  alpha=  0.35: median m=1.382 [0.56,1.61] frac_unstable=0.60 (20s)
+  alpha=  0.45: median m=1.829 [1.07,2.04] frac_unstable=0.80 (20s)
+  alpha=  0.55: median m=1.553 [1.27,1.64] frac_unstable=1.00 (21s)
+  alpha=  0.65: median m=1.060 [1.00,1.64] frac_unstable=0.80 (21s)
+  alpha=  0.80: median m=0.670 [0.29,1.13] frac_unstable=0.40 (21s)
+
+measured critical alpha* ~ 0.310
+predicted vs measured crossing: 0.470 vs 0.310
+saved results -> outputs\sweep_alpha_results.csv
+saved phase diagram -> outputs\phase_diagram_alpha.png

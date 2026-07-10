@@ -1,0 +1,25 @@
+=== analytic prediction (theory 1.1, evaluated before the sweep) ===
+    at the probe spread h_ref=1.000 (overlay) and at h*(f) (context)
+  f=  0.00: m_pred(h_ref)=0.000   m(h*)=0.000 (h*=1.520)
+  f=  1.00: m_pred(h_ref)=0.213   m(h*)=0.124 (h*=1.611)
+  f=  2.00: m_pred(h_ref)=0.426   m(h*)=0.225 (h*=1.684)
+  f=  3.00: m_pred(h_ref)=0.639   m(h*)=0.310 (h*=1.746)
+  f=  4.00: m_pred(h_ref)=0.852   m(h*)=0.384 (h*=1.799)
+  f=  6.00: m_pred(h_ref)=1.277   m(h*)=0.507 (h*=1.889)
+  f=  8.00: m_pred(h_ref)=1.703   m(h*)=0.607 (h*=1.962)
+predicted boundary crossing at h_ref: f* ~ 4.697
+fixed-point curve m(h*(f)) does not cross 1 on this grid (defensive-widening saturation, 1.1 Section 6.3)
+
+=== measured sweep over 'toxicity_feedback' ===
+  toxicity_feedback=  0.00: median m=0.067 [0.04,0.09] frac_unstable=0.00 (34s)
+  toxicity_feedback=  1.00: median m=0.159 [0.08,0.28] frac_unstable=0.00 (34s)
+  toxicity_feedback=  2.00: median m=0.390 [0.21,0.48] frac_unstable=0.00 (33s)
+  toxicity_feedback=  3.00: median m=0.856 [0.61,1.07] frac_unstable=0.50 (33s)
+  toxicity_feedback=  4.00: median m=1.707 [1.42,2.16] frac_unstable=0.88 (33s)
+  toxicity_feedback=  6.00: median m=1.180 [0.83,1.41] frac_unstable=0.75 (33s)
+  toxicity_feedback=  8.00: median m=1.357 [0.89,1.84] frac_unstable=0.75 (33s)
+
+measured critical toxicity_feedback* ~ 3.169
+predicted vs measured crossing: 4.697 vs 3.169
+saved results -> outputs\sweep_toxicity_feedback_results.csv
+saved phase diagram -> outputs\phase_diagram_toxicity_feedback.png
