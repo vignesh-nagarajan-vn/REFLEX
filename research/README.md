@@ -11,7 +11,7 @@ REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed p
 application of that code, not a second implementation. (Generations v1-v3 are
 frozen in [`../archive/`](../archive/); the 07-10-2026 paper-grade run was
 executed by v3 and its artifacts cite v3 commits, while the 07-12-2026 run is
-v4's.) Four pieces:
+v4's.) Five pieces:
 
 | Subfolder | Contents |
 |-----------|----------|
@@ -19,6 +19,7 @@ v4's.) Four pieces:
 | [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `../endo_market_v4/data/` ships copies of its outputs) |
 | [`results/`](results/) | Executed paper-grade experiment runs against those datasets (per-experiment artifacts + logs) |
 | [`analysis/`](analysis/) | Written analyses of those runs - tables, figures, predicted-vs-measured breakdowns, honest caveats |
+| [`paper/`](paper/) | **The ICAIF 2026 submission draft** (ACM `sigconf`, double-blind): `main.tex` + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
 
 > **Status note (July 2026, v4).** The repo side of the program is
 > **complete**: the six analytic derivations 1.1–1.6 (derived, implemented,
@@ -31,8 +32,11 @@ v4's.) Four pieces:
 > (numerical proof certificates + Lean 4 skeletons) - 152 tests, 11
 > experiments. Paper-grade full-profile runs are executed and curated in
 > [`results/`](results/) (v3: `07-10-2026`; v4: `07-12-2026`) with analyses
-> in [`analysis/`](analysis/). What remains is the **paper**: writing and
-> submitting to ICAIF 2026 (see the To-Do's ICAIF section).
+> in [`analysis/`](analysis/). The **submission draft is written** and lives
+> in [`paper/`](paper/) (ACM `sigconf`, double-blind, every number traced to
+> the 07-12-2026 run); what remains is the Overleaf compile + page-count
+> check, the anonymized repo mirror, and CMT submission to ICAIF 2026 (see
+> the To-Do's ICAIF section).
 
 ## What it does
 
@@ -291,14 +295,19 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Include LEAN validation (justification for all mathematical proofs) - complete (v4), as a two-half verification layer: **numerical proof certificates** ([`../endo_market_v4/reflex/verification/certificates.py`](../endo_market_v4/reflex/verification/certificates.py); 66 checks re-deriving every load-bearing identity/inequality/dynamical claim of 1.1-1.6 numerically, run on raw *and* calibrated real-unit configs via `experiments/run_certificates.py`, part of the test suite) plus **Lean 4 formalisations of the logical skeletons** ([`../endo_market_v4/lean/`](../endo_market_v4/lean/): cobweb convergence/divergence, echo-chamber separation + gap direction, the N_eff eigen-identity + boundary algebra, robust-certificate soundness, the complete 1.6 algebra). Honest status: the Lean files are reviewed formal statements written against mathlib4 v4.11.0 but **not yet compiled** (no Lean toolchain in the dev environment) - the certificates are the verification of record; see `lean/README.md`
 
 ### ICAIF-specific submission requirements
-- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references
-- [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template)
-- [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person
-- [ ] **No supplementary materials or appendices accepted** - paper must be fully self-contained within the 8 pages; move any overflow proofs/derivations into the main text or cut them
-- [ ] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope
-- [ ] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - do not let reviewers infer real-market validation if the experiments are simulator-only
-- [ ] Prepare results with **uncertainty bands across seeds** (median + IQR or confidence intervals) - single-run figures are a common rejection reason at empirically-minded finance venues
-- [ ] If claiming systemic-risk relevance (multi-dealer extension), frame it within ICAIF's **AI governance / systemic-risk / explainability** topic areas to match reviewer expectations
+
+The submission draft lives in [`paper/`](paper/) (`main.tex` +
+`references.bib` + `figures/`; see its README for the build steps, the
+trim-order if the compile runs long, and the camera-ready TODOs). Status:
+
+- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - *drafted to budget; verify the count on Overleaf (no local TeX toolchain); trim order in `paper/README.md`*
+- [x] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - `\documentclass[sigconf,anonymous,review]{acmart}`
+- [x] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - author block hidden by `anonymous`; repository link anonymized (placeholder footnote, mirror still to be created)
+- [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices
+- [x] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope - Secs. 1.1, 5.2 (fragility index on 36y of real data), 6
+- [x] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - Sec. 4.3 + Limitations state plainly: proxy-level public data, not trade-level TRACE; degenerate crisis cell flagged
+- [x] Prepare results with **uncertainty bands across seeds** (median + IQR or confidence intervals) - the probe protocol (Sec. 4.2) and Fig. 2 carry median + IQR + 1.4 robust bands; single-seed demos labeled as such
+- [x] If claiming systemic-risk relevance (multi-dealer extension), frame it within ICAIF's **AI governance / systemic-risk / explainability** topic areas - Secs. 1.1, 3 (R3), 5.4, 6
 - [ ] Plan for the **light reviewing commitment** - at least one author must be willing to review other submissions if asked
 - [ ] Confirm at least one author can **attend in person** in Milan (Nov 14–17, 2026) to present - no pre-recorded presentations accepted
 - [ ] Submit via **Microsoft CMT** (`cmt3.research.microsoft.com/ICAIF2026`) before the **August 2, 2026** deadline

@@ -1,0 +1,865 @@
+%%
+%% REFLEX -- ICAIF 2026 submission (ACM sigconf, double-blind).
+%%
+%% Build: compiles on Overleaf with the standard acmart bundle
+%% (TeX Live >= 2022). Main file: main.tex; bibliography: references.bib;
+%% figures under figures/.
+%%
+%% Submission mode: [sigconf,anonymous,review] hides the author block and
+%% adds line numbers. Camera-ready TODOs are marked "TODO(camera-ready)".
+%%
+\documentclass[sigconf,anonymous,review]{acmart}
+
+%% Suppress the ACM reference-format block and copyright box for the
+%% double-blind submission. TODO(camera-ready): remove these two lines and
+%% insert the rights block ACM supplies on acceptance.
+\settopmatter{printacmref=false}
+\setcopyright{none}
+
+\acmConference[ICAIF '26]{7th ACM International Conference on AI in
+  Finance}{November 14--17, 2026}{Milan, Italy}
+\acmYear{2026}
+\copyrightyear{2026}
+
+%% acmart already loads amsmath, booktabs, graphicx, hyperref, and the
+%% newtxmath fonts (do NOT load amssymb on top of newtxmath).
+
+%% ---------------------------------------------------------------- macros --
+\newcommand{\eps}{\varepsilon}
+\newcommand{\BR}{\mathrm{BR}}
+\newcommand{\Neff}{N_{\mathrm{eff}}}
+\newcommand{\hSP}{h_{\mathrm{SP}}}
+\newcommand{\hPO}{h_{\mathrm{PO}}}
+\newcommand{\gPO}{\gamma_{\mathrm{PO}}}
+\newcommand{\geff}{\gamma_{\mathrm{eff}}}
+\newcommand{\meff}{m_{\mathrm{eff}}}
+\newcommand{\Kdb}{K_{\mathrm{db}}}
+\newcommand{\Kmax}{K_{\max}}
+\newcommand{\hRef}{h_{\mathrm{ref}}}  % NB: \href is taken by hyperref
+\newcommand{\gbar}{\bar{g}}
+\newcommand{\Wone}{W_1}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\title[REFLEX: Analytic Stability Boundaries for Performative Market Making]%
+{REFLEX: Analytic Stability Boundaries for Performative Market Making in
+OTC Corporate Bond Markets}
+
+%% -------------------------------------------------------------- authors --
+%% Hidden during review by the [anonymous] option.
+%% TODO(camera-ready): confirm affiliations and add ORCID iDs for all authors.
+\author{Vignesh Nagarajan}
+\email{nrvignesh08@gmail.com}
+\affiliation{%
+  \institution{Independent Researcher}% TODO(camera-ready): affiliation
+  \city{College Station}\state{TX}\country{USA}}
+\author{Shriraghav Ashok}
+\email{shriraghav.a524@gmail.com}
+\affiliation{%
+  \institution{Independent Researcher}% TODO(camera-ready): affiliation
+  \city{Phoenix}\state{AZ}\country{USA}}
+
+%% ------------------------------------------------------------- abstract --
+\begin{abstract}
+A machine-learned dealer reshapes the data it is trained on: tighter quotes
+attract more informed, adversely selecting flow, and retraining on the induced
+flow closes a feedback loop. This is performative prediction, whose classical
+stability condition $\eps<\gamma/\beta$ is stated in terms of abstract
+constants of an unspecified loss. We present \textbf{REFLEX}, a framework that
+pins all three constants to the microstructure primitives of a structural
+over-the-counter (OTC) corporate-bond market-making model, making the
+stability of the retraining loop computable \emph{a priori}, and extends the
+boundary in closed form to performative-gradient correction, $N$ competing
+dealers ($\eps<\gamma/(\Neff\beta)$), finite-sample robust certificates,
+$128$-bond factor universes, and lazy deployment schedules
+($\mu(K)=-m+c^K(1+m)$). Every prediction is then verified against a learned
+simulator loop under a common-random-number probe protocol: measured moduli
+track the closed form within $8\%$ in the contracting regime; the measured
+stability crossing is reconciled by an independently triangulated
+liquidity-inflation correction; competition amplifies instability by the
+predicted effective dealer count; and a \emph{structurally anchored}
+performative-gradient loop converges to the realized performative optimum in
+a regime where blind retraining collapses into the echo chamber -- and where a
+free-form learned correction fails. Evaluated on 36 years of real market
+data, the boundary yields a daily fragility index whose stability headroom
+collapses ${\sim}4.4\times$ from calm to crisis. All 66 load-bearing
+identities are machine-checked by numerical proof certificates, with formal
+skeletons in Lean~4.
+\end{abstract}
+
+%% ------------------------------------------------------ CCS and keywords --
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10010147.10010257</concept_id>
+<concept_desc>Computing methodologies~Machine learning</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010405.10010481.10010485</concept_id>
+<concept_desc>Applied computing~Economics</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10003752.10003790.10011742</concept_id>
+<concept_desc>Theory of computation~Market equilibria</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+\ccsdesc[500]{Computing methodologies~Machine learning}
+\ccsdesc[500]{Applied computing~Economics}
+\ccsdesc[300]{Theory of computation~Market equilibria}
+
+\keywords{performative prediction, market making, OTC corporate bonds,
+repeated retraining, stability, systemic risk, optimal transport, machine-checked
+proofs}
+
+\maketitle
+
+%% ========================================================================
+\section{Introduction}
+
+\subsection{Problem Definition}
+Corporate bonds trade over the counter: a client requests a quote, a dealer
+posts a half-spread $h$, and the dealer's inventory absorbs the flow.
+Quoting on these desks is increasingly algorithmic, and quoting policies are
+increasingly \emph{fit} to historical flow. But the flow is not exogenous.
+A tighter quote wins more volume \emph{and} summons more informed
+(``toxic'') flow that picks the dealer off before adverse price moves; a
+wider quote starves both channels. The policy $\phi$ therefore induces the
+distribution $D(\phi)$ it will next be trained on. Repeated retraining --
+fit on the induced flow, redeploy, refit -- is exactly \emph{repeated risk
+minimization} (RRM) in the sense of performative prediction
+\cite{perdomo2020performative}: it converges to a performatively stable
+point if and only if $\eps<\gamma/\beta$, where $\eps$ bounds the
+sensitivity of the distribution map, and $\gamma,\beta$ are the strong
+convexity and smoothness of the loss.
+
+The theorem is sharp, but its constants are Lipschitz \emph{assumptions}.
+A desk cannot evaluate $\eps$, $\beta$, or $\gamma$ before deploying, so it
+cannot know ex ante whether its own retraining cadence is stable -- and a
+regulator watching many dealers retrain against one shared pool of informed
+flow cannot know whether \emph{competition among learners} is manufacturing
+systemic fragility. Both questions are quantitative, and both need the
+constants, not the abstraction. This places the problem squarely in the
+AI-governance and systemic-risk scope of AI in finance: the object we
+compute is a market-level stability margin for algorithmic liquidity
+provision.
+
+\subsection{Current Approaches}
+Two mature literatures approach the loop from opposite ends. The
+performative-prediction literature has sharpened the loop itself:
+convergence of RRM and its stochastic variants
+\cite{perdomo2020performative,mendlerdunner2020stochastic}, gradient
+methods that estimate the distribution response $dD/d\phi$ and optimize
+performative risk directly \cite{izzo2021learn,miller2021echo}, decision-%
+dependent stochastic optimization \cite{drusvyatskiy2023stochastic},
+state-dependent extensions in which the distribution also carries its own
+dynamics \cite{li2022state,brown2022stateful}, bandit feedback
+\cite{jagadeesan2022regret}, multi-agent decision-dependent games
+\cite{narang2022multiplayer}, and distributionally robust formulations;
+see \cite{hardt2023performative} for a survey. Throughout, $(\eps,\beta,\gamma)$ remain abstract constants of an
+unspecified loss.
+
+The market-making literature supplies exactly the missing structure:
+closed-form optimal quotes under exponential fill intensities
+\cite{avellaneda2008highfrequency,gueant2013dealing}, multi-asset
+dimensionality reduction \cite{bergault2021size}, adverse selection and
+price reading \cite{barzykin2025adverse}, the general stochastic-control
+toolkit \cite{cartea2015algorithmic}, and the empirical anatomy of
+flow--price interaction \cite{cont2014price}. But these models treat the
+flow response to quoting as a fixed model input; the learning loop that
+re-estimates the market from its own induced data is outside their scope.
+
+To our knowledge no prior work computes the performative constants from
+market structure, which is precisely what is needed to make the stability
+theorem operational.
+
+\subsection{Proposed Approach}
+REFLEX (\emph{Reflexive Equilibrium Fixed-point Learning}) bridges the two:
+it realizes performative prediction \emph{inside} a structural OTC
+market-making model in the Gu\'eant--Lehalle--Fern\'andez-Tapia (GLFT)
+family, derives the loop constants from microstructure primitives, and then
+verifies every closed form against a learned simulator loop. Six results,
+each derived and then falsified-or-confirmed by experiment:
+\begin{enumerate}
+\item[\textbf{R1}] an analytic stability boundary: $\gamma$, $\beta$, and
+  $\eps$ in closed form from fill-curve curvature, P\&L scale, and the
+  toxic-flow slope, giving the modulus $m=\eps\beta/\gamma$ \emph{a
+  priori};
+\item[\textbf{R2}] a closed-form performative-gradient (PerfGD) correction
+  and its \emph{estimated}, structurally anchored counterpart -- the learned
+  loop that remains stable beyond the RRM boundary;
+\item[\textbf{R3}] a multi-dealer boundary $\eps<\gamma/(\Neff\beta)$:
+  competition destabilizes the market a factor $\Neff$ before any single
+  dealer would;
+\item[\textbf{R4}] a finite-sample robust boundary with an $O(1/\sqrt{n})$
+  ambiguity radius bought by common random numbers (CRN), issuing
+  stable/unstable/\emph{undecided} certificates;
+\item[\textbf{R5}] factor-model scaling: the $d{\times}d$ modulus matrix and
+  its spectral boundary $\rho(M)<1$ at $O(dk^2)$ cost;
+\item[\textbf{R6}] lazy deployment: the $K$-step retraining map
+  $\mu(K)=-m+c^K(1+m)$, with deadbeat and maximal-stability cadences in
+  closed form.
+\end{enumerate}
+The system side contributes an \emph{un-blinded} learned market-response
+operator whose training identifies $dD/d\phi$; three independent
+instruments for $\eps$ (a CRN best-response probe, an entropic
+optimal-transport estimate \cite{cuturi2013sinkhorn,feydy2019interpolating,
+peyre2019computational}, and a fitted informed-flow curve
+\cite{cont2014price}); calibration of the simulator to 36 years of public
+market data \cite{dickerson2023priced,friewald2012illiquidity}; and a
+verification layer of 66 numerical proof certificates plus Lean~4
+\cite{moura2021lean,mathlib2020} formal skeletons. Honesty is a design
+constraint: negative results and proxy-level data provenance are reported
+as such throughout.
+
+\subsection{Results Overview}
+All 66 certificates pass on raw and real-unit calibrated configurations
+(worst residual per family $2.2{\times}10^{-16}$--$6.8{\times}10^{-2}$,
+each within its stated tolerance). On real data, the stability headroom
+$\eps^*=\gamma/\beta$ collapses ${\sim}4.4{\times}$ (investment grade,
+IG) and ${\sim}4.3{\times}$ (high yield, HY) from calm to crisis, with HY
+more than $10{\times}$ below IG in every regime. Predict-then-verify: the
+measured modulus tracks the closed form within $8\%$ in the contracting
+regime, and the measured boundary crossing ($f^*\approx3.17$) is
+reconciled with the a-priori prediction ($4.70$) by an independently
+measured liquidity-inflation correction ($\rho\approx2.3$). A genuine
+two/three-dealer market amplifies the measured modulus $1.74\times$ /
+$3.16\times$ against predicted $\Neff=2$ / $3$. In a regime where blind
+RRM collapses (final $h=0.16$), the structurally anchored PerfGD loop
+converges to the realized performative optimum ($h=3.19$, within $0.7\%$
+of its own estimate), while a free-form learned correction fails. The
+lazy-deployment law lands both parameter-free predictions: the sign flip
+at $\Kdb$ and the stability-window exit at $\Kmax$.
+
+%% ========================================================================
+\section{The Market Model and the Performative Loop}
+\label{sec:model}
+
+One deployment is one period of quoting by a dealer posting half-spread
+$h$ (skew zero for the scalar theory; the multi-bond lift is R5). With
+$\rho$ the latent liquidity ratio, benign notional follows the GLFT
+exponential fill curve and informed notional a spread-gated channel:
+\begin{equation}
+U(h)=A\rho\,e^{-kh},\qquad
+\tau(h)=\rho\,\gbar\big(I_b+\alpha f I\,e^{-c_t h}\big),
+\label{eq:flows}
+\end{equation}
+where $A,k$ are the arrival rate and demand elasticity, $I_b,I$ the base
+and feedback informed intensities, $\alpha$ adversarial informativeness,
+$f$ the toxicity-feedback gain (our control variable), $c_t$ the toxic
+spread decay, and $\gbar\in(0,1)$ the mean of the informed traders'
+$\tanh$ signal gate. Informed flow trades with the signal, so each unit
+costs the dealer an adverse-selection severity $\psi>0$ (a state constant
+from the same Gaussian gate integrals). The expected one-deployment
+objective, with P\&L scale $P$, quoting-cost weight $w$, anchor
+$\hRef$, and inventory-variance curvature $\lambda_q\ge0$, is
+\begin{equation}
+J(h;T)=P\big[\,hA\rho e^{-kh}+hT-\psi T-w(h-\hRef)^2-\lambda_q\,\big].
+\label{eq:objective}
+\end{equation}
+The structural content of ``the learner is blind'' is the frozen toxic
+level $T$: within a deployment the fitted model conditions on the deployed
+regime, so the dealer best-responds to $T=\tau(h_{\mathrm{dep}})$ while
+only the benign channel varies with its candidate $h$. Retraining is then
+the cobweb
+\begin{equation}
+h_{t+1}=\BR(h_t):=\arg\max_h J\big(h;\tau(h_t)\big),\qquad
+m:=\big|\BR'(h^*)\big|,
+\label{eq:cobweb}
+\end{equation}
+which contracts to the performatively stable spread $\hSP$ iff $m<1$. The
+simulator realizes \eqref{eq:flows}--\eqref{eq:cobweb} with multi-bond
+flow, an informed-flow saturation cap, and a liquidity field that
+\emph{inflates with realized flow} -- endogenous channels that the frozen
+closed forms deliberately omit and that the measurements below make
+visible.
+
+%% ========================================================================
+\section{Closed-Form Stability Theory}
+\label{sec:theory}
+
+Full derivations (with proofs, regularity conditions, and the saturated
+corollaries) are documents D1--D6 in the repository (see the
+\emph{Reproducibility} statement); we state the objects the experiments
+test.
+
+\textbf{R1 (analytic boundary).} Differentiating \eqref{eq:objective}, the
+three Perdomo constants are closed forms in the configuration:
+\begin{align}
+\gamma&=P\big[2w+A\rho k e^{-kh}(2-kh)+\lambda_q\big],\qquad \beta=P,
+\notag\\
+\eps(h)&=\rho\,\gbar\,\alpha f I c_t\,e^{-c_t h},
+\label{eq:constants}
+\end{align}
+i.e.\ curvature is fill-curve curvature plus quoting-cost stiffness,
+smoothness is the P\&L scale, and $\eps$ is the toxic-flow slope
+$|d\tau/dh|$. The implicit-function theorem gives
+$\BR'=-\eps\beta/\gamma$ (an oscillatory cobweb), hence
+\begin{equation}
+m(h^*)=\frac{\eps\beta}{\gamma}
+=\frac{\rho\gbar\alpha f I c_t\,e^{-c_t h^*}}
+       {2w+A\rho k\,e^{-k h^*}(2-k h^*)+\lambda_q},
+\label{eq:modulus}
+\end{equation}
+with $P$ cancelling and $h^*$ the self-consistent fixed point of
+\eqref{eq:cobweb}; the loop is stable iff $\eps<\gamma/\beta$, i.e.\
+$m<1$. Everything is evaluable before any loop is run: the boundary is a
+\emph{prediction}. Two structural corollaries matter for
+honest measurement. First, adverse selection ($\psi T$) is constant in
+$h$ within a deployment, so it sets the profit level (the echo-chamber
+gap of R2) but drops out of the boundary. Second, at the self-consistent
+fixed point the modulus \emph{saturates}: widening spreads decay
+$\eps(h^*)$ exponentially, so at default-like constants the fixed-point
+$m$ never crosses $1$ (defensive widening). Measured instability is
+therefore a statement about the retraining map at the \emph{operating}
+spread, and we report it as such.
+
+\textbf{R2 (PerfGD correction).} The performative objective is
+$\Phi(h)=J(h;\tau(h))$. Un-blinding adds one closed-form term to the blind
+gradient $G(h)=\partial_1 J(h;\tau(h))$:
+\begin{equation}
+\Phi'(h)=G(h)+\Delta(h),\qquad
+\Delta(h)=-\beta\,(h-\psi)\,\eps(h),
+\label{eq:perfgd}
+\end{equation}
+where $\Delta=\partial_T J\cdot(d\tau/dh)$ is the distribution-response
+term, supplied entirely by the R1 closed forms -- the corrected ascent
+costs one scalar more per step than RRM \cite{izzo2021learn}. Its convergence is governed not by the cobweb
+modulus but by the objective curvature at the performative optimum
+$\hPO$,
+\begin{equation}
+\gPO=\gamma+\beta\eps\,(2+c_t\psi-c_t\hPO),
+\label{eq:gpo}
+\end{equation}
+which stays positive where $m>1$: the corrected loop converges beyond the
+RRM boundary. The stable-versus-optimal separation (``echo-chamber gap''
+\cite{miller2021echo}) is
+$\hSP-\hPO=\beta\eps(\hSP-\psi)/(\gamma+\beta\eps)=O(\eps)$ in decision
+space and $O(\eps^2)$ in value.
+
+\textbf{R3 (multi-dealer systemic risk).} $N$ dealers share one informed
+pool with toxic spillover $\kappa\in[0,1]$ (flow displaced by one
+dealer's widening lands on the others). The joint best-response Jacobian
+is a rank-one common-mode coupling: its differential eigenvalues carry
+$(1-\kappa)m_1$ and its common mode $-m_1\Neff$ with
+$\Neff=1+\kappa(N-1)$, so the joint loop is stable iff
+\begin{equation}
+\eps<\frac{\gamma}{\Neff\,\beta},
+\qquad
+N_c=1/m_1
+\label{eq:multidealer}
+\end{equation}
+is the critical dealer count at which a market of individually stable
+dealers ($m_1<1$) turns systemically unstable. Competition manufactures a
+synchronized cobweb -- fragility is a market property, not a desk
+property.
+
+\textbf{R4 (robust boundary).} With $n$ probe estimates of $\eps$ (sample
+mean $\hat\eps_n$, std $s$), the certificate
+\begin{equation}
+\hat\eps_n+\delta_n<\frac{\gamma}{\beta},\qquad
+\delta_n=\frac{z_{1-a}\,s}{\sqrt{n}},
+\label{eq:robust}
+\end{equation}
+declares \emph{stable}; $\hat\eps_n-\delta_n>\gamma/\beta$ declares
+\emph{unstable}; otherwise \emph{undecided}. The parametric
+$O(1/\sqrt{n})$ radius is bought by the CRN pairing of the probe (a naive
+finite difference of independent runs achieves only $O(n^{-1/3})$ after
+bias--variance balancing), and pinning a crossing needs
+$n_{\mathrm{req}}=O(\Delta^{-2})$ in the distance $\Delta$ to the
+boundary -- statistical uncertainty is separated from structural
+uncertainty by construction. A distribution-free quantile calibration of
+$\delta_n$ (new here) shows $z\,s$ is conservative except under
+contamination (Sec.~\ref{sec:tuning}).
+
+\textbf{R5 (factor scaling).} For $d$ bonds, stability is governed by the
+modulus matrix $M=\beta\,\Gamma^{-1}E$ with $E=\mathrm{diag}(\eps_i)$ and
+$\Gamma$ the cross-bond curvature; the loop contracts iff $\rho(M)<1$.
+A $k$-factor covariance makes $\Gamma$ diagonal-plus-low-rank, so
+$\rho(M)$ costs $O(dk^2)$ by Woodbury, with truncation error linear in
+the residual factor variance $\lambda_{k+1}(C)$: the same structure that
+creates dimensionality defuses it.
+
+\textbf{R6 (lazy deployment).} Suppose each deployment takes only $K$
+inner gradient steps on the frozen-$T$ objective (step $\eta_h$,
+contraction $c=1-\eta_h\gamma$), warm-started from the deployed spread,
+instead of the exact best response. The outer map slope becomes
+\begin{equation}
+\mu(K)=-m+c^K(1+m),
+\label{eq:lazy}
+\end{equation}
+a one-parameter interpolation from inertia ($\mu(0)=1$) to the exact
+cobweb ($\mu\to-m$). Consequences, all closed-form: a \emph{deadbeat}
+cadence $\Kdb=\ln\!\big(m/(1+m)\big)/\ln c$ at which $\mu=0$ (one-shot
+convergence); for $m>1$ a stability window
+$K\le\Kmax=\ln\!\big((m-1)/(m+1)\big)/\ln c$ -- laziness keeps an
+RRM-unstable market stable, the quantitative form of the greedy-vs-lazy
+gap in \cite{perdomo2020performative,mendlerdunner2020stochastic}; and an
+observer who fits the plain boundary to a lazy loop reads a two-branch
+\emph{effective} curvature $\geff(K)=\gamma\,m/|\mu(K)|$, under-estimating
+stiffness below the equal-modulus cadence and over-estimating it above.
+
+%% ========================================================================
+\section{System and Measurement Methodology}
+\label{sec:system}
+
+\subsection{Learned Operator and the Four Loop Modes}
+The simulator is a multi-bond OTC market with benign and informed clients,
+inventory, an informed-flow saturation cap, and a latent liquidity field
+inflated by realized flow. The learned market-response operator $T_\theta$
+(MLP heads over per-bond features) predicts next-deployment flow
+distributions conditioned on a per-deployment \emph{policy summary}, and is
+fit over a sliding window of past deployments; with window $\ge2$ the
+derivative of its prediction w.r.t.\ the summary -- the learned $dD/d\phi$
+-- is identified by automatic differentiation, whereas the single-window
+fit is structurally blind (the RRM baseline). Four retraining modes close
+the loop: \textbf{(i)}~blind RRM; \textbf{(ii)}~\emph{PerfGD-analytic},
+using the closed-form $\Delta$ of \eqref{eq:perfgd} as a surrogate
+gradient; \textbf{(iii)}~\emph{PerfGD-learned}, consuming the free-form
+learned $dD/d\phi$ (reported as a negative result); and
+\textbf{(iv)}~\emph{PerfGD-structural}, which never asks the network for a
+derivative: it fits the theory's own response families
+\begin{equation}
+\hat\tau(h)=\hat C_0+\hat C_1 e^{-\hat c h},\qquad
+\hat u(h)=\hat A_u e^{-\hat k_u h},
+\label{eq:structfit}
+\end{equation}
+plus the realized severity $\hat\psi$, to the loop's \emph{own} deployment
+history (per-bond, per-step samples over a 12-deployment window; a small
+quote jitter provides within-deployment identification that the echo
+chamber cannot destroy), then ascends
+$\hat\Phi'=\hat G+\hat\Delta$ with step $1/\hat\gPO$ under a trust region
+($35\%$ relative step cap) and an anti-echo freeze that refuses to steer
+on unidentified fits. Each safeguard encodes a measured failure:
+exponential response fits on a narrow spread window are line-degenerate
+and extrapolate arbitrarily badly, and the unconstrained early ascent
+rails against its spread cap.
+
+\subsection{Three Instruments for $\eps$ and the Probe Protocol}
+\label{sec:instruments}
+(a)~\emph{CRN best-response probe}: paired deployments at
+$\hRef\pm\delta$ under common random numbers; the finite-difference of
+best responses estimates $m$ (and $\eps=\hat m\gamma/\beta$), and a signed
+$K$-step variant measures $\mu(K)$ for R6. (b)~\emph{Optimal transport}:
+$\hat\eps=\Wone\big(D(h{+}\delta),D(h{-}\delta)\big)/2\delta$ -- the exact
+Wasserstein sensitivity of performative prediction -- via debiased
+log-domain Sinkhorn divergences
+\cite{cuturi2013sinkhorn,feydy2019interpolating}, with the blur set
+\emph{scale-relatively} ($0.02\times$ pooled std, tuned against the exact
+1-D quantile $\Wone$; Sec.~\ref{sec:tuning}). (c)~\emph{Fitted informed-flow
+curve}: bin realized toxic notional against deployed spread, fit
+\eqref{eq:flows}, differentiate \cite{cont2014price}. Protocol facts that
+a pre-run audit showed matter at first order: probe at the operating
+spread (not the analytic fixed point); collection jitter $0.05$ (at $0.2$
+the BR probe inflates ${\sim}3\times$); medians and interquartile ranges
+(IQR) over 8 seeds with the R4 robust bands at every grid point. We sweep
+the gain $f$, not adversariality $\alpha$: high $\alpha$ drives the dealer
+to wide spreads where $e^{-c_t h}$ has decayed, so the $\alpha$-response
+is non-monotone (measured hump $0.08\to1.83\to0.67$) -- a confound, and
+the quantitative case for $f$ as the control variable.
+
+\subsection{Real-Data Calibration and Provenance}
+\label{sec:data}
+The simulator is calibrated per (rating $\times$ volatility regime) on a
+public, verified panel: ${\sim}36$ years of daily and ${\sim}70$ years of
+monthly series (CBOE VIX as the $\sigma$ proxy and regime classifier; WTI;
+the Fed H.15 10-year; Shiller equity data; gold/CPI), TRACE-derived
+corporate-bond factors of \cite{dickerson2023priced} (the liquidity risk
+factor is the primary $\eps$ proxy), and monthly returns for 212 real-CUSIP
+bonds. Half-spread proxies combine VIX-implied spreads with the
+illiquidity add-on of \cite{friewald2012illiquidity,bao2011illiquidity},
+and $\lambda(h)=Ae^{-kh}$ intensities are fit per cell by maximum
+likelihood. \emph{Provenance, stated plainly:} this is not trade-level
+TRACE. Dealer-side prints, per-dealer inventories, and per-bond $(A,k)$
+would require TRACE Enhanced; only $(A,k,\sigma,h)$ are data-identified
+here, the toxic channel is structurally scaled by documented ratios, and
+the crisis-regime intensity fit is degenerate ($k=0$, $n=74$ days) and
+flagged wherever it binds. Regime \emph{ordering} of the boundary is
+data-driven; absolute critical gains are not. Calibrated configurations
+run in per-\$100-par units, and every probe width, tolerance, and OT blur
+is scale-relative by convention.
+
+\subsection{Verification Layer}
+\label{sec:verification}
+Every load-bearing identity, inequality, and dynamical claim of R1--R6 is
+re-derived numerically by 66 \emph{proof certificates} run on both the raw
+and the calibrated real-unit configurations: central differences of the
+\emph{composed} best-response map against the assembled $-\eps\beta/\gamma$
+(no shared code path), eigensolves against spectral formulas, Monte-Carlo
+rate fits against claimed exponents, and the actual dynamics run rather
+than assumed. Building the layer caught real errors before the paper-grade
+run: a convention mismatch in which the 1-D frozen-gradient helpers omit
+the inventory curvature (slopes governed by $\gamma-P\lambda_q$) while the
+full pipeline uses the $\lambda_q$-inclusive $\gamma$; and two falsified
+first drafts (an ``always-stiffer'' $\geff$ claim, corrected to the
+two-branch law of R6; and a mis-signed heavy-tail prediction for the R4
+radius). The logical skeletons of all six results are additionally
+formalized in Lean~4 against mathlib \cite{moura2021lean,mathlib2020};
+these are reviewed statements whose compilation is pending a toolchain,
+so the numerical certificates are the verification of record. The full
+suite (152 tests, 11 experiments) runs CPU-only in ${\sim}25$ minutes,
+deterministic from (configuration, seed).
+
+%% ========================================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Machine-Checked Identities}
+Table~\ref{tab:certs} summarizes the certificates: 66/66 pass, with worst
+residuals far inside tolerance. The one excluded cell is deliberate: the
+R2 beyond-boundary \emph{demo dynamics} certificate pins absolute raw-unit
+constants, and imposing those on per-\$100-par calibrated units is exactly
+the class of unit bug the conventions forbid -- it excludes itself and the
+calibrated pass proves the identities in real units.
+
+\begin{table}[t]
+\caption{Numerical proof certificates (raw + calibrated real-unit
+configurations). Each family's worst residual sits inside its stated
+tolerance.}
+\label{tab:certs}
+\small
+\begin{tabular}{@{}lccrr@{}}
+\toprule
+Certificate family & raw & calib. & worst resid. & tol. \\
+\midrule
+R1 analytic boundary        & 5/5 & 5/5 & $6.8{\times}10^{-2}$ & $8{\times}10^{-2}$ \\
+R2 PerfGD identities        & 4/4 & 4/4 & $1.3{\times}10^{-6}$ & $2{\times}10^{-2}$ \\
+R2 PerfGD demo dynamics     & 4/4 & --  & $1.4{\times}10^{-11}$ & $1{\times}10^{-3}$ \\
+R3 multi-dealer             & 6/6 & 6/6 & $2.2{\times}10^{-16}$ & $1{\times}10^{-9}$ \\
+R4 robust boundary          & 7/7 & 7/7 & $3.2{\times}10^{-2}$ & $1{\times}10^{-1}$ \\
+R5 factor scaling           & 3/3 & 3/3 & $0.0$                & $1{\times}10^{-9}$ \\
+R6 lazy deployment          & 6/6 & 6/6 & $1.1{\times}10^{-16}$ & $1{\times}10^{-12}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{A Real-Data Fragility Index (1990--2026)}
+\label{sec:fragility}
+Because R1 is a closed form of observables, it can be evaluated on every
+trading day of the panel. Figure~\ref{fig:fragility} plots the resulting
+index, $\mathrm{fragility}(t)=\mathrm{median}(\eps^*)/\eps^*(t)$, and
+Table~\ref{tab:fragility} its per-regime summary. Three facts survive all
+caveats: the stability headroom $\eps^*=\gamma/\beta$ collapses
+${\sim}4.4\times$ (IG) and ${\sim}4.3\times$ (HY) from calm to crisis; HY
+sits more than $10\times$ below IG in \emph{every} regime (a level, not a
+crisis, effect); and the modulus at \emph{observed} spreads falls into
+crisis (IG $0.85\to0.14$) -- dealers widen faster than the toxic channel
+steepens, i.e.\ defensive widening is visible in real data. The index
+saturates at a crisis plateau (the degenerate crisis fit): the GFC and the
+March-2020 COVID freeze are flagged at the same ceiling, and intra-crisis
+ranking is explicitly not identified. Per-cell a-priori boundaries span
+$\eps^*=465\to2.2$ from IG-calm to HY-crisis while the fixed-point modulus
+stays regime-invariant (${\approx}0.066$) by construction -- the regime
+story lives entirely in the headroom.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fragility_index.png}
+\caption{The daily market-fragility index, 1990--2026: the R1 closed
+forms evaluated on real data. Top:
+$\mathrm{fragility}(t)=\mathrm{median}(\eps^*)/\eps^*(t)$ for IG (solid)
+and HY (dashed), with the Lehman and COVID-freeze dates marked. Bottom:
+the VIX spine, colored by volatility regime. The crisis plateau reflects
+the degenerate crisis-cell fit and is flagged, not hidden.}
+\label{fig:fragility}
+\end{figure}
+
+\begin{table}[t]
+\caption{Per-regime stability headroom $\eps^*=\gamma/\beta$ and modulus
+at observed spreads, evaluated on the 1990--2026 panel.}
+\label{tab:fragility}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+regime & $\eps^*_{\mathrm{IG}}$ & $\eps^*_{\mathrm{HY}}$ &
+$m_{\mathrm{IG}}(h_{\mathrm{obs}})$ & $m_{\mathrm{HY}}(h_{\mathrm{obs}})$\\
+\midrule
+calm     & 1207.7 & 93.5 & 0.847 & 0.592 \\
+normal   &  739.2 & 61.3 & 0.870 & 0.563 \\
+elevated &  594.4 & 45.9 & 0.520 & 0.367 \\
+stress   &  477.3 & 35.6 & 0.223 & 0.163 \\
+crisis   &  275.9 & 21.8 & 0.139 & 0.091 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Predict-Then-Verify: the Boundary Crossing}
+\label{sec:sweep}
+Figure~\ref{fig:sweep} is the headline falsification test: sweep the gain
+$f$ (7 values $\times$ 8 seeds), overlay the a-priori curve
+\eqref{eq:modulus}, and measure the modulus with the CRN probe. In the
+contracting regime the agreement is quantitative: measured median $0.390$
+versus predicted $0.426$ at $f=2$ ($8\%$). The measured crossing sits at
+$f^*\approx3.17$ against the a-priori $4.70$ -- and the gap is not free:
+the triangulation (Table~\ref{tab:triangulation}) independently measures
+the deployment's own flow inflating the liquidity field to
+$\rho\approx2.3$, and the closed form evaluated at that \emph{realized}
+state predicts $f^*\approx2.8$--$3.0$, bracketing the measurement. The R4
+certificates grade the grid exactly as the seed bands warrant: stable
+through $f=2$, unstable at $f=4$, undecided where beyond-boundary readings
+scatter (at $f=8$ the eight seeds span $0.03$--$2.05$; past the boundary
+the probe is a finite-difference diagnostic, not a local slope). The
+fixed-point curve itself saturates at $0.61$ -- the measured instability
+is a property of the retraining map at the operating spread, exactly as R1
+predicts.
+
+The two distribution-space instruments agree with each other within
+$14\%$ and sit $2.3$--$2.7\times$ above the realized-state closed form:
+the residual is the state-feedback channel that any frozen-state closed
+form omits by construction, so the analytic boundary is a \emph{lower
+anchor}, not an unbiased point prediction -- the operationally safe
+direction for a stability certificate.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/phase_diagram_toxicity_feedback.png}
+\caption{Predict-then-verify phase diagram over the feedback gain $f$:
+measured modulus (median, IQR band, and R4 robust band over 8 seeds)
+against the a-priori closed form at the probe spread and the saturating
+fixed-point curve, with the measured ($f^*\approx3.17$) and predicted
+($4.70$) crossings marked.}
+\label{fig:sweep}
+\end{figure}
+
+\begin{table}[t]
+\caption{Three-way $\eps$ triangulation at the operating spread, against
+the closed form at the a-priori (A2) and at the realized deployment state
+($\rho=2.32$, $|g|=0.446$).}
+\label{tab:triangulation}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+instrument & $\hat\eps$ & vs.\ realized \\
+\midrule
+closed form, a-priori state ($\rho=1$) & 0.764 & $0.44\times$ \\
+closed form, \textbf{realized state}   & 1.726 & $1.00$ \\
+CRN best-response slope                & 0.508 & $0.29\times$ \\
+Sinkhorn/$\Wone$                       & 4.578 & $2.65\times$ \\
+Fitted informed-flow curve             & 4.011 & $2.32\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Competition Amplifies Instability (R3)}
+\label{sec:dealers}
+On a \emph{genuine} $N$-dealer market sharing one informed pool (not an
+analytic shortcut; the environment reduces bit-for-bit to the
+single-dealer market at $N=1$), CRN joint-mode probes measure the
+common-mode slope against the predicted $\Neff m_1$
+(Table~\ref{tab:dealers}): amplification $1.74\times$ ($N{=}2$) and
+$3.16\times$ ($N{=}3$) against predicted $2$ and $3$ -- within $13\%$ and
+$5\%$ -- while the differential mode is dead at full spillover
+($(1-\kappa)m_1=0$), i.e.\ the instability is purely the synchronized
+systemic channel. The analytic surface puts the critical dealer count at
+$N_c\approx7.9$ for the default single-dealer modulus, and the simulated
+three-dealer cobweb already oscillates against its cap. The governance
+reading is direct: each desk can satisfy its own stability check while the
+market as a whole violates \eqref{eq:multidealer}; fragility must be
+certified at the market level.
+
+\begin{table}[t]
+\caption{Measured common-mode retraining slope on the shared-pool market
+versus the R3 prediction $\Neff m_1$ (full spillover, $\kappa=1$).}
+\label{tab:dealers}
+\small
+\begin{tabular}{@{}crrr@{}}
+\toprule
+$N$ & measured & predicted & differential mode \\
+\midrule
+1 & 0.786 & 0.786 & -- \\
+2 & 1.369 & 1.571 & 0.0034 \\
+3 & 2.480 & 2.357 & 0.0032 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Closing the Loop-Level Gap: Structural PerfGD (R2)}
+\label{sec:gap}
+The demo regime is genuinely RRM-unstable ($f=6$, slow toxic decay;
+cobweb modulus $1.21$): the blind cobweb provably diverges while the
+corrected 1-D ascent converges -- in closed form. The question the
+learned system must answer is whether a \emph{learned} loop can realize
+the correction. Figure~\ref{fig:loops} and Table~\ref{tab:loops} give the
+answer from a common seed. Blind RRM collapses into the echo chamber
+(final half-spread $0.16$). PerfGD-analytic and the free-form
+PerfGD-learned mode both fail to settle: each consumes the operator's
+implied objective gradient, and the run's seam diagnostics show the
+free-form learned toxic slope starting right-signed ($-0.84$ versus
+analytic $-1.79$) and then flipping sign and hovering near zero -- capacity
+is not the problem, identification off the deployed regime is. The
+structural mode never asks the network for a derivative: fitting
+\eqref{eq:structfit} to its own deployment history, it climbs under the
+trust region and \emph{converges to the realized performative optimum}
+($h=3.193$, late steps $0.35\to0.02$), within $0.7\%$ of its own running
+estimate $\hat h_{\mathrm{PO}}=3.172$, its fitted slope tracking the
+analytic shape ($-1.33$ vs.\ $-2.00$ at the final iterate) while
+strengthening as the fit window widens.
+
+\emph{Benchmark honesty.} The frozen-reference closed-form optimum
+($\hPO=1.641$) is \emph{not} the target: in this high-intensity regime the
+realized market differs from the frozen closed forms at first order
+through channels they omit by construction -- informed-flow saturation,
+the $\rho\approx2.3$ liquidity inflation of
+Sec.~\ref{sec:sweep}, and severity drift. The loop is therefore verified
+against \emph{independent structural fits} on fresh controlled
+deployments spanning the operating range: the settle point (i) zeroes
+their corrected gradient (residual $<30\%$ of its start value), (ii) sits
+strictly inside their blind stable point ($<0.85\times\hat h_{\mathrm{SP}}$
+-- the realized echo-chamber gap, closed), and (iii) brackets their
+independent optimum estimate. The scoped claim: un-blinding is proven in
+closed form, and the structurally anchored learned loop realizes it at
+loop level against the realized-market benchmark; the free-form learned
+correction remains a documented negative result. Anchoring, not capacity,
+closes the gap.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/perfgd_ml_loops.png}
+\caption{Left: half-spread trajectories of the four learned retraining
+loops from a common seed in the RRM-unstable regime (the frozen-reference
+$\hPO$ and $\hSP$ lines are context, not the benchmark;
+Sec.~\ref{sec:gap}). Blind RRM collapses; the structurally anchored loop
+converges to the realized performative optimum. Right: the three-way
+ML$\leftrightarrow$theory seam -- the free-form learned, structurally
+fitted, and analytic toxic slopes logged at every deployment. The
+free-form slope flips sign and hovers near zero; the structural fit
+tracks the analytic shape.}
+\label{fig:loops}
+\end{figure*}
+
+\begin{table}[t]
+\caption{Loop outcomes in the RRM-unstable demo regime (10 deployments,
+common seed; convergence verified against independent structural fits).}
+\label{tab:loops}
+\small
+\begin{tabular}{@{}lrl@{}}
+\toprule
+mode & final $h$ & outcome \\
+\midrule
+blind RRM          & 0.16 & echo-chamber collapse \\
+PerfGD-analytic    & 0.36 & no settle (operator gradient) \\
+PerfGD-learned     & 0.66 & no settle (negative result) \\
+\textbf{PerfGD-structural} & \textbf{3.19} & \textbf{converges to realized optimum} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Lazy Deployment Stabilizes an Unstable Market (R6)}
+\label{sec:lazy}
+At a beyond-boundary configuration ($f=5$; exact-BR anchor
+$\hat m=1.205>1$ measured on the same seeds), the signed CRN $K$-step
+probe traces $\mu(K)$ for $K\in\{1,2,3,5,8,12,20\}$
+(Figure~\ref{fig:lazy}). A one-parameter fit of \eqref{eq:lazy} gives the
+inner contraction $c=0.661$, and both parameter-free predictions land:
+the deadbeat sign flip at $\Kdb=1.46$ (measured medians $+0.021$ at
+$K{=}1$, $-0.064$ at $K{=}2$) and the stability-window exit at
+$\Kmax=5.75$ (measured $|\mu|$: $0.695$ at $K{=}5$, inside; $1.541$ at
+$K{=}8$, outside). Laziness measurably keeps this RRM-unstable market
+stable for $K\lesssim6$ and inherits the cobweb's divergence beyond --
+retraining \emph{cadence} is a stability control. The measured
+$\geff/\gamma$ falls monotonically through $1$ between $K=5$ and $K=8$,
+the stiff branch of the two-branch law. Beyond-boundary per-seed scatter
+is large by construction (medians carry the result); the clean
+tight-fit demonstration lives in the contracting regime (measured
+$+0.78/+0.70/+0.37$ vs.\ fitted $+0.88/+0.68/+0.36$ at $K=1/3/8$) and is
+locked in the test suite.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/lazy_deploy_gamma_eff.png}
+\caption{Lazy deployment at a beyond-boundary configuration
+($\hat m=1.205$). Left: the measured signed $K$-step map (medians over
+seeds; faint dots are per-seed readings) against the one-parameter fit
+$\mu(K)=-m+c^K(1+m)$ with $c=0.661$, its $K\to\infty$ asymptote $-m$, and
+the predicted deadbeat cadence. Right: the implied effective curvature
+$\geff(K)/\gamma$, predicted versus measured -- the stiff branch decaying
+through the exact-RRM line between $K=5$ and $K=8$.}
+\label{fig:lazy}
+\end{figure*}
+
+\subsection{Scaling and Estimator Tuning}
+\label{sec:tuning}
+\emph{Factor scaling (R5).} With per-bond volatilities dispersed at the
+data-calibrated cross-sectional coefficient of variation, $\rho(M)$ is
+flat at ${\approx}0.50$ from $d=8$ to $128$ bonds and pinned to the worst
+scalar modulus -- on this calibration, correlation does not manufacture
+cross-sectional instability; the fragile mode is idiosyncratic. The
+Woodbury path computes $d=128$ in $0.12$\,s and matches the dense
+eigensolve to machine precision; the truncation bound holds with 3--4
+orders of magnitude of slack. \emph{Sinkhorn blur (R1 instrument).}
+Against the exact 1-D quantile $\Wone$, the debiased-divergence bias is
+U-shaped in the scale-relative blur at a fixed iteration budget
+(log-domain under-convergence below, entropic over-blur above), with its
+minimum at $0.02\times$ std ($6.1\%$ ground-truth bias; $1.2\%$ on the
+config's CRN samples) -- baked in as the default and, being
+scale-relative, transferring to real-unit configurations unchanged.
+\emph{Robust radius (R4).} Across normal, heavy-tailed, and skewed
+estimate distributions the $z\,s$ radius over-covers ($0.99$--$1.00$ at
+$95\%$ nominal); only contamination (railed-probe patterns) degrades both
+radii ($0.938$) -- the honest $n_{\mathrm{req}}$ limit. On the actual CRN
+probe estimates the quantile/$z\,s$ multiplier is $0.50$, so $z\,s$ is
+binding and adequately calibrated; the quantile-guarded radius is kept for
+suspected contamination.
+
+%% ========================================================================
+\section{Conclusion}
+REFLEX turns the performative-prediction stability theorem from an
+abstraction into an instrument: $(\eps,\beta,\gamma)$ computed from
+microstructure primitives, six closed-form extensions (correction,
+competition, finite samples, dimension, cadence), each verified
+predict-then-verify against a learned loop, evaluated as a daily fragility
+index on 36 years of real market data, and machine-checked end to end.
+Two findings matter beyond this model. First, competition among retraining
+dealers amplifies instability by the effective dealer count -- a
+market-level, not desk-level, certification problem for algorithmic
+liquidity provision. Second, a learned corrected loop stabilizes where
+blind retraining collapses \emph{only when its response model is anchored
+to market structure}: the free-form alternative fails with the same data
+and more capacity. Structure is not a nicety here; it is the difference
+between a loop that converges and one that does not.
+
+\section{Limitations and Future Work}
+\emph{Data.} The calibration is proxy-level, not trade-level TRACE:
+VIX-implied spreads, no per-dealer inventories, a structurally scaled
+toxic channel, and a degenerate crisis cell ($k=0$) -- regime ordering is
+data-driven, absolute critical gains are not. TRACE Enhanced calibration
+is the direct upgrade path. \emph{Measurement.} At default-like constants
+the self-consistent fixed point never destabilizes (defensive widening),
+so measured crossings are statements about the retraining map at the
+operating spread; beyond the boundary, probe readings are
+finite-difference diagnostics with seed-level bifurcation (medians and
+robust bands carry the results); measured moduli are protocol-dependent
+and comparable within, not across, protocols. \emph{The structural loop.}
+Its optimum is the \emph{realized} one -- benchmarked against independent
+structural fits, never the frozen-reference closed form, with the gap
+channel-attributed (saturation, liquidity inflation, severity drift); its
+convergence is to the noise ball of an estimated gradient, and its early
+iterations lean on the trust region. The free-form learned correction
+remains a negative result by design. \emph{Verification.} The Lean~4
+skeletons are reviewed but not yet compiled; the 66 numerical
+certificates are the verification of record. Future work: trade-level
+calibration, inventory-state loop dynamics (state-dependent
+performativity), richer policy classes, and compiling the formal layer.
+
+\section*{Reproducibility}
+\label{sec:repro}
+The full framework -- the six derivation documents D1--D6 (each with a
+compilable LaTeX twin), the simulator, operator, all four loop modes, the
+estimator suite, the calibration pipeline with its data catalogue and
+rejected-sources log, the 66-certificate verification layer, the Lean
+sources, every configuration and seed, and the complete illustrated
+reports of both paper-grade runs -- is available at an anonymized
+repository.\footnote{\url{https://anonymous.4open.science/r/REFLEX}
+-- TODO(camera-ready): replace with the public repository.} All results in
+this paper are regenerated by one command (\code{run\_all --profile full},
+${\sim}25$ CPU-minutes, deterministic from configuration and seed).
+
+%% ------------------------------------------------------------ references --
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}
