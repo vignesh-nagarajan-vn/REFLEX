@@ -6,7 +6,7 @@ per-deployment optimisation budget (policy.inner_steps -- the lazy-deploy
 knob K of theory 1.1 Section 6.2) and record m_hat.  Also the roadmap item
 "Sweep lazy-deploy K and report effect on gamma_eff".
 
-Run from inside endo_market_v3/ with the repo venv:
+Run from inside archive/endo_market_v3/ with the repo venv:
 
     ../.venv/Scripts/python -u ../research/analysis/src/budget_sensitivity.py \
         --outdir ../research/analysis/figures

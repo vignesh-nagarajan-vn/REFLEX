@@ -51,7 +51,7 @@ the learned toxic slope next to the analytic `-psi*eps(h)`: the ML↔math seam.
 
 ## Layout
 
-    endo_market_v3/
+    endo_market_v4/
     |- README.md                 <- this file
     |- pyproject.toml            <- package `reflex` (install: pip install -e .)
     |- theory/                   <- the five derivations (shipped copies) + code map

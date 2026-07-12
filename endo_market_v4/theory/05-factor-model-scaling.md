@@ -27,7 +27,7 @@ governs stability, and then makes the `d = 100+` regime tractable and honest by:
 
 Every per-bond constant is 1.1's closed form; the new content is the *cross-sectional
 linear algebra* and its truncation error. The companion *code* --
-[`analysis/factor_reduction.py`](../../endo_market_v2/endo_market/analysis/factor_reduction.py),
+[`analysis/factor_reduction.py`](../../archive/endo_market_v2/endo_market/analysis/factor_reduction.py),
 the modulus matrix, the Woodbury reduction, and the truncation error bound -- is now
 implemented (§9).
 
@@ -94,7 +94,7 @@ diversifiable against risk in a correlated one.
   constants `gbar, psi` are shared (evaluated at the common reference state).
 - **A2'' (the factor covariance is `bonds.py`'s).** The correlation matrix
   `C = BondUniverse.corr` is, by construction
-  ([`bonds.py`](../../endo_market_v2/endo_market/env/bonds.py) `_build_corr`), a
+  ([`bonds.py`](../../archive/endo_market_v2/endo_market/env/bonds.py) `_build_corr`), a
   **factor model**: a global market factor (loading `sqrt(global_factor)` on every
   bond) plus per-sector block factors (extra `within_sector_corr` inside a sector)
   plus an idiosyncratic residual. That is exactly
@@ -413,7 +413,7 @@ build `D_gamma, G, E`, form `M = beta*Gamma^{-1}*E` via Woodbury (§4), and pred
 and the `k`-truncation error `O(lambda_{k+1}(C))` (§5).
 
 **Measure - the market-factor BR-slope probe.** Generalise
-[`response_modulus.py`](../../endo_market_v2/endo_market/analysis/response_modulus.py)
+[`response_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py)
 to perturb all `d` deployed spreads **along the top factor eigenvector** `v_1`
 (the market mode) under common random numbers, returning
 `rho_hat(M) = || BR(h* + delta*v_1) - BR(h* - delta*v_1) || / (2*delta)` - the
@@ -428,7 +428,7 @@ band (§5) shrinking as `k` grows. This is the "tight median+IQR, 100+ correlate
 bonds" figure the methodology names.
 
 **Code (DONE).** Implemented in
-[`analysis/factor_reduction.py`](../../endo_market_v2/endo_market/analysis/factor_reduction.py):
+[`analysis/factor_reduction.py`](../../archive/endo_market_v2/endo_market/analysis/factor_reduction.py):
 `per_bond_constants` builds `(gamma0_i, epsilon_i, sigma_i, g_i)` from 1.1's closed
 forms and `bonds.features` (duration-calibrated `sigma_i`, §6.1); `modulus_matrix` /
 `factor_modulus` form the dense `M`, `rho(M)`, the top eigenvector and `chi`;

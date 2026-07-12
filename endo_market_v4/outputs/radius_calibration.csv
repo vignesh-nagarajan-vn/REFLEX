@@ -1,0 +1,5 @@
+case,coverage_normal,coverage_calibrated,median_multiplier
+normal,0.9925,0.9925,0.7348145676144487
+student_t(2.5),1.0,1.0,0.7201737187973309
+lognormal,0.99,0.99,0.798272002472233
+crn_probe(bootstrap),0.97925,0.97925,0.5152987660159113

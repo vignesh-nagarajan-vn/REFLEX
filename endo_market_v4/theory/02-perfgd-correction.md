@@ -9,7 +9,7 @@ converges to the **performative optimum (PO)** rather than the **stable point
 (SP)**, show it **remains stable for `epsilon` beyond the RRM boundary
 `epsilon* = gamma/beta`**, and quantify the **echo-chamber gap** between the
 stable and optimal quotes. The companion *code* -
-[`equilibrium/perfgd_loop.py`](../../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) -
+[`equilibrium/perfgd_loop.py`](../../archive/endo_market_v2/endo_market/equilibrium/perfgd_loop.py) -
 is now implemented (§8).
 
 > **One-line thesis.** Blind RRM (the loop analysed in 1.1) finds the spread that
@@ -327,14 +327,14 @@ statement of "un-blinding stabilises the loop".
    performative-risk gap matches (6b) (`O(epsilon^2)`), with cross-seed IQR bands.
 
 **Code (DONE).** Implemented in
-[`equilibrium/perfgd_loop.py`](../../endo_market_v2/endo_market/equilibrium/perfgd_loop.py):
+[`equilibrium/perfgd_loop.py`](../../archive/endo_market_v2/endo_market/equilibrium/perfgd_loop.py):
 `perfgd_correction` is the scalar `Delta(h) = -P*(h - psi)*epsilon(h)`,
 `perfgd_gradient` the corrected ascent `Phi' = G + Delta`,
 `solve_performative_optimum` returns `h_PO`, `gamma_po` the objective curvature,
 `echo_chamber_gap` the (6a)/(6b) gaps, and `run_rrm_cobweb` / `run_perfgd` the two
 loops (`analyze_perfgd` assembles all of it). `epsilon(h)` and `psi` are imported
 from the shared
-[`analysis/analytic_boundary.py`](../../endo_market_v2/endo_market/analysis/analytic_boundary.py)
+[`analysis/analytic_boundary.py`](../../archive/endo_market_v2/endo_market/analysis/analytic_boundary.py)
 recommended in 1.1 §8 (also delivered) — no estimator is needed. Verified by
 `tests/test_perfgd_loop.py` (including the "PerfGD stable beyond `epsilon*`"
 demonstration and the `Delta(psi)=0` sign flip).

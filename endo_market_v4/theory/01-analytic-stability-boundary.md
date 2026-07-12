@@ -13,7 +13,7 @@ policy-distribution loop directly from the microstructure primitives of the
 with **`gamma`, `beta`, and `epsilon` each given as a closed-form function of the
 model parameters** - none swept, none tuned. The result is then turned into a
 falsifiable cross-check against the existing model-free estimator in
-[`analysis/response_modulus.py`](../../endo_market_v2/endo_market/analysis/response_modulus.py).
+[`analysis/response_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py).
 
 > **Why this is the headline contribution.** Perdomo et al. (ICML 2020) prove
 > that the repeated-retraining map contracts iff `epsilon < gamma/beta`, but
@@ -60,10 +60,10 @@ the table in §7.
 
 We analyse the loop at the level of the **central half-spread** `h` - the bias
 coordinate `b_h` of the dealer policy
-([`policy/dealer_policy.py`](../../endo_market_v2/endo_market/policy/dealer_policy.py)),
+([`policy/dealer_policy.py`](../../archive/endo_market_v2/endo_market/policy/dealer_policy.py)),
 which the convergence study identifies as the dominant coordinate of the
 policy-to-distribution iterate map. The model-free probe
-[`response_modulus.py`](../../endo_market_v2/endo_market/analysis/response_modulus.py)
+[`response_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py)
 deploys *constant-`h`, zero-skew* policies; we adopt the same restriction so the
 analytic and empirical moduli measure the same object.
 
@@ -94,7 +94,7 @@ analytic and empirical moduli measure the same object.
 
 ### 2.1 Components from the simulator
 
-From [`simulator.py`](../../endo_market_v2/endo_market/env/simulator.py), at zero
+From [`simulator.py`](../../archive/endo_market_v2/endo_market/env/simulator.py), at zero
 skew, with `S` = dealer sells (clients lift the ask), `B` = dealer buys (clients
 hit the bid), `q_after = q0 + B - S`, `v` = fundamental, `v'` = next fundamental,
 `m` = mid:
@@ -106,7 +106,7 @@ hit the bid), `q_after = q0 + B - S`, `v` = fundamental, `v'` = next fundamental
 ```
 
 The dealer objective
-([`objective/reward.py`](../../endo_market_v2/endo_market/objective/reward.py))
+([`objective/reward.py`](../../archive/endo_market_v2/endo_market/objective/reward.py))
 is
 
 ```
@@ -119,7 +119,7 @@ is
 with `w = quote_anchor_weight`, `h_ref = quote_anchor_ref`. Write
 `P := pnl_scale` for brevity. We now take the expectation of each term over the
 flow noise at the reference state, using the flow model in
-[`clients.py`](../../endo_market_v2/endo_market/env/clients.py).
+[`clients.py`](../../archive/endo_market_v2/endo_market/env/clients.py).
 
 ### 2.2 Uninformed (benign) flow
 
@@ -492,7 +492,7 @@ The check requires **no new infrastructure**:
    solve for `h*` (§4 root-find), then evaluate `m_pred(f) = epsilon*beta/gamma`
    from (`*`), (`**`), (`***`) in §3.
 2. **Measure.** Run
-   [`measure_response_modulus`](../../endo_market_v2/endo_market/analysis/response_modulus.py)
+   [`measure_response_modulus`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py)
    at the same `h_ref ~ h*` to obtain the common-random-number BR-slope estimate
    `m_meas(f)`.
 3. **Compare.** Report `m_pred` vs `m_meas` across the sweep with cross-seed IQR
@@ -503,7 +503,7 @@ The check requires **no new infrastructure**:
    plateau.
 
 A reference implementation of steps 1–3 belongs in
-`endo_market_v2/endo_market/analysis/` as `analytic_boundary.py` (a pure function
+`archive/endo_market_v2/endo_market/analysis/` as `analytic_boundary.py` (a pure function
 of `Config`), reusing `response_modulus.py` for step 2 - the recommended next
 code task now that this derivation is accepted.
 
