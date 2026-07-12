@@ -65,8 +65,10 @@ from .multi_dealer import (
     sweep_dealer_count,
 )
 from .robust import (
+    RadiusCalibration,
     RobustBoundaryResult,
     RobustCertificate,
+    calibrate_radius,
     empirical_radius,
     finite_sample_radius,
     loglog_rate,
@@ -147,8 +149,10 @@ __all__ = [
     "strong_coupling_limit",
     "sweep_dealer_count",
     # 1.4 distributionally robust boundary
+    "RadiusCalibration",
     "RobustBoundaryResult",
     "RobustCertificate",
+    "calibrate_radius",
     "empirical_radius",
     "finite_sample_radius",
     "loglog_rate",

@@ -23,10 +23,14 @@ from .br_slope import (
 )
 from .cks import CKSEpsilonResult, estimate_epsilon_cks
 from .sinkhorn import (
+    TUNED_REL_REG,
     SinkhornEpsilonResult,
+    SinkhornTuning,
     estimate_epsilon_sinkhorn,
     quantile_w1,
     sinkhorn_divergence,
+    tune_sinkhorn_reg,
+    tune_sinkhorn_reg_for_config,
 )
 from .triangulate import TriangulationResult, triangulate_epsilon
 
@@ -37,10 +41,14 @@ __all__ = [
     "measure_rgd_response",
     "CKSEpsilonResult",
     "estimate_epsilon_cks",
+    "TUNED_REL_REG",
     "SinkhornEpsilonResult",
+    "SinkhornTuning",
     "estimate_epsilon_sinkhorn",
     "quantile_w1",
     "sinkhorn_divergence",
+    "tune_sinkhorn_reg",
+    "tune_sinkhorn_reg_for_config",
     "TriangulationResult",
     "triangulate_epsilon",
 ]
