@@ -1,6 +1,7 @@
-"""The v3 outer retraining loops: blind RRM vs. PerfGD-corrected (analytic / learned).
+"""The v4 outer retraining loops: blind RRM vs. PerfGD-corrected (analytic /
+learned / structural).
 
-One driver, :func:`run_loop`, subsumes the v2 RRM experiment and adds the two
+One driver, :func:`run_loop`, subsumes the v2 RRM experiment and adds the
 un-blinded variants derived in theory 1.2:
 
 * ``mode="rrm"`` -- blind repeated retraining.  The operator is fit and the
@@ -12,18 +13,33 @@ un-blinded variants derived in theory 1.2:
   :mod:`reflex.theory.perfgd`, injected as a surrogate gradient term.  Stability
   is governed by the objective curvature ``gamma_PO``, so the loop converges
   for ``epsilon`` beyond ``epsilon*`` (theory 1.2 §5).
-* ``mode="perfgd_learned"`` -- the fully-ML counterpart: the operator is fit on
-  a **window** of recent deployments (``operator.context_window``), so its
-  summary-dependence identifies the distribution response, and the policy is
-  optimised with a **live** summary so that learned response enters the
-  gradient.  No closed form is consumed; the market model is learned end to
-  end.  Requires ``context_window >= 2`` to be meaningful.
+* ``mode="perfgd_learned"`` -- the free-form ML counterpart: the operator is
+  fit on a **window** of recent deployments (``operator.context_window``), so
+  its summary-dependence identifies the distribution response, and the policy
+  is optimised with a **live** summary so that learned response enters the
+  gradient.  No closed form is consumed.  Requires ``context_window >= 2`` to
+  be meaningful.  Kept as the documented v3 negative result: the free-form
+  operator's implied ``dJ/dh`` diverges from the structural one away from the
+  deployed regime, so this mode does not reproduce the stabilisation.
+* ``mode="perfgd_structural"`` -- the v4 mode that closes that gap.  Every 1.2
+  ingredient is **fitted from the window's own transitions** by
+  :func:`reflex.equilibrium.structural_response.fit_structural_response`
+  (the GLFT-anchored families ``tau_hat = C0 + C1*exp(-c*h)`` and
+  ``u_hat = A_u*exp(-k_u*h)``, plus the realized severity ``psi_hat``), and
+  the policy's central spread takes one ascent step per deployment on the
+  estimated corrected gradient ``Phi_hat'(h) = G_hat(h) + Delta_hat(h)``
+  (step ``1/gamma_PO_hat`` unless ``rrm.structural_eta`` overrides;
+  ``rrm.structural_eta_decay`` shrinks it per iteration).  No closed-form
+  market constant is consumed.  When the window's realised spread range falls
+  below ``rrm.structural_min_rel_range`` the previous identifiable fit is
+  held (the anti-echo-chamber freeze).
 
 Every iteration also records the ML<->math seam diagnostics: the operator's
 *learned* toxic slope ``d E_hat[adverse]/dh`` (via
 :meth:`~reflex.operator.response_operator.MarketResponseOperator.distribution_response`)
-next to the theory's closed form ``-psi*epsilon(h)``, so the two can be plotted
-against each other along the run.
+next to the theory's closed form ``-psi*epsilon(h)`` -- and, in the structural
+mode, the *fitted* slope ``-psi_hat*eps_hat(h)`` -- so every reading of the
+distribution response can be plotted against the others along the run.
 
 The per-iterate record type is shared with the v2-compatible
 :mod:`reflex.equilibrium.rrm_loop` (kept as the frozen baseline entry point),
@@ -61,8 +77,13 @@ from .rrm_loop import (
     _central_half_spread,
     _evaluate_true_risk,
 )
+from .structural_response import (
+    StructuralResponse,
+    fit_structural_response,
+    retune_central_spread,
+)
 
-LOOP_MODES = ("rrm", "perfgd_analytic", "perfgd_learned")
+LOOP_MODES = ("rrm", "perfgd_analytic", "perfgd_learned", "perfgd_structural")
 
 
 @dataclass
@@ -72,8 +93,11 @@ class LoopDiagnostics:
     k: int
     learned_toxic_slope: float  # operator's d E_hat[adverse]/dh (nan if unavailable)
     analytic_toxic_slope: float  # theory: -psi * epsilon(h_central)
-    correction: float  # analytic Delta applied this iteration (0 unless perfgd_analytic)
+    correction: float  # correction applied this iteration (analytic or fitted; 0 in blind modes)
     window_len: int  # deployments in the operator's fitting window
+    structural_toxic_slope: float = float("nan")  # fitted -psi_hat*eps_hat(h) (structural mode)
+    h_po_hat: float = float("nan")  # estimated performative optimum (structural mode)
+    structural_frozen: bool = False  # True when the anti-echo freeze held the last fit
 
 
 @dataclass
@@ -92,6 +116,10 @@ class LoopResult:
     @property
     def analytic_slopes(self) -> np.ndarray:
         return np.array([d.analytic_toxic_slope for d in self.diagnostics], dtype=float)
+
+    @property
+    def structural_slopes(self) -> np.ndarray:
+        return np.array([d.structural_toxic_slope for d in self.diagnostics], dtype=float)
 
 
 def run_loop(
@@ -123,6 +151,13 @@ def run_loop(
             "operator cannot identify dD/dphi from a constant summary; the "
             "learned correction will be noise."
         )
+    if mode == "perfgd_structural" and float(cfg.rrm.collection_jitter) <= 0.0:
+        print(
+            "[loops] WARNING: perfgd_structural with collection_jitter = 0 -- "
+            "once the loop settles there is no within-deployment spread "
+            "variation left to identify the structural response; the "
+            "anti-echo freeze will hold a stale fit."
+        )
 
     seed = int(cfg.seed if seed is None else seed)
     torch.manual_seed(seed)
@@ -150,6 +185,16 @@ def run_loop(
     window: "deque[DeploymentRecord]" = deque(maxlen=max(window_size, 1))
     prev_flat = policy.flatten().clone()
 
+    # perfgd_structural state: the current fitted response plus its own long
+    # deployment memory (the operator's short context window is not enough to
+    # identify the exponential families globally; the loop's traversed
+    # history is).
+    structural: Optional[StructuralResponse] = None
+    structural_frozen = False
+    struct_history: "deque[DeploymentRecord]" = deque(
+        maxlen=max(int(cfg.rrm.structural_window), 1)
+    )
+
     for k in range(int(cfg.rrm.max_iters)):
         collect_seed = seed + 1000 * (k + 1)
         eval_seed = seed + 7000 + 113 * k
@@ -166,6 +211,18 @@ def run_loop(
         operator = MarketResponseOperator(cfg)
         fit_res = fit_operator_windowed(operator, list(window), cfg.operator, generator=gen_fit)
 
+        # 2b. (structural mode) refit the GLFT-anchored response on the loop's
+        # own long history; hold the previous fit when the history is
+        # unidentified (anti-echo freeze).
+        if mode == "perfgd_structural":
+            struct_history.append(window[-1])
+            fit_new = fit_structural_response(list(struct_history), cfg)
+            if fit_new.identified or structural is None:
+                structural = fit_new
+                structural_frozen = not fit_new.identified
+            else:
+                structural_frozen = True
+
         # 3. evaluate the true performative risk of the deployed policy.
         diag = _evaluate_true_risk(simulator, policy, cfg, eval_seed, gen_eval)
         central = _central_half_spread(policy, ref_state)
@@ -180,9 +237,16 @@ def run_loop(
         except Exception:  # pragma: no cover - diagnostic must never kill a run
             learned_slope = float("nan")
         analytic_slope = -ref_theory.psi * epsilon_of(cfg, central, ref_theory)
-        applied_correction = (
-            float(correction_fn(central)) if correction_fn is not None else 0.0
-        )
+        if mode == "perfgd_structural" and structural is not None:
+            structural_slope = structural.toxic_slope_hat(central)
+            h_po_hat = structural.solve_h_po_hat(cfg.reward, cfg.policy.max_half_spread)
+            applied_correction = structural.correction_hat(central, cfg.reward)
+        else:
+            structural_slope = float("nan")
+            h_po_hat = float("nan")
+            applied_correction = (
+                float(correction_fn(central)) if correction_fn is not None else 0.0
+            )
         result.diagnostics.append(
             LoopDiagnostics(
                 k=k,
@@ -190,6 +254,9 @@ def run_loop(
                 analytic_toxic_slope=analytic_slope,
                 correction=applied_correction,
                 window_len=len(window),
+                structural_toxic_slope=structural_slope,
+                h_po_hat=h_po_hat,
+                structural_frozen=structural_frozen,
             )
         )
 
@@ -233,7 +300,32 @@ def run_loop(
             simulator, cfg.policy.n_rollouts, base_seed=collect_seed + 777
         )
 
-        if cfg.rrm.update_rule == "rrm":
+        if mode == "perfgd_structural":
+            # One 1-D ascent step on the *fitted* corrected gradient (1.2 §3
+            # with every ingredient estimated from the window's data).  The
+            # central spread is the dominant coordinate of the iterate map
+            # (1.1 §1); the update is realised in the policy by retuning its
+            # half-spread bias.  Step: 1/gamma_PO_hat at the estimated optimum
+            # (the near-optimal step of 1.2 §4.2) unless overridden, decayed
+            # by structural_eta_decay^k for optional Robbins-Monro damping.
+            g_hat = structural.corrected_gradient_hat(central, cfg.reward)
+            if float(cfg.rrm.structural_eta) > 0.0:
+                eta0 = float(cfg.rrm.structural_eta)
+            else:
+                gpo = structural.gamma_po_hat(h_po_hat, cfg.reward)
+                eta0 = 1.0 / gpo if gpo > 1e-9 else 1e-2
+            eta_k = eta0 * (float(cfg.rrm.structural_eta_decay) ** k)
+            h_next = central + eta_k * g_hat
+            # Trust region: never move beyond the fraction of the current
+            # spread the fits can be trusted to extrapolate over.
+            cap = float(cfg.rrm.structural_max_rel_step) * max(central, 1e-3)
+            h_next = min(max(h_next, central - cap), central + cap)
+            h_next = min(max(h_next, 1e-3), float(cfg.policy.max_half_spread))
+            retune_central_spread(policy, ref_state, h_next)
+            opt_start = float("nan")
+            opt_final = float("nan")
+            grad_path = "structural" + ("(frozen-fit)" if structural_frozen else "")
+        elif cfg.rrm.update_rule == "rrm":
             opt_res = optimize_policy(
                 policy, operator, init_states, cfg,
                 frozen_summary=frozen, generator=gen_opt, logger=logger,
@@ -280,11 +372,16 @@ def run_loop(
         )
 
         if verbose:
-            ls = result.diagnostics[-1].learned_toxic_slope
+            d_last = result.diagnostics[-1]
+            extra = (
+                f" h_PO_hat={d_last.h_po_hat:.3f} struct={d_last.structural_toxic_slope:.3f}"
+                if mode == "perfgd_structural" else ""
+            )
             print(
                 f"[{mode} s={seed}] iter {k:2d} | h={central:.4f} step={step:.4f} "
                 f"PR={diag['performative_risk']:.3f} "
-                f"slope(learned={ls:.3f}, analytic={analytic_slope:.3f}) "
+                f"slope(learned={d_last.learned_toxic_slope:.3f}, "
+                f"analytic={analytic_slope:.3f}){extra} "
                 f"win={len(window)} [{grad_path}]"
             )
 

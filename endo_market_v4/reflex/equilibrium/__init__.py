@@ -40,6 +40,14 @@ from .loops import LOOP_MODES, LoopDiagnostics, LoopResult, run_loop  # noqa: E4
 
 __all__ += ["LOOP_MODES", "LoopDiagnostics", "LoopResult", "run_loop"]
 
+from .structural_response import (  # noqa: E402
+    StructuralResponse,
+    fit_structural_response,
+    retune_central_spread,
+)
+
+__all__ += ["StructuralResponse", "fit_structural_response", "retune_central_spread"]
+
 from .joint_loop import (  # noqa: E402
     JointCobwebResult,
     JointModulusResult,
