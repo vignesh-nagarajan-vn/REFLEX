@@ -23,6 +23,7 @@ from pathlib import Path
 
 from . import (
     run_calibrated,
+    run_certificates,
     run_dealers,
     run_fragility,
     run_lazy_deploy,
@@ -36,6 +37,8 @@ from . import (
 
 PROFILES = {
     "smoke": [
+        ("certificates", run_certificates,
+         ["--config", "configs/default.yaml", "--outdir", "outputs"]),
         ("fragility", run_fragility, ["--outdir", "outputs"]),
         ("calibrated", run_calibrated, ["--outdir", "outputs"]),
         ("universe", run_universe, ["--outdir", "outputs"]),
@@ -62,6 +65,8 @@ PROFILES = {
           "--mode", "perfgd_analytic"]),
     ],
     "full": [
+        ("certificates", run_certificates,
+         ["--config", "configs/default.yaml", "--outdir", "outputs"]),
         ("fragility", run_fragility, ["--outdir", "outputs"]),
         ("calibrated", run_calibrated, ["--outdir", "outputs", "--measure", "--seeds", "3"]),
         ("universe", run_universe, ["--outdir", "outputs"]),
