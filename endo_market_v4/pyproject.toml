@@ -42,6 +42,7 @@ packages = [
     "reflex.policy",
     "reflex.theory",
     "reflex.utils",
+    "reflex.verification",
 ]
 
 [tool.pytest.ini_options]

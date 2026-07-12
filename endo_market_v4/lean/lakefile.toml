@@ -1,0 +1,11 @@
+name = "reflex"
+version = "4.0.0"
+defaultTargets = ["Reflex"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.11.0"
+
+[[lean_lib]]
+name = "Reflex"
