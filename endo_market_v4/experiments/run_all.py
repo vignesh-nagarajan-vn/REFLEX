@@ -1,4 +1,4 @@
-"""Run the full REFLEX v3 experiment suite (smoke or full profile).
+"""Run the full REFLEX v4 experiment suite (smoke or full profile).
 
 Profiles:
 
@@ -25,6 +25,7 @@ from . import (
     run_calibrated,
     run_dealers,
     run_fragility,
+    run_lazy_deploy,
     run_perfgd,
     run_single,
     run_sweep,
@@ -49,6 +50,9 @@ PROFILES = {
          ["--config", "configs/smoke.yaml", "--outdir", "outputs", "--episodes", "3"]),
         ("sweep", run_sweep,
          ["--config", "configs/sweep_feedback_smoke.yaml", "--outdir", "outputs"]),
+        ("lazy_deploy", run_lazy_deploy,
+         ["--config", "configs/smoke.yaml", "--outdir", "outputs",
+          "--k-grid", "1", "3", "8", "--seeds", "1", "--episodes", "2"]),
         ("single", run_single,
          ["--config", "configs/smoke.yaml", "--outdir", "outputs",
           "--mode", "perfgd_analytic"]),
@@ -65,6 +69,8 @@ PROFILES = {
         ("triangulation", run_triangulation,
          ["--config", "configs/default.yaml", "--outdir", "outputs", "--episodes", "8"]),
         ("sweep", run_sweep, ["--config", "configs/sweep_feedback.yaml", "--outdir", "outputs"]),
+        ("lazy_deploy", run_lazy_deploy,
+         ["--config", "configs/default.yaml", "--outdir", "outputs"]),
         ("single", run_single,
          ["--config", "configs/default.yaml", "--outdir", "outputs",
           "--mode", "perfgd_analytic"]),
@@ -73,7 +79,7 @@ PROFILES = {
 
 
 def main(argv=None) -> None:
-    ap = argparse.ArgumentParser(description="Run the full REFLEX v3 experiment suite.")
+    ap = argparse.ArgumentParser(description="Run the full REFLEX v4 experiment suite.")
     ap.add_argument("--profile", choices=sorted(PROFILES), default="smoke")
     ap.add_argument("--only", nargs="+", default=None,
                     help="run only these experiment names")
@@ -86,7 +92,7 @@ def main(argv=None) -> None:
         if not plan:
             raise SystemExit(f"no experiments match --only {args.only}")
 
-    print(f"### REFLEX v3 experiment suite -- profile: {args.profile} "
+    print(f"### REFLEX v4 experiment suite -- profile: {args.profile} "
           f"({len(plan)} experiments) ###\n")
     failures = []
     t_start = time.time()
