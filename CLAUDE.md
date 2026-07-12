@@ -23,7 +23,7 @@ best-response contraction modulus `m ≈ εβ/γ`; the loop is stable iff `ε < 
 | Path | Status | Notes |
 |------|--------|-------|
 | `endo_market_v4/` | **CURRENT — work here** | The final, complete generation: package **`reflex`** v4 (un-blinded ML + theory 1.1–1.6 + real-data calibration + the structural PerfGD loop + the verification layer + all experiments). |
-| `research/` | Active — the program folder | The research roadmap, the canonical math derivations (`math-theory/`, 1.1–1.6, LaTeX twins), the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v4 ships copies of its outputs), the **executed paper-grade runs** (`results/`: v3's `07-10-2026`, v4's `07-12-2026`), and their written **analyses** (`analysis/`). An extension/application of `endo_market_v4`, not a second implementation. |
+| `research/` | Active — the program folder | The research roadmap, the canonical math derivations (`math-theory/`, 1.1–1.6, LaTeX twins), the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v4 ships copies of its outputs), the **executed paper-grade runs** (`results/`: v3's `07-10-2026`, v4's `07-12-2026`), their written **analyses** (`analysis/`), and the **ICAIF 2026 submission draft** (`paper/`: ACM sigconf `main.tex` + verified `references.bib` + figures; every number traced to the 07-12-2026 run). An extension/application of `endo_market_v4`, not a second implementation. |
 | `literature/literature-vignesh/` | Active reference | 10 foundational papers + reading map; PDFs downloaded. |
 | `literature/literature-raghav/` | Active reference | Superset: same 10 + 8 extension papers (18 total) + research roadmap. |
 | `archive/` | **Frozen** | The four superseded generations: `edl_simulator_v1` (HTML/JS prototype), `endo_market_v1` (first Python build), `endo_market_v2` (identified `ε`, grew the analytic modules), `endo_market_v3` (the audited generation that produced the 07-10-2026 run). Don't extend anything here; see `archive/README.md`. |
@@ -227,6 +227,13 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   measurement-layer audit. The live code/experiments themselves are inside
   `endo_market_v4/` — this folder is the *application* of that package, not a
   second implementation.
+- `paper/` — the ICAIF 2026 submission draft: `main.tex` (ACM `sigconf`,
+  `anonymous,review` for double-blind), `references.bib` (arXiv IDs verified;
+  two wrong IDs inherited from `literature/*/references.bib` corrected —
+  don't copy entries from those bibs without checking), `figures/` (copies
+  from `results/07-12-2026/`). No local TeX toolchain — compile on Overleaf;
+  build/trim/camera-ready notes in `paper/README.md`. Keep every claim no
+  stronger than its counterpart in `results/07-12-2026/REPORT.md`.
 
 ## Current phase & next steps
 
@@ -242,12 +249,15 @@ defects fixed — see `research/analysis/pre-run-audit-2026-07.md`); paper-grade
 full-profile suites executed and curated (`research/results/07-10-2026/` for
 v3, `research/results/07-12-2026/` for v4). The **live to-do**:
 
-1. **Write the ICAIF 2026 paper** (conference-ready; ACM `sigconf`, 8 pages,
-   double-blind, deadline Aug 2 2026). Checklist in `research/README.md`
-   (§ To-Do → ICAIF-specific requirements). Scoping is settled in the
-   analysis: closed forms + real-data fragility + probe-level verifications
-   are the headline; the v4 structural-loop stabilisation is reported against
-   the *realized-market* benchmark with the A2-gap channels named.
+1. **Finish and submit the ICAIF 2026 paper** (deadline Aug 2 2026). The
+   submission draft is written: `research/paper/` (ACM `sigconf`, 8 pages,
+   double-blind; scoped as settled in the analysis — closed forms +
+   real-data fragility + probe-level verifications are the headline; the v4
+   structural-loop stabilisation is reported against the *realized-market*
+   benchmark with the A2-gap channels named). Remaining: Overleaf compile +
+   8-page check (trim order in `paper/README.md`), create the anonymized
+   repo mirror the placeholder footnote points at, submit via CMT.
+   Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.
 
