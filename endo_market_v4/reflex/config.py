@@ -174,14 +174,37 @@ class RRMConfig:
     update_rule: str = "rgd"
     rgd_steps: int = 5  # number of gradient steps per deployment when update_rule="rgd"
     rgd_lr: float = 0.08  # step size for the repeated-gradient-descent update
-    # v3 outer-loop mode (equilibrium/loops.py):
-    #   "rrm"             -- blind repeated retraining (frozen summary; v2 baseline)
-    #   "perfgd_analytic" -- frozen summary + the closed-form PerfGD correction
-    #                        Delta(h) = -beta*(h-psi)*epsilon(h) from reflex.theory
-    #   "perfgd_learned"  -- live summary + windowed operator: the correction is
-    #                        implicit (gradients flow through the operator's
-    #                        learned summary-dependence, i.e. the learned dD/dphi)
+    # Outer-loop mode (equilibrium/loops.py):
+    #   "rrm"               -- blind repeated retraining (frozen summary; v2 baseline)
+    #   "perfgd_analytic"   -- frozen summary + the closed-form PerfGD correction
+    #                          Delta(h) = -beta*(h-psi)*epsilon(h) from reflex.theory
+    #   "perfgd_learned"    -- live summary + windowed operator: the correction is
+    #                          implicit (gradients flow through the operator's
+    #                          learned summary-dependence, i.e. the learned dD/dphi);
+    #                          kept as the documented free-form negative result
+    #   "perfgd_structural" -- v4: the GLFT-anchored learned loop.  Every 1.2
+    #                          ingredient (tau_hat, eps_hat, psi_hat, the fill
+    #                          curve) is *fitted* from the deployment window
+    #                          (equilibrium/structural_response.py) and the
+    #                          policy's central spread ascends the estimated
+    #                          corrected gradient Phi_hat' -- the mode that
+    #                          closes the v3 loop-level gap.
     loop_mode: str = "rrm"
+    # perfgd_structural knobs:
+    structural_eta: float = 0.0  # 1-D ascent step; 0.0 = auto (1/gamma_PO_hat)
+    structural_eta_decay: float = 1.0  # per-iteration step decay (1.0 = constant)
+    structural_min_rel_range: float = 0.02  # identifiability floor on the fit
+    #   history's realised spread range (fraction of mean h); below it the
+    #   last identifiable fit is held (the anti-echo-chamber freeze)
+    structural_window: int = 12  # deployments kept for the structural fit.
+    #   Deliberately longer than operator.context_window: exponential families
+    #   fitted on a narrow spread range are line-degenerate and extrapolate
+    #   arbitrarily badly, so the fit keeps the loop's own traversed history
+    #   (its transient is the exploration) for global identification.
+    structural_max_rel_step: float = 0.35  # trust region: cap |h_next - h| to
+    #   this fraction of the current spread, so an early narrow-window misfit
+    #   cannot fling the iterate into unexplored territory (the bounded-update
+    #   companion of the anti-echo freeze)
 
 
 @dataclass
