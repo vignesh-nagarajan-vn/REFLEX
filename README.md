@@ -410,7 +410,7 @@ the measurement layer audited (six probe/protocol defects found and fixed;
 - [x] **Paper-grade full-profile runs → curated results:** v3 (July 10, 8/8) and v4 (July 12, 11/11) in [`research/results/`](research/results/).
 - [ ] **Write the ICAIF 2026 paper** (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026). Scoping is settled in the analysis: closed forms + real-data fragility + probe-level verifications are the headline; the v4 structural stabilisation is reported against the realized-market benchmark with the A2-gap channels named.
 - [ ] Secure a research placement at a top AI lab (with affiliation).
-- [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track venue.
+- [ ] Vignesh will submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track venue.
 
 Full task breakdown across math, data, preprocessing, architecture, training,
 and ICAIF submission requirements: the
