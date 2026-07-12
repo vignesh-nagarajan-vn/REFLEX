@@ -30,6 +30,7 @@ from . import (
     run_single,
     run_sweep,
     run_triangulation,
+    run_tuning,
     run_universe,
 )
 
@@ -53,6 +54,9 @@ PROFILES = {
         ("lazy_deploy", run_lazy_deploy,
          ["--config", "configs/smoke.yaml", "--outdir", "outputs",
           "--k-grid", "1", "3", "8", "--seeds", "1", "--episodes", "2"]),
+        ("tuning", run_tuning,
+         ["--config", "configs/smoke.yaml", "--outdir", "outputs",
+          "--episodes", "2", "--probe-seeds", "2", "--mc", "100"]),
         ("single", run_single,
          ["--config", "configs/smoke.yaml", "--outdir", "outputs",
           "--mode", "perfgd_analytic"]),
@@ -70,6 +74,8 @@ PROFILES = {
          ["--config", "configs/default.yaml", "--outdir", "outputs", "--episodes", "8"]),
         ("sweep", run_sweep, ["--config", "configs/sweep_feedback.yaml", "--outdir", "outputs"]),
         ("lazy_deploy", run_lazy_deploy,
+         ["--config", "configs/default.yaml", "--outdir", "outputs"]),
+        ("tuning", run_tuning,
          ["--config", "configs/default.yaml", "--outdir", "outputs"]),
         ("single", run_single,
          ["--config", "configs/default.yaml", "--outdir", "outputs",

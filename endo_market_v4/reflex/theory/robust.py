@@ -157,6 +157,99 @@ def finite_sample_radius(sigma_eps: float, n: int, alpha: float = 0.05) -> float
     return float(sigma_eps) * math.sqrt(2.0 * math.log(2.0 / alpha) / max(int(n), 1))
 
 
+# --------------------------------------------------------------------------- #
+# Ambiguity-radius calibration (v4 tuning)                                     #
+# --------------------------------------------------------------------------- #
+@dataclass
+class RadiusCalibration:
+    """Calibration report for the ambiguity radius (v4; tunes 1.4 §3.1).
+
+    The ``z*s`` radius assumes the per-seed estimates are ~normal.  This
+    report puts a distribution-free companion next to it: the one-sided
+    empirical-quantile radius of the observed deviations, the implied
+    multiplier on ``z*s``, and the bootstrap coverage of both radii under the
+    empirical distribution of the estimates.  The **calibrated radius** is
+    ``max(z_radius, quantile_radius)`` -- never tighter than the parametric
+    one, inflated exactly when the observed tail says the normal
+    approximation is too optimistic.
+    """
+
+    n: int
+    mean: float
+    std: float
+    z_radius: float  # z * s (1.4 section 3.1)
+    quantile_radius: float  # one-sided empirical-quantile radius
+    calibrated_radius: float  # max(z_radius, quantile_radius)
+    multiplier: float  # quantile_radius / z_radius (1.0 = normal approx exact)
+    coverage_normal: float  # bootstrap one-sided coverage of mean + z_radius
+    coverage_calibrated: float  # ... of mean + calibrated_radius
+    confidence: float
+
+
+def calibrate_radius(
+    estimates: Sequence[float],
+    confidence: float = 0.95,
+    n_boot: int = 4000,
+    seed: int = 0,
+) -> RadiusCalibration:
+    """Calibrate the ambiguity radius on per-seed estimates (v4 tuning).
+
+    Two ingredients, both distribution-free:
+
+    * **quantile radius** -- the one-sided ``confidence`` quantile of the
+      centered deviations ``m_i - mean`` (the empirical counterpart of the
+      ``z*s`` half-width, which it matches exactly for normal data as
+      ``n -> infinity``); and
+    * **bootstrap coverage** -- resample the estimates with replacement
+      ``n_boot`` times; for each replicate check whether the grand mean lies
+      below ``mean_b + radius_b`` (the one-sided event the certificate needs,
+      1.4 §6.3), with each radius recomputed on the replicate.
+
+    The tuned recommendation implemented here: keep ``z*s`` when the measured
+    multiplier is ~1 (the CRN probe's estimates are close to normal -- the 1.4
+    §2 parametric-rate argument), switch to ``max(z*s, quantile)`` when the
+    tail is heavier.  ``robust_boundary(..., radius_method="calibrated")``
+    applies it end to end.
+    """
+    arr = np.asarray(list(estimates), dtype=float)
+    n = int(arr.size)
+    if n < 2:
+        raise ValueError("calibrate_radius needs at least 2 estimates")
+    mean = float(arr.mean())
+    std = float(arr.std(ddof=1))
+    z_rad = _z(confidence) * std
+    dev = arr - mean
+    q_rad = float(np.quantile(dev, confidence))
+    q_rad = max(q_rad, 0.0)
+    cal_rad = max(z_rad, q_rad)
+
+    rng = np.random.default_rng(seed)
+    covered_norm = 0
+    covered_cal = 0
+    for _ in range(int(n_boot)):
+        b = arr[rng.integers(0, n, size=n)]
+        mb = float(b.mean())
+        sb = float(b.std(ddof=1))
+        zb = _z(confidence) * sb
+        qb = max(float(np.quantile(b - mb, confidence)), 0.0)
+        if mean <= mb + zb:
+            covered_norm += 1
+        if mean <= mb + max(zb, qb):
+            covered_cal += 1
+    return RadiusCalibration(
+        n=n,
+        mean=mean,
+        std=std,
+        z_radius=z_rad,
+        quantile_radius=q_rad,
+        calibrated_radius=cal_rad,
+        multiplier=(q_rad / z_rad if z_rad > 0.0 else float("inf")),
+        coverage_normal=covered_norm / max(n_boot, 1),
+        coverage_calibrated=covered_cal / max(n_boot, 1),
+        confidence=float(confidence),
+    )
+
+
 def loglog_rate(ns: Sequence[float], stds: Sequence[float]) -> float:
     """Least-squares slope of ``log(std)`` vs ``log(n)`` (1.4 §2.3, §8 check 1).
 
@@ -217,16 +310,23 @@ def robust_boundary(
     confidence: float = 0.95,
     eta_mod: float = 0.0,
     boundary: float = 1.0,
+    radius_method: str = "normal",
 ) -> RobustBoundaryResult:
     """Cross-seed robust stability certificate for ``cfg`` (1.4 §3--§4, §6).
 
-    Runs the CRN probe over ``seeds``, fits the ambiguity radius ``delta_n = z*s``,
-    and returns the certificate in modulus space (against ``boundary = 1``) and its
-    ``epsilon``-space image (against ``gamma/beta``), including the structural
-    floor ``eta_mod``.
+    Runs the CRN probe over ``seeds``, fits the ambiguity radius (``delta_n =
+    z*s`` for ``radius_method="normal"``; the v4-calibrated
+    ``max(z*s, empirical quantile)`` of :func:`calibrate_radius` for
+    ``"calibrated"``), and returns the certificate in modulus space (against
+    ``boundary = 1``) and its ``epsilon``-space image (against ``gamma/beta``),
+    including the structural floor ``eta_mod``.
     """
+    if radius_method not in ("normal", "calibrated"):
+        raise ValueError(f"unknown radius_method {radius_method!r}")
     ms = measure_modulus_estimates(cfg, seeds, n_episodes=n_episodes, h_ref=h_ref, delta=delta)
     mean_m, _std_m, radius_m = empirical_radius(ms, confidence=confidence)
+    if radius_method == "calibrated":
+        radius_m = calibrate_radius(ms, confidence=confidence).calibrated_radius
     cert_m = robust_certificate(mean_m, radius_m, boundary=boundary, eta_mod=eta_mod, confidence=confidence)
 
     # epsilon-space image: epsilon = m * gamma/beta, boundary epsilon* = gamma/beta.
