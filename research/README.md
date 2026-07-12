@@ -7,13 +7,13 @@ A machine learning framework for markets where the data distribution is not fixe
 REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed point where the market dynamics induced by a trading policy are stable under repeated interaction with that same policy.
 
 **What this folder is.** The research program built *around* the
-[`endo_market_v3`](../endo_market_v3/) `reflex` package - the extension and
+[`endo_market_v3`](../archive/endo_market_v3/) `reflex` package - the extension and
 application of that code, not a second implementation. Four pieces:
 
 | Subfolder | Contents |
 |-----------|----------|
-| [`math-theory/`](math-theory/) | The canonical closed-form derivations 1.1–1.5 (each `.md` with a compilable `.tex` twin; authoritative *implementations* live in `endo_market_v3/reflex/theory/`) |
-| [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `endo_market_v3/data/` ships copies of its outputs) |
+| [`math-theory/`](math-theory/) | The canonical closed-form derivations 1.1–1.5 (each `.md` with a compilable `.tex` twin; authoritative *implementations* live in `archive/endo_market_v3/reflex/theory/`) |
+| [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `archive/endo_market_v3/data/` ships copies of its outputs) |
 | [`results/`](results/) | Executed paper-grade experiment runs against those datasets (per-experiment artifacts + logs) |
 | [`analysis/`](analysis/) | Written analyses of those runs - tables, figures, predicted-vs-measured breakdowns, honest caveats |
 
@@ -72,9 +72,9 @@ correction term is `Δ = (∂J/∂T)·(dτ/dh) = −β(h−ψ)ε`, built entirel
 closed forms (no estimation). PerfGD is governed by the objective curvature
 `γ_PO = γ + βε(2 + c_t·ψ − c_t·h_PO)`, not the cobweb modulus, so it converges
 where RRM diverges. **The code is now implemented** in
-[`endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py)
+[`archive/endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../archive/endo_market_v2/endo_market/equilibrium/perfgd_loop.py)
 (built on the shared closed-form foundation
-[`analysis/analytic_boundary.py`](../endo_market_v2/endo_market/analysis/analytic_boundary.py)):
+[`analysis/analytic_boundary.py`](../archive/endo_market_v2/endo_market/analysis/analytic_boundary.py)):
 the analytic correction `Δ`, the performative optimum `h_PO`, `γ_PO`, the
 echo-chamber gap, and a demonstration that the blind RRM cobweb diverges while
 PerfGD converges for `ε` beyond `ε*` (tests in `tests/test_perfgd_loop.py`).
@@ -95,7 +95,7 @@ boundary `ε < γ/(N_eff·β)` (the headline `ε < γ/(N·β)` at full toxic spi
 joint convergence (`γ_joint = γ − N_eff·ε·β`), the mean-field `N → ∞` limit, and
 the systemic critical dealer count `N_c = 1/m₁` are all derived. **The code is now
 implemented** in
-[`endo_market_v2/endo_market/analysis/multi_dealer_modulus.py`](../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py):
+[`archive/endo_market_v2/endo_market/analysis/multi_dealer_modulus.py`](../archive/endo_market_v2/endo_market/analysis/multi_dealer_modulus.py):
 the closed-form boundary, the `N×N` joint Jacobian and its spectrum, the
 mean-field limits, a genuine `N`-dimensional joint best-response cobweb, and the
 in-phase / anti-phase empirical probes (which reuse the single-dealer BR-slope
@@ -121,7 +121,7 @@ estimator (paper #14) restores `O(1/√n)` for the OT route. The sample complexi
 `n_req = (z·σ/Δ)² = O(Δ^{−2})` diverges at the boundary, and statistical (shrinking)
 vs. structural/model (fixed) uncertainty are separated. **The code is now
 implemented** in
-[`endo_market_v2/endo_market/analysis/robust_boundary.py`](../endo_market_v2/endo_market/analysis/robust_boundary.py):
+[`archive/endo_market_v2/endo_market/analysis/robust_boundary.py`](../archive/endo_market_v2/endo_market/analysis/robust_boundary.py):
 the ambiguity radius, the robust certificate (stable / unstable / undecided), the
 `O(Δ^{−2})` sample-complexity curve, the `O(1/√n)` log-log rate check, and the
 structural-floor `η_mod` - with a cross-seed empirical harness over the existing
@@ -144,7 +144,7 @@ to `k` factors perturbs the boundary by an amount **linear in the residual facto
 variance `λ_{k+1}(C)`** (a Bergault–Guéant Proposition-4 analog). The calibration map
 (duration/DV01/spread-vol, or synthetic CKS) and the composition with 1.3/1.4 are
 included. **The code is now implemented** in
-[`endo_market_v2/endo_market/analysis/factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py):
+[`archive/endo_market_v2/endo_market/analysis/factor_reduction.py`](../archive/endo_market_v2/endo_market/analysis/factor_reduction.py):
 the `d×d` modulus matrix `M = β·Γ⁻¹·E` and `ρ(M)`, the `O(d·k²)` Woodbury reduction
 (matched against the dense inverse), the `O(λ_{k+1}(C))` truncation error bound, the
 duration-calibrated `σ_i`, and the 1.3×1.5 systemic composition `N_eff·χ·m₁`. The
@@ -211,27 +211,27 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Derive closed-form `γ` and `β` from GLFT/Avellaneda–Stoikov value function - see [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §2–3
 - [x] Derive `dτ/dh` from Barzykin et al. (2025) perturbation expansion - closed form in [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.1
 - [x] Build BR-slope estimator for `ε` (finite-difference, from simulator logs) - exists as `analysis/response_modulus.py`; wired into the validation protocol (§7)
-- [x] Build Sinkhorn/Wasserstein-based estimator for `ε` - [`endo_market_v3/reflex/estimators/sinkhorn.py`](../endo_market_v3/reflex/estimators/sinkhorn.py) (exact 1-D quantile `W1` + debiased log-domain Sinkhorn, CRN toxic-flow samples)
-- [x] Build CKS-implied informed-flow slope estimator for `ε` - [`endo_market_v3/reflex/estimators/cks.py`](../endo_market_v3/reflex/estimators/cks.py) (fitted `λ(h) = C0 + C1·exp(−c·h)` flow curve)
-- [x] Verify agreement across all three `ε` estimators (triangulation) - [`endo_market_v3/reflex/estimators/triangulate.py`](../endo_market_v3/reflex/estimators/triangulate.py) + `run_triangulation`; the July-2026 audit moved the probe to the operating spread and the comparison target to the *realized-state* closed form (1.1 §9): Sinkhorn/CKS agree within a factor ~2–2.7, the BR leg carries a documented finite-budget attenuation (see [`analysis/pre-run-audit-2026-07.md`](analysis/pre-run-audit-2026-07.md))
+- [x] Build Sinkhorn/Wasserstein-based estimator for `ε` - [`archive/endo_market_v3/reflex/estimators/sinkhorn.py`](../archive/endo_market_v3/reflex/estimators/sinkhorn.py) (exact 1-D quantile `W1` + debiased log-domain Sinkhorn, CRN toxic-flow samples)
+- [x] Build CKS-implied informed-flow slope estimator for `ε` - [`archive/endo_market_v3/reflex/estimators/cks.py`](../archive/endo_market_v3/reflex/estimators/cks.py) (fitted `λ(h) = C0 + C1·exp(−c·h)` flow curve)
+- [x] Verify agreement across all three `ε` estimators (triangulation) - [`archive/endo_market_v3/reflex/estimators/triangulate.py`](../archive/endo_market_v3/reflex/estimators/triangulate.py) + `run_triangulation`; the July-2026 audit moved the probe to the operating spread and the comparison target to the *realized-state* closed form (1.1 §9): Sinkhorn/CKS agree within a factor ~2–2.7, the BR leg carries a documented finite-budget attenuation (see [`analysis/pre-run-audit-2026-07.md`](analysis/pre-run-audit-2026-07.md))
 - [x] Prove the analytic stability boundary theorem (Priority 1) - [`math-theory/01-analytic-stability-boundary.md`](math-theory/01-analytic-stability-boundary.md) §3.4
-- [x] Implement PerfGD using the analytic `dD/dφ` - closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; implemented in [`endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../endo_market_v2/endo_market/equilibrium/perfgd_loop.py) (+ shared [`analysis/analytic_boundary.py`](../endo_market_v2/endo_market/analysis/analytic_boundary.py))
+- [x] Implement PerfGD using the analytic `dD/dφ` - closed-form gradient derived in [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §2; implemented in [`archive/endo_market_v2/endo_market/equilibrium/perfgd_loop.py`](../archive/endo_market_v2/endo_market/equilibrium/perfgd_loop.py) (+ shared [`analysis/analytic_boundary.py`](../archive/endo_market_v2/endo_market/analysis/analytic_boundary.py))
 - [x] Prove PerfGD convergence rate to the performative optimum (Priority 2) - [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §4–5 (`O(1/k)`, linear at `1−η·γ_PO`, stable beyond `ε*`)
 - [x] Derive the echo-chamber (stable-vs-optimal) gap as a function of `ε` - [`math-theory/02-perfgd-correction.md`](math-theory/02-perfgd-correction.md) §6 (`O(ε)` decision gap, `O(ε²)` value gap); empirical measurement pending
-- [x] Extend to `N` dealers with shared induced distribution - implemented in [`endo_market_v2/endo_market/analysis/multi_dealer_modulus.py`](../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py) with new config fields `clients.n_dealers` / `clients.toxic_spillover`; the coupled `tau_i` (§2.1) drives the genuine `N`-dim joint cobweb, and the common-mode / anti-phase empirical probes reuse the single-dealer BR-slope machinery via an `N_eff`-amplified effective config
+- [x] Extend to `N` dealers with shared induced distribution - implemented in [`archive/endo_market_v2/endo_market/analysis/multi_dealer_modulus.py`](../archive/endo_market_v2/endo_market/analysis/multi_dealer_modulus.py) with new config fields `clients.n_dealers` / `clients.toxic_spillover`; the coupled `tau_i` (§2.1) drives the genuine `N`-dim joint cobweb, and the common-mode / anti-phase empirical probes reuse the single-dealer BR-slope machinery via an `N_eff`-amplified effective config
 - [x] Prove PSNE existence for `N`-dealer competition (Priority 3) - [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §4–§5 (boundary `ε < γ/(N_eff·β)`, Brouwer existence + Banach uniqueness)
 - [x] Prove joint convergence rate under variational stability - [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §6 (linear at `m_N`; `O(1/k)` under `γ_joint > 0`, variational-stability fallback)
 - [x] Derive the mean-field (`N → ∞`) limit of the stability boundary - [`math-theory/03-multi-dealer-systemic-risk.md`](math-theory/03-multi-dealer-systemic-risk.md) §7 (collapsing fixed-`κ` vs. finite `κ = c/N` regimes)
-- [x] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4) - derived in [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §3–§4 and implemented in [`endo_market_v2/endo_market/analysis/robust_boundary.py`](../endo_market_v2/endo_market/analysis/robust_boundary.py) (`ε`-ball, robust certificate `ε̂_n + δ_n < γ/β`, structural floor `η_mod`)
-- [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size - [`robust_boundary.py`](../endo_market_v2/endo_market/analysis/robust_boundary.py) `rate_check` / `loglog_rate` (log-log slope check; CRN gives the parametric rate) and `sample_complexity` (`n_req = O(Δ^{−2})`)
-- [x] Extend to 100+ correlated bonds via factor-model reduction (Priority 5) - derived in [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §2–§4 and implemented in [`endo_market_v2/endo_market/analysis/factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py) (modulus matrix `M = β·Γ⁻¹·E`, `O(d·k²)` Woodbury reduction, duration-calibrated `σ_i`)
-- [x] Derive and report the dimensionality-reduction error bound - [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`), implemented as [`factor_reduction.py`](../endo_market_v2/endo_market/analysis/factor_reduction.py) `truncation_error_bound`
+- [x] Fit ambiguity set and compute distributionally robust `ε*` (Priority 4) - derived in [`math-theory/04-robust-uncertainty.md`](math-theory/04-robust-uncertainty.md) §3–§4 and implemented in [`archive/endo_market_v2/endo_market/analysis/robust_boundary.py`](../archive/endo_market_v2/endo_market/analysis/robust_boundary.py) (`ε`-ball, robust certificate `ε̂_n + δ_n < γ/β`, structural floor `η_mod`)
+- [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size - [`robust_boundary.py`](../archive/endo_market_v2/endo_market/analysis/robust_boundary.py) `rate_check` / `loglog_rate` (log-log slope check; CRN gives the parametric rate) and `sample_complexity` (`n_req = O(Δ^{−2})`)
+- [x] Extend to 100+ correlated bonds via factor-model reduction (Priority 5) - derived in [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §2–§4 and implemented in [`archive/endo_market_v2/endo_market/analysis/factor_reduction.py`](../archive/endo_market_v2/endo_market/analysis/factor_reduction.py) (modulus matrix `M = β·Γ⁻¹·E`, `O(d·k²)` Woodbury reduction, duration-calibrated `σ_i`)
+- [x] Derive and report the dimensionality-reduction error bound - [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`), implemented as [`factor_reduction.py`](../archive/endo_market_v2/endo_market/analysis/factor_reduction.py) `truncation_error_bound`
 
 ### Data collection
 - [x] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure - hybrid approach adopted; regime-level params grounded in real data (data/processed/reflex_I_calibration_params.csv), trade-level microstructure simulator-generated pending TRACE access (docs/REJECTED_SOURCES.md)
 - [x] Request/obtain WRDS or equivalent academic access to TRACE - not complete; application path at wrds-www.wharton.upenn.edu, documented in docs/REJECTED_SOURCES.md
 - [x] Acquire bond static data (duration, DV01, rating) for calibration - DV01 proxy in data/raw/reflex_C_treasury10y_monthly.csv (dv01_10y col); IG/HY rating-bucket σ and k ranges in data/processed/reflex_I_calibration_params.csv; per-bond CUSIP-level statics pending TRACE access
-- [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps - the live implementation is the `reflex` package ([`endo_market_v3/`](../endo_market_v3/)): per-step transitions carry `(h, informed_volume, q_after, gross_volume)`; sweeps/loops write per-point CSVs to `endo_market_v3/outputs/` (the earlier prototype logging schema in the preprocessing docs described the same fields)
+- [x] Stand up simulation logging schema for (h, τ, q, D) across all sweeps - the live implementation is the `reflex` package ([`archive/endo_market_v3/`](../archive/endo_market_v3/)): per-step transitions carry `(h, informed_volume, q_after, gross_volume)`; sweeps/loops write per-point CSVs to `archive/endo_market_v3/outputs/` (the earlier prototype logging schema in the preprocessing docs described the same fields)
 
 ### Preprocessing
 - [x] Clean and deduplicate TRACE trade records, if used - complete. Applied to reflex_G_bond_returns_monthly.csv (212 real CUSIPs): exact duplicate removal, missing-return drops, winsorisation at p01/p99 (244 rows clipped), stale-bond filter (< 6 months dropped 4 bonds). Output: data/preprocessed/01_master_cleaned.csv. Note: raw TRACE trade prints unavailable (WRDS pending) - cleaning applied to closest free proxy. Documented in docs/REJECTED_SOURCES.md.
@@ -241,16 +241,16 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Define episode-level (not trade-level) calibration/held-out split - complete. Split on ε: calibration ≤ 0.75 (832), validation 0.75–0.85 (104), held-out > 0.85 (104). Real-data split by date in icaif_split column. → data/preprocessed/05_calibration_episodes.csv, 05_heldout_episodes.csv.
 
 ### Model architecture
-- [x] Select architecture for learned operator `T_θ` - settled and implemented in v3: MLP encoder + Gaussian/mixture head over per-bond features, **conditioned on a per-deployment policy summary and fit over a window of deployments** so `d(prediction)/d(summary)` - the learned `dD/dφ` - is identified ([`endo_market_v3/reflex/operator/response_operator.py`](../endo_market_v3/reflex/operator/response_operator.py), `distribution_response`)
-- [x] Implement GLFT/Avellaneda–Stoikov baseline policy - [`endo_market_v3/reflex/policy/glft_baseline.py`](../endo_market_v3/reflex/policy/glft_baseline.py) (closed-form `h_SP` / `h_PO` quoting)
-- [x] Implement PerfGD correction module - analytic 1-D machinery in [`endo_market_v3/reflex/theory/perfgd.py`](../endo_market_v3/reflex/theory/perfgd.py); the *training-loop* correction hooks in [`reflex/equilibrium/optimize_policy.py`](../endo_market_v3/reflex/equilibrium/optimize_policy.py)
-- [x] Implement `N`-dealer multi-agent extension - analytic boundary in [`reflex/theory/multi_dealer.py`](../endo_market_v3/reflex/theory/multi_dealer.py) **plus the genuine shared-pool market** [`reflex/env/multi_dealer.py`](../endo_market_v3/reflex/env/multi_dealer.py) (bit-for-bit single-dealer reduction at `N=1`) and the simulated joint cobweb/probes [`reflex/equilibrium/joint_loop.py`](../endo_market_v3/reflex/equilibrium/joint_loop.py)
-- [x] Implement BR-slope, Sinkhorn, and CKS estimator heads as diagnostics - [`endo_market_v3/reflex/estimators/`](../endo_market_v3/reflex/estimators/)
+- [x] Select architecture for learned operator `T_θ` - settled and implemented in v3: MLP encoder + Gaussian/mixture head over per-bond features, **conditioned on a per-deployment policy summary and fit over a window of deployments** so `d(prediction)/d(summary)` - the learned `dD/dφ` - is identified ([`archive/endo_market_v3/reflex/operator/response_operator.py`](../archive/endo_market_v3/reflex/operator/response_operator.py), `distribution_response`)
+- [x] Implement GLFT/Avellaneda–Stoikov baseline policy - [`archive/endo_market_v3/reflex/policy/glft_baseline.py`](../archive/endo_market_v3/reflex/policy/glft_baseline.py) (closed-form `h_SP` / `h_PO` quoting)
+- [x] Implement PerfGD correction module - analytic 1-D machinery in [`archive/endo_market_v3/reflex/theory/perfgd.py`](../archive/endo_market_v3/reflex/theory/perfgd.py); the *training-loop* correction hooks in [`reflex/equilibrium/optimize_policy.py`](../archive/endo_market_v3/reflex/equilibrium/optimize_policy.py)
+- [x] Implement `N`-dealer multi-agent extension - analytic boundary in [`reflex/theory/multi_dealer.py`](../archive/endo_market_v3/reflex/theory/multi_dealer.py) **plus the genuine shared-pool market** [`reflex/env/multi_dealer.py`](../archive/endo_market_v3/reflex/env/multi_dealer.py) (bit-for-bit single-dealer reduction at `N=1`) and the simulated joint cobweb/probes [`reflex/equilibrium/joint_loop.py`](../archive/endo_market_v3/reflex/equilibrium/joint_loop.py)
+- [x] Implement BR-slope, Sinkhorn, and CKS estimator heads as diagnostics - [`archive/endo_market_v3/reflex/estimators/`](../archive/endo_market_v3/reflex/estimators/)
 
 ### Training and tuning
-- [x] Implement baseline RRM training loop - [`endo_market_v3/reflex/equilibrium/loops.py`](../endo_market_v3/reflex/equilibrium/loops.py) (`run_loop(mode="rrm")`; the v2-compatible `rrm_loop.py` kept as the frozen baseline)
+- [x] Implement baseline RRM training loop - [`archive/endo_market_v3/reflex/equilibrium/loops.py`](../archive/endo_market_v3/reflex/equilibrium/loops.py) (`run_loop(mode="rrm")`; the v2-compatible `rrm_loop.py` kept as the frozen baseline)
 - [x] Implement PerfGD-corrected training loop - `run_loop(mode="perfgd_analytic")` (closed-form surrogate gradient) and `run_loop(mode="perfgd_learned")` (live summary; the operator's learned `dD/dφ` enters the gradient), with per-iteration learned-vs-analytic slope diagnostics
-- [x] Add stability-aware loss penalties (collapse, fragmentation, `m` divergence) - wired into [`reflex/equilibrium/optimize_policy.py`](../endo_market_v3/reflex/equilibrium/optimize_policy.py) via the `stability` config weights (entropy / HHI / toxicity / Lipschitz)
+- [x] Add stability-aware loss penalties (collapse, fragmentation, `m` divergence) - wired into [`reflex/equilibrium/optimize_policy.py`](../archive/endo_market_v3/reflex/equilibrium/optimize_policy.py) via the `stability` config weights (entropy / HHI / toxicity / Lipschitz)
 - [ ] Sweep lazy-deploy `K` and report effect on `γ_eff` (`rrm.rgd_steps` is the knob; the sweep experiment is pending)
 - [ ] Sweep `ε`, `N`, and universe size across multiple seeds for phase diagrams - infrastructure complete (`run_sweep`, `run_dealers`, `run_universe`); **paper-grade full-profile runs pending** (`run_all --profile full`)
 - [ ] Tune Sinkhorn entropic regularization strength

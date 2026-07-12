@@ -22,22 +22,22 @@ best-response contraction modulus `m ≈ εβ/γ`; the loop is stable iff `ε < 
 
 | Path | Status | Notes |
 |------|--------|-------|
-| `endo_market_v3/` | **CURRENT — work here** | The self-contained third generation: package **`reflex`** (un-blinded ML + theory 1.1–1.5 + real-data calibration + all experiments). |
+| `archive/endo_market_v3/` | **CURRENT — work here** | The self-contained third generation: package **`reflex`** (un-blinded ML + theory 1.1–1.5 + real-data calibration + all experiments). |
 | `research/` | Active — the program folder | The research roadmap, the canonical math derivations (`math-theory/`, with LaTeX/PDF), the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v3 ships copies of its outputs), the **executed paper-grade runs** (`results/`), and their written **analyses** (`analysis/`). An extension/application of `endo_market_v3`, not a second implementation. |
 | `literature/literature-vignesh/` | Active reference | 10 foundational papers + reading map; PDFs downloaded. |
 | `literature/literature-raghav/` | Active reference | Superset: same 10 + 8 extension papers (18 total) + research roadmap. |
-| `endo_market_v2/` | **Superseded** | Second generation; its result (the ε* crossing) and modules were absorbed into v3. Keep frozen — don't extend it. |
-| `endo_market_v1/` | **Legacy** | Earliest Python iteration (formerly `endo_market/`). Don't extend it. |
-| `edl_simulator_v1/` | **Legacy prototype** | HTML/JS mockup; the earliest analytical version, superseded. |
+| `archive/endo_market_v2/` | **Superseded** | Second generation; its result (the ε* crossing) and modules were absorbed into v3. Keep frozen — don't extend it. |
+| `archive/endo_market_v1/` | **Legacy** | Earliest Python iteration (formerly `endo_market/`). Don't extend it. |
+| `archive/edl_simulator_v1/` | **Legacy prototype** | HTML/JS mockup; the earliest analytical version, superseded. |
 
 When asked to change "the code" or "the experiment," default to
-`endo_market_v3/` unless the user names an older folder explicitly. v3 is
+`archive/endo_market_v3/` unless the user names an older folder explicitly. v3 is
 deliberately **self-contained**: derivation copies in `theory/`, data copies in
 `data/`, experiments and tests inside the folder.
 
 ## `endo_market_v3` internals (package `reflex`)
 
-Package root: `endo_market_v3/reflex/`. The three strands and where they live:
+Package root: `archive/endo_market_v3/reflex/`. The three strands and where they live:
 
 - **Environment (`env/`)** — `simulator.py` (single-dealer `T_true`),
   `clients.py` (toxic/informed flow; the `toxicity_feedback` gain `ε`),
@@ -55,7 +55,7 @@ Package root: `endo_market_v3/reflex/`. The three strands and where they live:
 - **Theory (`theory/`)** — the five closed-form modules, numpy-only:
   `analytic_boundary` (1.1), `perfgd` (1.2), `multi_dealer` (1.3), `robust`
   (1.4), `factor_scaling` (1.5). Derivation documents ship in
-  `endo_market_v3/theory/` with a code map.
+  `archive/endo_market_v3/theory/` with a code map.
 - **Loops (`equilibrium/`)** — `loops.py` `run_loop(mode=...)`:
   `rrm` (blind baseline) | `perfgd_analytic` (closed-form correction
   `Δ = −β(h−ψ)ε(h)` as a surrogate gradient) | `perfgd_learned` (live summary —
@@ -124,7 +124,7 @@ robust bands), `run_perfgd` (`--ml` for the three-mode loops), `run_dealers`,
   (`GitHub Projects`) — quote paths. Python 3.9 is the system interpreter
   (venv at `.venv/`); the code targets ≥ 3.9.
 
-## Build / test / run (`endo_market_v3/`)
+## Build / test / run (`archive/endo_market_v3/`)
 
 ```
 ../.venv/Scripts/python -m pip install -e .        # or: pip install -e .  (in the venv)
@@ -139,10 +139,10 @@ robust bands), `run_perfgd` (`--ml` for the three-mode loops), `run_dealers`,
 110 tests total across 15 files (the 9 inherited from v2 — simulator, policy,
 operator, rrm-convergence, the five analytic modules — plus `test_glft_baseline`,
 `test_calibration`, `test_fragility`, `test_estimators`, `test_unblinded_operator`,
-`test_perfgd_ml`, `test_multi_dealer_env`). Run from inside `endo_market_v3/`,
+`test_perfgd_ml`, `test_multi_dealer_env`). Run from inside `archive/endo_market_v3/`,
 using the repo venv (`.venv/` at the repo root — system Python has no torch).
 Always run the fast tests after changing the library. See
-`endo_market_v3/README.md` for methodology, layout, and honest caveats.
+`archive/endo_market_v3/README.md` for methodology, layout, and honest caveats.
 
 ## Working with the literature
 
@@ -162,16 +162,16 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   `m = εβ/γ`, 1.2 PerfGD un-blinding, 1.3 multi-dealer `ε < γ/(N_eff·β)`,
   1.4 robust boundary `O(1/√n)`, 1.5 factor scaling), each `.md` with a
   compilable `.tex` twin (PDFs under `latex-papers/`). **Authoritative
-  implementations now live in `endo_market_v3/reflex/theory/`** (copies of the
-  documents ship in `endo_market_v3/theory/`); the older
-  `endo_market_v2/endo_market/analysis/` modules are the frozen originals.
+  implementations now live in `archive/endo_market_v3/reflex/theory/`** (copies of the
+  documents ship in `archive/endo_market_v3/theory/`); the older
+  `archive/endo_market_v2/endo_market/analysis/` modules are the frozen originals.
 - `data_collection/` + `preprocessing/` — the **canonical real-data pipeline**:
   ~36 yrs daily / 70 yrs monthly of *public, verified* macro + bond-factor
   series (CBOE VIX, EIA WTI, Fed H.15 10y, Shiller, gold/CPI,
   Dickerson–Mueller–Robotti TRACE bond factors, 212 real-CUSIP bond returns)
   joined into `REFLEX_MASTER_DATASET.csv`, cleaned/enriched, with fitted
   intensity params per (rating × regime). v3 ships copies of the artifacts it
-  consumes (`endo_market_v3/data/`). **Provenance gotcha (state this plainly
+  consumes (`archive/endo_market_v3/data/`). **Provenance gotcha (state this plainly
   in the paper):** it is *not* trade-level TRACE — `h`, per-dealer `q`, and
   real per-bond `A`/`k` need WRDS TRACE Enhanced (pending); the pipeline uses
   the closest free proxies. See `data_collection/docs/REJECTED_SOURCES.md`.
@@ -181,7 +181,7 @@ from microstructure primitives instead of sweeping it by hand. Structure:
 - `analysis/` — the written analyses of those runs (derived tables, figures,
   predicted-vs-measured breakdowns, honest caveats) plus the pre-run
   measurement-layer audit. The live code/experiments themselves are inside
-  `endo_market_v3/` — this folder is the *application* of that package, not a
+  `archive/endo_market_v3/` — this folder is the *application* of that package, not a
   second implementation.
 
 ## Current phase & next steps

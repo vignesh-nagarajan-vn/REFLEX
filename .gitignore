@@ -14,7 +14,7 @@ Thumbs.db
 .DS_Store
 
 # Run logs (curated copies live in research/results/<run>/logs/)
-endo_market_v3/outputs/*.log
+archive/endo_market_v3/outputs/*.log
 endo_market_v4/outputs/*.log
 
 # Lean build artifacts (endo_market_v4/lean/)

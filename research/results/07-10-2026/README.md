@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Producing code** | commit `815425d` (post-audit measurement layer) for the main suite; the two sweeps are the **clean-protocol rerun** after the jitter fix (audit §1.6), whose code lands in the same commit as these artifacts |
-| **Commands** | `python -u -m experiments.run_all --profile full`; then `python -u -m experiments.run_sweep --config configs/sweep_feedback.yaml` and `... --config configs/sweep_adversariality.yaml` rerun with `collection_jitter = 0.05` (from `endo_market_v3/`, repo venv) |
+| **Commands** | `python -u -m experiments.run_all --profile full`; then `python -u -m experiments.run_sweep --config configs/sweep_feedback.yaml` and `... --config configs/sweep_adversariality.yaml` rerun with `collection_jitter = 0.05` (from `archive/endo_market_v3/`, repo venv) |
 | **Result** | suite **8/8 passed in 9.1 min**; clean sweeps ~4 + ~3 min |
 | **Environment** | Python 3.9.13, torch 2.8.0+cpu, numpy 2.0.2, pandas 2.3.3; Windows 11, CPU only |
 | **Determinism** | every experiment seeded from its config; sweep seeds 0–7 (feedback) / 100–104 (alpha) |
@@ -13,7 +13,7 @@
 Extended per-experiment interpretation:
 [`../../analysis/ANALYSIS-full-2026-07.md`](../../analysis/ANALYSIS-full-2026-07.md).
 
-Contents (artifacts copied verbatim from `endo_market_v3/outputs/`):
+Contents (artifacts copied verbatim from `archive/endo_market_v3/outputs/`):
 
 | Folder | Experiment | Artifacts |
 |--------|-----------|-----------|

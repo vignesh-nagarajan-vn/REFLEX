@@ -43,9 +43,9 @@ reported feature of the mechanism, not a clean linear blow-up.
 > measured crossing is `epsilon* ~ 3.2` against a closed-form prediction of
 > 4.7 (a-priori state) / ~2.8-3.0 (realized state). The v2 *trend* stands; the
 > absolute crossing above was protocol-contaminated. See
-> [`../research/analysis/pre-run-audit-2026-07.md`](../research/analysis/pre-run-audit-2026-07.md)
+> [`../research/analysis/pre-run-audit-2026-07.md`](../../research/analysis/pre-run-audit-2026-07.md)
 > section 1.6 and the clean-protocol results in
-> [`../research/results/07-10-2026/`](../research/results/07-10-2026/).
+> [`../research/results/07-10-2026/`](../../research/results/07-10-2026/).
 
 ### Why epsilon, not alpha, is the clean control
 The naive expectation is that *adversariality* `alpha` drives the transition.

@@ -110,7 +110,7 @@ loop that theory says must diverge can be stabilised in closed form
     |- README.md                    ← this file
     |- CLAUDE.md                    ← orientation and conventions for AI coding agents
     |- LICENSE                      ← Apache License 2.0
-    |- endo_market_v3/              ← CURRENT: the self-contained `reflex` package (see Experiments)
+    |- archive/endo_market_v3/              ← CURRENT: the self-contained `reflex` package (see Experiments)
     |  |- README.md                 ← methodology, the five pillars, quickstart, honest caveats
     |  |- theory/                   ← the five derivations (shipped copies) + code map
     |  |- data/                     ← calibration CSVs + daily master panel (provenance notes)
@@ -132,9 +132,9 @@ loop that theory says must diverge can be stabilised in closed form
     |  |- preprocessing/            ← cleaning, calibration fit (A,k), episode splits
     |  |- results/                  ← executed paper-grade runs (07-10-2026: artifacts + REPORT)
     |  \- analysis/                 ← written analyses of those runs (tables, figures, breakdowns)
-    |- endo_market_v2/              ← superseded second generation (result absorbed into v3)
-    |- endo_market_v1/              ← earliest Python iteration (formerly endo_market/)
-    \- edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
+    |- archive/endo_market_v2/              ← superseded second generation (result absorbed into v3)
+    |- archive/endo_market_v1/              ← earliest Python iteration (formerly endo_market/)
+    \- archive/edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
 
 ## Experiments
 
@@ -225,10 +225,10 @@ Run everything with `python -m experiments.run_all --profile smoke|full`
 | `run_triangulation` | Three independent `ε` estimators (BR-slope / Sinkhorn / CKS) vs the closed form | 1.1 |
 | `run_single` | One outer loop in any mode with seam diagnostics | - |
 
-See [`endo_market_v3/README.md`](endo_market_v3/README.md) for methodology,
+See [`archive/endo_market_v3/README.md`](archive/endo_market_v3/README.md) for methodology,
 layout, install/run and honest caveats. Prior generations: `endo_market_v2`'s
 historical headline result (and its post-audit correction) lives in
-[`endo_market_v2/README.md`](endo_market_v2/README.md).
+[`archive/endo_market_v2/README.md`](archive/endo_market_v2/README.md).
 
 ## Literature
 
@@ -263,7 +263,7 @@ Where the simulator *measures* the stability boundary by sweeping, the
 in closed form** from the simulator's own microstructure primitives - then verifies
 each derivation against the code. All five priorities are **derived *and*
 implemented** as dependency-light closed-form modules - authoritative versions in
-[`endo_market_v3/reflex/theory/`](endo_market_v3/reflex/theory/) (originals frozen
+[`archive/endo_market_v3/reflex/theory/`](archive/endo_market_v3/reflex/theory/) (originals frozen
 in `endo_market_v2`), each with tests:
 
 | # | Result | Key object | Novelty |
@@ -308,7 +308,7 @@ proxied from the closest free sources. See
 [`data_collection/docs/REJECTED_SOURCES.md`](research/data_collection/docs/REJECTED_SOURCES.md).
 
 `endo_market_v3` **ships copies** of the artifacts it consumes
-([`endo_market_v3/data/`](endo_market_v3/data/)) so the package is
+([`archive/endo_market_v3/data/`](archive/endo_market_v3/data/)) so the package is
 self-contained; regenerate everything from public sources with the pipeline's
 four scripts.
 
@@ -320,9 +320,9 @@ Every document in the project and where it lives:
 |----------|----------------|
 | [`README.md`](README.md) | This file: the project overview |
 | [`CLAUDE.md`](CLAUDE.md) | Orientation and conventions for AI coding agents (layout, gotchas, build/test/run) |
-| [`endo_market_v3/README.md`](endo_market_v3/README.md) | The current package: methodology, the five pillars, quickstart, honest caveats |
-| [`endo_market_v3/theory/README.md`](endo_market_v3/theory/README.md) | Code map from the five derivations to `reflex.theory` (+ shipped derivation copies) |
-| [`endo_market_v3/data/README.md`](endo_market_v3/data/README.md) | Provenance of the shipped calibration artifacts |
+| [`archive/endo_market_v3/README.md`](archive/endo_market_v3/README.md) | The current package: methodology, the five pillars, quickstart, honest caveats |
+| [`archive/endo_market_v3/theory/README.md`](archive/endo_market_v3/theory/README.md) | Code map from the five derivations to `reflex.theory` (+ shipped derivation copies) |
+| [`archive/endo_market_v3/data/README.md`](archive/endo_market_v3/data/README.md) | Provenance of the shipped calibration artifacts |
 | [`research/README.md`](research/README.md) | The full research-program methodology and the To-Do checklist (incl. ICAIF requirements) |
 | [`research/math-theory/README.md`](research/math-theory/README.md) | The five canonical derivations 1.1–1.5 (each `.md` + compilable `.tex` + PDF) |
 | [`research/data_collection/README.md`](research/data_collection/README.md) | Dataset sources and construction; `docs/` holds `DATA_CATALOGUE.md`, `VERIFICATION_LOG.md`, `REJECTED_SOURCES.md` |
@@ -335,9 +335,9 @@ Every document in the project and where it lives:
 | [`research/analysis/pre-run-audit-2026-07.md`](research/analysis/pre-run-audit-2026-07.md) | The measurement-layer audit: six defects, root causes, fixes, reframings |
 | [`literature/literature-vignesh/README.md`](literature/literature-vignesh/README.md) | 10 foundational papers, reading map, per-paper notes (+ `references.bib`) |
 | [`literature/literature-raghav/README.md`](literature/literature-raghav/README.md) | 18 papers with critical reading notes + research roadmap (+ `references.bib`) |
-| [`endo_market_v2/README.md`](endo_market_v2/README.md) | The superseded second generation: mechanism, historical headline result + post-audit note |
-| [`endo_market_v1/README.md`](endo_market_v1/README.md) | The legacy first Python iteration |
-| [`edl_simulator_v1/README.md`](edl_simulator_v1/README.md) | The earliest analytical prototype (HTML/JS) |
+| [`archive/endo_market_v2/README.md`](archive/endo_market_v2/README.md) | The superseded second generation: mechanism, historical headline result + post-audit note |
+| [`archive/endo_market_v1/README.md`](archive/endo_market_v1/README.md) | The legacy first Python iteration |
+| [`archive/edl_simulator_v1/README.md`](archive/edl_simulator_v1/README.md) | The earliest analytical prototype (HTML/JS) |
 
 ## Status and next steps
 
@@ -353,11 +353,11 @@ found and fixed; 110/110 tests); the paper-grade full-profile suite executed
 [`research/results/07-10-2026/`](research/results/07-10-2026/) and
 [`research/analysis/`](research/analysis/).
 
-- [x] **Analytic boundary (P1):** `γ`, `β`, `dτ/dh` in closed form ([`reflex/theory/analytic_boundary.py`](endo_market_v3/reflex/theory/analytic_boundary.py)); the three-way `ε` triangulation built and verified against the realized-state closed form ([`reflex/estimators/`](endo_market_v3/reflex/estimators/)).
-- [x] **Un-blind the operator (P2):** PerfGD-corrected loops with the analytic **and** learned `dD/dφ` ([`reflex/theory/perfgd.py`](endo_market_v3/reflex/theory/perfgd.py), [`reflex/equilibrium/loops.py`](endo_market_v3/reflex/equilibrium/loops.py)); closed form verified, loop-level stabilisation an open gap.
-- [x] **Multi-dealer / systemic risk (P3):** PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, and a genuine `N`-dealer market with amplification verified ([`reflex/theory/multi_dealer.py`](endo_market_v3/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](endo_market_v3/reflex/env/multi_dealer.py)).
-- [x] **Robust uncertainty (P4):** robust `ε*` with `O(1/√n)` radius; bands + certificates on every sweep ([`reflex/theory/robust.py`](endo_market_v3/reflex/theory/robust.py)).
-- [x] **Scale and calibrate (P5):** 128 correlated bonds via `O(d·k²)` Woodbury with data-calibrated per-bond σ; regime-calibrated microstructure ([`reflex/theory/factor_scaling.py`](endo_market_v3/reflex/theory/factor_scaling.py), [`reflex/calibration/`](endo_market_v3/reflex/calibration/)); trade-level TRACE calibration pending WRDS access.
+- [x] **Analytic boundary (P1):** `γ`, `β`, `dτ/dh` in closed form ([`reflex/theory/analytic_boundary.py`](archive/endo_market_v3/reflex/theory/analytic_boundary.py)); the three-way `ε` triangulation built and verified against the realized-state closed form ([`reflex/estimators/`](archive/endo_market_v3/reflex/estimators/)).
+- [x] **Un-blind the operator (P2):** PerfGD-corrected loops with the analytic **and** learned `dD/dφ` ([`reflex/theory/perfgd.py`](archive/endo_market_v3/reflex/theory/perfgd.py), [`reflex/equilibrium/loops.py`](archive/endo_market_v3/reflex/equilibrium/loops.py)); closed form verified, loop-level stabilisation an open gap.
+- [x] **Multi-dealer / systemic risk (P3):** PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, and a genuine `N`-dealer market with amplification verified ([`reflex/theory/multi_dealer.py`](archive/endo_market_v3/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](archive/endo_market_v3/reflex/env/multi_dealer.py)).
+- [x] **Robust uncertainty (P4):** robust `ε*` with `O(1/√n)` radius; bands + certificates on every sweep ([`reflex/theory/robust.py`](archive/endo_market_v3/reflex/theory/robust.py)).
+- [x] **Scale and calibrate (P5):** 128 correlated bonds via `O(d·k²)` Woodbury with data-calibrated per-bond σ; regime-calibrated microstructure ([`reflex/theory/factor_scaling.py`](archive/endo_market_v3/reflex/theory/factor_scaling.py), [`reflex/calibration/`](archive/endo_market_v3/reflex/calibration/)); trade-level TRACE calibration pending WRDS access.
 - [x] **Paper-grade full-profile runs → curated results:** executed July 10, 2026 after the measurement-layer audit; artifacts + [`REPORT.md`](research/results/07-10-2026/REPORT.md) in [`research/results/07-10-2026/`](research/results/07-10-2026/), analysis in [`research/analysis/`](research/analysis/).
 - [ ] **Write the ICAIF 2026 paper** (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026). Scoping is settled in the analysis: closed forms + real-data fragility + probe-level verifications are the headline; loop-level PerfGD stabilisation is reported as a diagnosed open gap, not a claim.
 - [ ] **(Stretch) close the loop-level gap:** make the corrected *learned* loop find `h_PO` (operator architectures anchored to the GLFT structural form; bias-compensating corrections; stability-penalty regularisation against the echo-chamber collapse).

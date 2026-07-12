@@ -21,7 +21,7 @@ Conventions:
 
 - Every run folder records the **git commit** of the code that produced it and
   the exact commands; runs are deterministic from `(config, seed)`.
-- Raw artifacts are copied verbatim from `endo_market_v3/outputs/`; nothing is
+- Raw artifacts are copied verbatim from `archive/endo_market_v3/outputs/`; nothing is
   post-processed inside `results/`. Derived tables/figures and the written
   interpretation live in [`../analysis/`](../analysis/).
 - The fragility index, calibrated a-priori boundaries and universe scaling are

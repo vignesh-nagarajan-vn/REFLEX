@@ -26,7 +26,7 @@ competing dealers who share a common informed-flow pool, and derives:
 The single-dealer modulus `m_1 = epsilon*beta/gamma` of 1.1 is the building block;
 *every* constant below is one of 1.1's closed forms, so this lift requires **no new
 estimation** -- only the `N`-dealer linear algebra. The companion *code* --
-[`analysis/multi_dealer_modulus.py`](../../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py),
+[`analysis/multi_dealer_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/multi_dealer_modulus.py),
 the closed-form boundary, the joint cobweb, and the common-mode / anti-phase probes --
 is now implemented (§10).
 
@@ -561,7 +561,7 @@ then predict `m_N = N_eff*m_1`, the boundary `epsilon < gamma/(N_eff*beta)`, and
 the critical count `N_c = 1/m_1`.
 
 **Measure -- the common-mode BR-slope probe.** The natural multi-dealer
-generalisation of [`response_modulus.py`](../../endo_market_v2/endo_market/analysis/response_modulus.py)'s
+generalisation of [`response_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py)'s
 common-random-number finite difference is to perturb **all `N` deployed spreads in
 phase** (along the unstable eigenvector `1`) and read off the joint best response:
 
@@ -586,7 +586,7 @@ figure: competitive quoting destabilises the market a factor `N_eff` before any
 single dealer's loop would.
 
 **Code (DONE).** Implemented in
-[`analysis/multi_dealer_modulus.py`](../../endo_market_v2/endo_market/analysis/multi_dealer_modulus.py),
+[`analysis/multi_dealer_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/multi_dealer_modulus.py),
 with the config fields `clients.n_dealers` and `clients.toxic_spillover` added
 (defaults `1` / `0.0`, reproducing `endo_market_v2` exactly). `multi_dealer_boundary`
 returns the closed-form `m_N`, `gamma_joint`, `N_c` and boundary; `joint_jacobian`

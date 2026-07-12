@@ -12,7 +12,7 @@ not a claim. We
    the **parametric rate** `|epsilon_hat_n - epsilon| = O_p(1/sqrt(n))` -- and,
    crucially, that this rate hinges on the **common-random-numbers (CRN)**
    construction already in
-   [`response_modulus.py`](../../endo_market_v2/endo_market/analysis/response_modulus.py):
+   [`response_modulus.py`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py):
    a *naive* finite difference only achieves `O(n^{-1/3})` (§2);
 2. build an **ambiguity set** `U_n` of radius `delta_n = O(1/sqrt(n))` around the
    estimate, as the `epsilon`-ball fit from cross-seed variance and, equivalently,
@@ -32,7 +32,7 @@ not a claim. We
 
 Every constant is inherited from 1.1/1.3; the new content is the *statistics* of
 the existing estimator. The companion *code* --
-[`analysis/robust_boundary.py`](../../endo_market_v2/endo_market/analysis/robust_boundary.py),
+[`analysis/robust_boundary.py`](../../archive/endo_market_v2/endo_market/analysis/robust_boundary.py),
 the cross-seed variance harness, the certificate, and the sample-complexity /
 log-log rate checks -- is now implemented (§8); the optional Sinkhorn `epsilon`
 estimator remains the one deferred item.
@@ -419,7 +419,7 @@ gamma/beta`, and hence `Delta`; predict `delta_n = z*sigma_eps/sqrt(n)`,
 `epsilon*_rob = epsilon* - delta_n`, and `n_req = (z*sigma_eps/Delta)^2`.
 
 **Measure.** For each `n` in a geometric grid and `S` seeds, run
-[`measure_response_modulus`](../../endo_market_v2/endo_market/analysis/response_modulus.py),
+[`measure_response_modulus`](../../archive/endo_market_v2/endo_market/analysis/response_modulus.py),
 form `ebar`, `s_eps`, and `delta_n = z_{1-a} s_eps` (§3.1). Repeat across the
 `sweep_feedback.yaml` grid.
 
@@ -437,7 +437,7 @@ Report the phase diagram with the nominal boundary, the robust boundary, and the
 requires (and the ICAIF "uncertainty bands across seeds" line item).
 
 **Code (DONE).** Implemented in
-[`analysis/robust_boundary.py`](../../endo_market_v2/endo_market/analysis/robust_boundary.py):
+[`analysis/robust_boundary.py`](../../archive/endo_market_v2/endo_market/analysis/robust_boundary.py):
 `empirical_radius` fits the cross-seed radius `delta_n = z*s`; `robust_certificate`
 returns the `(mean, delta_n, epsilon*_rob, verdict in {stable, unstable, undecided})`
 with the structural floor `eta_mod` (§6.2); `sample_complexity` gives
