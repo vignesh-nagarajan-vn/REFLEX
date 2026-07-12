@@ -7,17 +7,32 @@ A machine learning framework for markets where the data distribution is not fixe
 REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed point where the market dynamics induced by a trading policy are stable under repeated interaction with that same policy.
 
 **What this folder is.** The research program built *around* the
-[`endo_market_v3`](../archive/endo_market_v3/) `reflex` package - the extension and
-application of that code, not a second implementation. Four pieces:
+[`endo_market_v4`](../endo_market_v4/) `reflex` package - the extension and
+application of that code, not a second implementation. (Generations v1-v3 are
+frozen in [`../archive/`](../archive/); the 07-10-2026 paper-grade run was
+executed by v3 and its artifacts cite v3 commits, while the 07-12-2026 run is
+v4's.) Four pieces:
 
 | Subfolder | Contents |
 |-----------|----------|
-| [`math-theory/`](math-theory/) | The canonical closed-form derivations 1.1–1.5 (each `.md` with a compilable `.tex` twin; authoritative *implementations* live in `archive/endo_market_v3/reflex/theory/`) |
-| [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `archive/endo_market_v3/data/` ships copies of its outputs) |
+| [`math-theory/`](math-theory/) | The canonical closed-form derivations 1.1–1.6 (each `.md` with a compilable `.tex` twin; authoritative *implementations* live in [`../endo_market_v4/reflex/theory/`](../endo_market_v4/reflex/theory/)) |
+| [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `../endo_market_v4/data/` ships copies of its outputs) |
 | [`results/`](results/) | Executed paper-grade experiment runs against those datasets (per-experiment artifacts + logs) |
 | [`analysis/`](analysis/) | Written analyses of those runs - tables, figures, predicted-vs-measured breakdowns, honest caveats |
 
-> **Status note.** What is *done*: the literature review (18 papers, see `references.bib`); the five analytic derivations 1.1–1.5 (derived in closed form, implemented and tested); the real-market calibration dataset (`data_collection/`, `preprocessing/`, verified against known historical values); and - as of `endo_market_v3` (the **`reflex`** package) - the integrated system: un-blinded operator (learned `dD/dφ`), PerfGD-corrected training loops (analytic + learned), a genuine `N`-dealer market, the three-way `ε`-estimator triangulation, regime-calibrated configs, and the daily 1990–2026 **market-fragility index**, all running end to end (110 tests; 9 experiments smoke-verified 8/8). What is *not yet done*: the **paper-grade full-profile runs** (`run_all --profile full`: many-seed sweeps with median + IQR bands, measured crossings vs predictions), curating those results into `results/`, and writing the ICAIF 2026 paper. Smoke-profile ML artifacts prove the pipeline, not the science; the fragility index, calibrated a-priori boundaries and factor-scaling results are already full-fidelity (closed forms on real data).
+> **Status note (July 2026, v4).** The repo side of the program is
+> **complete**: the six analytic derivations 1.1–1.6 (derived, implemented,
+> tested); the real-market calibration dataset; the integrated `reflex`
+> package with the un-blinded operator, the four training-loop modes
+> (including `perfgd_structural`, which closes the v3 loop-level gap by
+> anchoring the learned response to the GLFT structural form), the genuine
+> `N`-dealer market, the tuned three-way `ε` triangulation, the daily
+> 1990–2026 **market-fragility index**, and the verification layer
+> (numerical proof certificates + Lean 4 skeletons) - 152 tests, 11
+> experiments. Paper-grade full-profile runs are executed and curated in
+> [`results/`](results/) (v3: `07-10-2026`; v4: `07-12-2026`) with analyses
+> in [`analysis/`](analysis/). What remains is the **paper**: writing and
+> submitting to ICAIF 2026 (see the To-Do's ICAIF section).
 
 ## What it does
 
@@ -39,7 +54,7 @@ This section lays out, in order, every component of the research program: the ma
 
 ### 1. Mathematical contributions
 
-The project's novelty claim is that the performativity stability boundary for a structural market model can be derived analytically from microstructure primitives, rather than assumed or empirically swept. This decomposes into five concrete mathematical targets, ordered by priority.
+The project's novelty claim is that the performativity stability boundary for a structural market model can be derived analytically from microstructure primitives, rather than assumed or empirically swept. This decomposes into six concrete mathematical targets: the five ordered priorities below plus the v4 lazy-deployment addendum (1.6).
 
 **1.1 - Analytic stability boundary (Priority 1) - STATUS: DONE.** The closed-form
 derivation of `γ`, `β`, `ε` and the boundary `ε < γ/β` is complete and written up
@@ -157,6 +172,22 @@ Target: extend the phase diagram from a single bond/single dealer to 100+ correl
 - Derive the dimensionality-reduction error bound as a function of residual factor variance.
 - Produce a publication-grade phase diagram with tight median + IQR bands across the bond universe.
 
+**1.6 - Lazy deployment (v4 addendum) - STATUS: DONE.** The last open training
+question - what `K` inner gradient steps per deployment (`rrm.rgd_steps`) do
+to the effective loop - is derived in
+[`math-theory/06-lazy-deployment.md`](math-theory/06-lazy-deployment.md) and
+implemented in
+[`../endo_market_v4/reflex/theory/lazy_deploy.py`](../endo_market_v4/reflex/theory/lazy_deploy.py).
+The K-step outer map has slope `mu(K) = -m + c^K·(1+m)` (a convex combination
+of "do nothing" and the exact cobweb, weight `lam_K = 1 - c^K`): laziness can
+deadbeat the loop at finite `K`, keeps an RRM-unstable market (`m > 1`) stable
+for all `K ≤ K_max` (the quantitative RGD-beats-RRM statement), and - read
+through the plain-RRM identity - manifests as a two-branch **effective
+curvature** `gamma_eff(K) = γ·m/|mu(K)|` (inertia below the equal-modulus
+count, extra stiffness above it, diverging at the deadbeat count). Verified by
+the signed CRN K-step probe + one-parameter `c`-fit
+(`experiments/run_lazy_deploy.py`); tests in `tests/test_lazy_deploy.py`.
+
 ### 2. Data collection and potential sources
 
 Two data needs are distinct and should not be conflated: (a) data to calibrate realistic microstructure parameters (`k`, `A`, `σ`, inventory dynamics), and (b) data/simulation needed to empirically measure `ε`, `m`, and the stability boundary across regimes.
@@ -226,6 +257,7 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Verify `O(1/√n)` shrinkage of the robust radius with simulation sample size - [`robust_boundary.py`](../archive/endo_market_v2/endo_market/analysis/robust_boundary.py) `rate_check` / `loglog_rate` (log-log slope check; CRN gives the parametric rate) and `sample_complexity` (`n_req = O(Δ^{−2})`)
 - [x] Extend to 100+ correlated bonds via factor-model reduction (Priority 5) - derived in [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §2–§4 and implemented in [`archive/endo_market_v2/endo_market/analysis/factor_reduction.py`](../archive/endo_market_v2/endo_market/analysis/factor_reduction.py) (modulus matrix `M = β·Γ⁻¹·E`, `O(d·k²)` Woodbury reduction, duration-calibrated `σ_i`)
 - [x] Derive and report the dimensionality-reduction error bound - [`math-theory/05-factor-model-scaling.md`](math-theory/05-factor-model-scaling.md) §5 (Theorem 1: `|ρ(M) − ρ(M_k)| = O(λ_{k+1}(C))`), implemented as [`factor_reduction.py`](../archive/endo_market_v2/endo_market/analysis/factor_reduction.py) `truncation_error_bound`
+- [x] Derive the lazy-deployment K-step map and effective curvature (v4 addendum 1.6) - [`math-theory/06-lazy-deployment.md`](math-theory/06-lazy-deployment.md) (`mu(K) = -m + c^K(1+m)`, deadbeat / max-stable K, two-branch `gamma_eff`), implemented in [`../endo_market_v4/reflex/theory/lazy_deploy.py`](../endo_market_v4/reflex/theory/lazy_deploy.py) with the signed CRN probe and `c`-fit
 
 ### Data collection
 - [x] Decide: real TRACE-calibrated parameters vs. fully synthetic microstructure - hybrid approach adopted; regime-level params grounded in real data (data/processed/reflex_I_calibration_params.csv), trade-level microstructure simulator-generated pending TRACE access (docs/REJECTED_SOURCES.md)
@@ -251,12 +283,12 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 - [x] Implement baseline RRM training loop - [`archive/endo_market_v3/reflex/equilibrium/loops.py`](../archive/endo_market_v3/reflex/equilibrium/loops.py) (`run_loop(mode="rrm")`; the v2-compatible `rrm_loop.py` kept as the frozen baseline)
 - [x] Implement PerfGD-corrected training loop - `run_loop(mode="perfgd_analytic")` (closed-form surrogate gradient) and `run_loop(mode="perfgd_learned")` (live summary; the operator's learned `dD/dφ` enters the gradient), with per-iteration learned-vs-analytic slope diagnostics
 - [x] Add stability-aware loss penalties (collapse, fragmentation, `m` divergence) - wired into [`reflex/equilibrium/optimize_policy.py`](../archive/endo_market_v3/reflex/equilibrium/optimize_policy.py) via the `stability` config weights (entropy / HHI / toxicity / Lipschitz)
-- [ ] Sweep lazy-deploy `K` and report effect on `γ_eff` (`rrm.rgd_steps` is the knob; the sweep experiment is pending)
-- [ ] Sweep `ε`, `N`, and universe size across multiple seeds for phase diagrams - infrastructure complete (`run_sweep`, `run_dealers`, `run_universe`); **paper-grade full-profile runs pending** (`run_all --profile full`)
-- [ ] Tune Sinkhorn entropic regularization strength
-- [ ] Tune ambiguity-set radius for robust stability point
+- [x] Sweep lazy-deploy `K` and report effect on `γ_eff` - complete (v4): closed form derived in [`math-theory/06-lazy-deployment.md`](math-theory/06-lazy-deployment.md) (`mu(K) = -m + c^K(1+m)`; the two-branch `gamma_eff(K) = γ·m/|mu(K)|`), implemented in [`../endo_market_v4/reflex/theory/lazy_deploy.py`](../endo_market_v4/reflex/theory/lazy_deploy.py), swept via the signed CRN K-step probe in [`../endo_market_v4/experiments/run_lazy_deploy.py`](../endo_market_v4/experiments/run_lazy_deploy.py) (artifacts `lazy_deploy_sweep.csv` / `lazy_deploy_gamma_eff.png`; the measured `mu_hat(K)` curve fits the one-parameter closed form)
+- [x] Sweep `ε`, `N`, and universe size across multiple seeds for phase diagrams - complete: `run_sweep`, `run_dealers`, `run_universe` executed at paper grade in the full-profile runs curated under [`results/`](results/) (v3: `07-10-2026`, 8/8; v4: `07-12-2026`, 11/11 including the new experiments)
+- [x] Tune Sinkhorn entropic regularization strength - complete (v4): the blur is tuned against the exact 1-D quantile `W1` on a *scale-relative* grid (`../endo_market_v4/reflex/estimators/sinkhorn.py: tune_sinkhorn_reg`); the measured bias curve is U-shaped at the fixed iteration budget with its minimum at `TUNED_REL_REG = 0.02` (baked in; `estimate_epsilon_sinkhorn(reg="auto")`), validated in `experiments/run_tuning.py` + `tests/test_tuning.py`
+- [x] Tune ambiguity-set radius for robust stability point - complete (v4): `calibrate_radius` (`../endo_market_v4/reflex/theory/robust.py`) puts a distribution-free one-sided quantile radius + bootstrap coverage next to `z*s`; measured verdict: `z*s` is conservative (over-covers) for normal and even symmetric heavy-tailed estimates, and the calibrated `max(z*s, quantile)` radius matters exactly for contaminated / railed-probe patterns; `robust_boundary(radius_method="calibrated")` applies it end to end (`run_tuning` artifacts `radius_calibration.csv` / `estimator_tuning.png`)
 - [x] Report median + IQR bands (not single-seed point estimates) for all phase diagrams - built into `run_sweep` (median + IQR + the 1.4 robust bands per grid point); applies to every full-profile run
-- [ ] Include LEAN validation (justification for all mathematical proofs)
+- [x] Include LEAN validation (justification for all mathematical proofs) - complete (v4), as a two-half verification layer: **numerical proof certificates** ([`../endo_market_v4/reflex/verification/certificates.py`](../endo_market_v4/reflex/verification/certificates.py); 66 checks re-deriving every load-bearing identity/inequality/dynamical claim of 1.1-1.6 numerically, run on raw *and* calibrated real-unit configs via `experiments/run_certificates.py`, part of the test suite) plus **Lean 4 formalisations of the logical skeletons** ([`../endo_market_v4/lean/`](../endo_market_v4/lean/): cobweb convergence/divergence, echo-chamber separation + gap direction, the N_eff eigen-identity + boundary algebra, robust-certificate soundness, the complete 1.6 algebra). Honest status: the Lean files are reviewed formal statements written against mathlib4 v4.11.0 but **not yet compiled** (no Lean toolchain in the dev environment) - the certificates are the verification of record; see `lean/README.md`
 
 ### ICAIF-specific submission requirements
 - [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references

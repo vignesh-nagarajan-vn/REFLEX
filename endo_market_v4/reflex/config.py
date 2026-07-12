@@ -1,4 +1,4 @@
-"""Configuration schema and loading for the reflex (endo_market_v3) package.
+"""Configuration schema and loading for the reflex (endo_market_v4) package.
 
 The whole project is driven by a single nested :class:`Config` dataclass that is
 populated from a YAML file (plus optional overrides).  Keeping configuration in

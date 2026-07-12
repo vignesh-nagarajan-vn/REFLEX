@@ -1,6 +1,6 @@
 """Load the shipped real-data calibration artifacts.
 
-The package ships (under ``endo_market_v3/data/``) small, verified extracts of
+The package ships (under ``endo_market_v4/data/``) small, verified extracts of
 the REFLEX data pipeline (``research/{data_collection,preprocessing}``):
 
 * ``calibration/03_fitted_intensity_params.csv`` -- the exponential-intensity
@@ -36,7 +36,7 @@ RATINGS = ("IG", "HY")
 
 
 def default_data_dir() -> Path:
-    """The ``data/`` directory shipped inside ``endo_market_v3/``."""
+    """The ``data/`` directory shipped inside ``endo_market_v4/``."""
     return Path(__file__).resolve().parents[2] / "data"
 
 
@@ -45,7 +45,7 @@ def _resolve(data_dir: Optional[Union[str, Path]]) -> Path:
     if not d.exists():
         raise FileNotFoundError(
             f"calibration data directory not found: {d} -- pass data_dir explicitly "
-            "or run from a checkout that ships endo_market_v3/data/"
+            "or run from a checkout that ships endo_market_v4/data/"
         )
     return d
 

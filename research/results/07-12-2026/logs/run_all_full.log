@@ -1,0 +1,331 @@
+### REFLEX v4 experiment suite -- profile: full (11 experiments) ###
+
+
+========================================================================
+### [certificates] python -m experiments.run_certificates --config configs/default.yaml --outdir outputs
+========================================================================
+
+--- certificates on configs/default.yaml ---
+  [PASS] 1.1 analytic boundary (5 checks; worst: cobweb_step_linearisation)
+  [PASS] 1.2 PerfGD identities (4 checks; worst: gamma_po_curvature_identity_lq0)
+  [PASS] 1.2 PerfGD dynamics (raw-unit demo) (4 checks; worst: corrected_ascent_reaches_h_po)
+  [PASS] 1.3 multi-dealer (6 checks; worst: spectral_radius_is_common_mode)
+  [PASS] 1.4 robust boundary (7 checks; worst: parametric_rate_slope_minus_half)
+  [PASS] 1.5 factor scaling (3 checks; worst: assembled_rho_equals_dense_eigensolve)
+  [PASS] 1.6 lazy deployment (6 checks; worst: deadbeat_zeroes_mu)
+
+--- certificates on calibrated IG/normal (real units) ---
+  [PASS] 1.1 analytic boundary (5 checks; worst: cobweb_step_linearisation)
+  [PASS] 1.2 PerfGD identities (4 checks; worst: gamma_po_curvature_identity_lq0)
+  [PASS] 1.3 multi-dealer (6 checks; worst: spectral_radius_is_common_mode)
+  [PASS] 1.4 robust boundary (7 checks; worst: parametric_rate_slope_minus_half)
+  [PASS] 1.5 factor scaling (3 checks; worst: assembled_rho_equals_dense_eigensolve)
+  [PASS] 1.6 lazy deployment (6 checks; worst: deadbeat_zeroes_mu)
+
+saved 66 checks (66 passed) -> outputs\certificates.csv
+ALL CERTIFICATES PASS
+### [certificates] OK (0s)
+
+========================================================================
+### [fragility] python -m experiments.run_fragility --outdir outputs
+========================================================================
+=== fragility index (IG) ===
+          h_decimal       A     gamma  epsilon_at_h  modulus_at_h  eps_star  fragility
+regime                                                                                
+calm          0.004  14.283  1207.725      1019.976         0.847  1207.725      0.602
+normal        0.005  11.084   739.241       640.887         0.870   739.241      0.984
+elevated      0.007   8.386   594.440       305.028         0.520   594.440      1.224
+stress        0.010   5.976   477.319       104.827         0.223   477.319      1.524
+crisis        0.012   3.409   275.891        38.379         0.139   275.891      2.637
+saved -> outputs\fragility_index_IG_daily.csv
+saved -> outputs\fragility_index_IG_by_regime.csv
+
+=== fragility index (HY) ===
+          h_decimal      A   gamma  epsilon_at_h  modulus_at_h  eps_star  fragility
+regime                                                                             
+calm          0.010  2.142  93.540        55.557         0.592    93.540      0.643
+normal        0.013  1.663  61.340        34.461         0.563    61.340      0.981
+elevated      0.018  1.258  45.927        16.627         0.367    45.927      1.310
+stress        0.028  0.896  35.639         5.727         0.163    35.639      1.689
+crisis        0.034  0.511  21.760         1.972         0.091    21.760      2.766
+saved -> outputs\fragility_index_HY_daily.csv
+saved -> outputs\fragility_index_HY_by_regime.csv
+
+IG fragility peak: 2.64 on 2008-10-06 (regime=crisis, VIX=52.0)
+saved figure -> outputs\fragility_index.png
+### [fragility] OK (1s)
+
+========================================================================
+### [calibrated] python -m experiments.run_calibrated --outdir outputs --measure --seeds 3
+========================================================================
+rating    regime    h_obs       h*     gamma      eps*  m_pred
+    IG      calm    0.374    0.436    465.27    465.27   0.066  m_meas=0.000
+    IG    normal    0.477    0.558    268.02    268.02   0.066  m_meas=0.000
+    IG  elevated    0.683    0.794    147.27    147.27   0.066  m_meas=0.038
+    IG    stress    1.051    1.207     70.57     70.57   0.067  m_meas=1.631
+    IG    crisis    1.233    1.472     34.55     34.55   0.065  [degenerate k fit]
+    HY      calm    1.030    1.183     28.32     28.32   0.067
+    HY    normal    1.331    1.535     16.18     16.18   0.066
+    HY  elevated    1.882    2.159      9.06      9.06   0.066
+    HY    stress    2.896    3.275      4.65      4.65   0.066
+    HY    crisis    3.493    4.169      2.17      2.17   0.055  [degenerate k fit]
+saved table -> outputs\calibrated_boundaries.csv
+saved figure -> outputs\calibrated_boundaries.png
+### [calibrated] OK (106s)
+
+========================================================================
+### [universe] python -m experiments.run_universe --outdir outputs
+========================================================================
+per-bond sigma dispersion rel_disp = 0.800  [data (per-bond vol CV)]
+=== rho(M) across universe sizes (calibrated sigma dispersion) ===
+  d=   8: rho(M)=0.4990  scalar-max m=0.5017  market-alignment=0.21  (0.00s)
+  d=  16: rho(M)=0.5014  scalar-max m=0.5017  market-alignment=0.00  (0.00s)
+  d=  32: rho(M)=0.5014  scalar-max m=0.5017  market-alignment=0.00  (0.00s)
+  d=  64: rho(M)=0.5014  scalar-max m=0.5017  market-alignment=0.00  (0.01s)
+  d= 128: rho(M)=0.5014  scalar-max m=0.5017  market-alignment=0.00  (0.12s)
+saved scaling table -> outputs\universe_scaling.csv
+
+=== factor-truncation error at d=128 ===
+  k= 1: residual lambda_(k+1)=28.4583  bound=1.81991  measured=0.00017
+  k= 2: residual lambda_(k+1)=0.3000  bound=0.01919  measured=0.00000
+  k= 4: residual lambda_(k+1)=0.3000  bound=0.01919  measured=0.00001
+  k= 8: residual lambda_(k+1)=0.3000  bound=0.01919  measured=0.00002
+saved truncation table -> outputs\universe_truncation.csv
+saved figure -> outputs\universe_scaling.png
+### [universe] OK (1s)
+
+========================================================================
+### [perfgd] python -m experiments.run_perfgd --config configs/default.yaml --outdir outputs --ml --iters 10
+========================================================================
+=== closed-form scan: RRM modulus & echo-chamber gap vs feedback gain ===
+  f= 0.50: m_rrm= 0.065 h_SP=1.568 h_PO=1.484 gap=+0.0845 stable
+  f= 1.00: m_rrm= 0.124 h_SP=1.611 h_PO=1.450 gap=+0.1611 stable
+  f= 1.50: m_rrm= 0.177 h_SP=1.649 h_PO=1.418 gap=+0.2310 stable
+  f= 2.00: m_rrm= 0.225 h_SP=1.684 h_PO=1.390 gap=+0.2946 stable
+  f= 3.00: m_rrm= 0.310 h_SP=1.746 h_PO=1.340 gap=+0.4056 stable
+  f= 4.00: m_rrm= 0.384 h_SP=1.799 h_PO=1.300 gap=+0.4989 stable
+  f= 6.00: m_rrm= 0.507 h_SP=1.889 h_PO=1.242 gap=+0.6465 stable
+saved gap scan -> outputs\perfgd_gap_scan.csv
+
+NOTE: no on-grid gain destabilises the fixed point (saturation, 1.1 Section 6.3); using the unstable demo regime for the beyond-boundary dynamics.
+
+1-D dynamics at unstable demo regime: f=6.0, alpha=1, I=3, c_t=0.8, w=0.15 (m_rrm=1.21): cobweb did NOT converge, PerfGD converged
+saved figure -> outputs\perfgd_vs_rrm.png
+
+=== ML loops at unstable demo regime: f=6.0, alpha=1, I=3, c_t=0.8, w=0.15 (10 iterations each) ===
+[rrm s=0] iter  0 | h=0.8000 step=1.6671 PR=29.552 slope(learned=-0.844, analytic=-1.791) win=1 [rgd]
+[rrm s=0] iter  1 | h=1.4882 step=1.9762 PR=-80.785 slope(learned=0.164, analytic=-1.033) win=2 [rgd]
+[rrm s=0] iter  2 | h=2.8341 step=1.2559 PR=-47.082 slope(learned=0.012, analytic=-0.352) win=3 [rgd]
+[rrm s=0] iter  3 | h=2.7503 step=1.5336 PR=-47.290 slope(learned=-0.220, analytic=-0.376) win=4 [rgd]
+[rrm s=0] iter  4 | h=2.0968 step=1.5121 PR=-117.090 slope(learned=0.356, analytic=-0.635) win=4 [rgd]
+[rrm s=0] iter  5 | h=1.4476 step=0.6421 PR=-135.786 slope(learned=-0.117, analytic=-1.067) win=4 [rgd]
+[rrm s=0] iter  6 | h=1.2253 step=1.9399 PR=-137.486 slope(learned=0.122, analytic=-1.275) win=4 [rgd]
+[rrm s=0] iter  7 | h=0.4973 step=1.7010 PR=-431.286 slope(learned=0.104, analytic=-2.282) win=4 [rgd]
+[rrm s=0] iter  8 | h=0.1999 step=2.1608 PR=-923.702 slope(learned=0.082, analytic=-2.895) win=4 [rgd]
+[rrm s=0] iter  9 | h=0.1587 step=1.7123 PR=-1032.828 slope(learned=0.123, analytic=-2.992) win=4 [rgd]
+[perfgd_analytic s=0] iter  0 | h=0.8000 step=1.7093 PR=29.552 slope(learned=-0.844, analytic=-1.791) win=1 [rgd+delta]
+[perfgd_analytic s=0] iter  1 | h=0.3767 step=2.0578 PR=-100.771 slope(learned=-0.948, analytic=-2.514) win=2 [rgd+delta]
+[perfgd_analytic s=0] iter  2 | h=0.8428 step=1.8523 PR=-91.094 slope(learned=-0.307, analytic=-1.731) win=3 [rgd+delta]
+[perfgd_analytic s=0] iter  3 | h=0.7123 step=1.8832 PR=-201.837 slope(learned=-0.469, analytic=-1.922) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  4 | h=1.1213 step=2.2201 PR=-168.177 slope(learned=0.170, analytic=-1.385) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  5 | h=1.5281 step=1.9029 PR=-90.106 slope(learned=0.015, analytic=-1.001) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  6 | h=0.8366 step=1.8457 PR=-183.009 slope(learned=0.009, analytic=-1.740) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  7 | h=0.5609 step=0.9015 PR=-389.045 slope(learned=0.021, analytic=-2.169) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  8 | h=0.5951 step=1.9918 PR=-551.340 slope(learned=-0.016, analytic=-2.110) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  9 | h=0.3636 step=2.0904 PR=-951.906 slope(learned=0.101, analytic=-2.540) win=4 [rgd+delta]
+[perfgd_learned s=0] iter  0 | h=0.8000 step=1.3735 PR=29.552 slope(learned=-0.844, analytic=-1.791) win=1 [rgd+live]
+[perfgd_learned s=0] iter  1 | h=1.2578 step=0.9848 PR=-73.960 slope(learned=0.199, analytic=-1.242) win=2 [rgd+live]
+[perfgd_learned s=0] iter  2 | h=1.4118 step=1.7371 PR=-128.429 slope(learned=0.005, analytic=-1.098) win=3 [rgd+live]
+[perfgd_learned s=0] iter  3 | h=2.0142 step=1.2144 PR=-122.903 slope(learned=0.012, analytic=-0.678) win=4 [rgd+live]
+[perfgd_learned s=0] iter  4 | h=1.4099 step=0.8754 PR=-103.159 slope(learned=0.005, analytic=-1.100) win=4 [rgd+live]
+[perfgd_learned s=0] iter  5 | h=1.4645 step=0.9201 PR=-151.852 slope(learned=0.236, analytic=-1.053) win=4 [rgd+live]
+[perfgd_learned s=0] iter  6 | h=1.4715 step=1.7609 PR=-101.935 slope(learned=0.100, analytic=-1.047) win=4 [rgd+live]
+[perfgd_learned s=0] iter  7 | h=0.9922 step=1.1916 PR=-358.456 slope(learned=0.044, analytic=-1.536) win=4 [rgd+live]
+[perfgd_learned s=0] iter  8 | h=1.0381 step=2.5946 PR=-232.722 slope(learned=-0.053, analytic=-1.481) win=4 [rgd+live]
+[perfgd_learned s=0] iter  9 | h=0.6648 step=1.4096 PR=-493.081 slope(learned=0.125, analytic=-1.996) win=4 [rgd+live]
+[perfgd_structural s=0] iter  0 | h=0.8000 step=0.4617 PR=29.552 slope(learned=-0.844, analytic=-1.791) h_PO_hat=6.000 struct=-0.249 win=1 [structural]
+[perfgd_structural s=0] iter  1 | h=1.0800 step=0.5280 PR=13.068 slope(learned=-1.686, analytic=-1.432) h_PO_hat=6.000 struct=-0.151 win=2 [structural]
+[perfgd_structural s=0] iter  2 | h=1.4580 step=0.6247 PR=-5.552 slope(learned=-0.890, analytic=-1.058) h_PO_hat=6.000 struct=-0.512 win=3 [structural]
+[perfgd_structural s=0] iter  3 | h=1.9683 step=0.7666 PR=-33.907 slope(learned=-1.618, analytic=-0.704) h_PO_hat=6.000 struct=-0.700 win=4 [structural]
+[perfgd_structural s=0] iter  4 | h=2.6572 step=0.9747 PR=-60.441 slope(learned=-0.694, analytic=-0.405) h_PO_hat=5.377 struct=-1.103 win=4 [structural]
+[perfgd_structural s=0] iter  5 | h=3.5872 step=0.1313 PR=-41.335 slope(learned=-0.197, analytic=-0.193) h_PO_hat=3.716 struct=-1.237 win=4 [structural]
+[perfgd_structural s=0] iter  6 | h=3.7151 step=0.3464 PR=-36.103 slope(learned=0.040, analytic=-0.174) h_PO_hat=3.337 struct=-1.189 win=4 [structural]
+[perfgd_structural s=0] iter  7 | h=3.3787 step=0.1438 PR=-51.807 slope(learned=-0.165, analytic=-0.228) h_PO_hat=3.231 struct=-1.304 win=4 [structural]
+[perfgd_structural s=0] iter  8 | h=3.2402 step=0.0488 PR=-56.701 slope(learned=-0.147, analytic=-0.254) h_PO_hat=3.191 struct=-1.336 win=4 [structural]
+[perfgd_structural s=0] iter  9 | h=3.1934 step=0.0221 PR=-54.365 slope(learned=-0.263, analytic=-0.264) h_PO_hat=3.172 struct=-1.328 win=4 [structural]
+
+structural loop: final h = 3.193; loop-estimated realized h_PO_hat = 3.172 (self-consistency 0.7%); hovering (max_iters)
+  A2 closed-form h_PO = 1.641 for context -- the realized market differs through the documented channels (info_cap saturation, liquidity inflation, severity drift; 1.1 S9), so the loop is benchmarked against independent structural fits, not A2.
+blind rrm loop:  did NOT converge (max_iters)
+saved ML-loop figure -> outputs\perfgd_ml_loops.png
+saved ML-loop data -> outputs\perfgd_ml_loops.csv
+### [perfgd] OK (477s)
+
+========================================================================
+### [dealers] python -m experiments.run_dealers --config configs/default.yaml --outdir outputs --probe --episodes 8
+========================================================================
+=== analytic joint modulus m_N on (N, f) grid (kappa=1.0) ===
+saved grid -> outputs\dealer_phase_grid.csv
+at N=12: N_eff=12.0, m_N=1.511, critical dealer count N_c=7.9
+saved phase diagram -> outputs\dealer_phase_diagram.png
+
+=== simulated joint cobweb (N=3, genuine shared-pool market) ===
+common-mode iterates: [0.8   6.    2.864 6.    2.864 6.    2.864 6.    2.864 6.    2.864]
+converged: False
+
+=== CRN joint-modulus probes on the real environment (probe f=0.5, liq boost scaled 1/N) ===
+  N=1: common=0.786 (pred 0.786)  diff=nan
+  N=2: common=1.369 (pred 1.571)  diff=0.003
+  N=3: common=2.480 (pred 2.357)  diff=0.003
+saved probes -> outputs\dealer_joint_moduli.csv
+### [dealers] OK (5s)
+
+========================================================================
+### [triangulation] python -m experiments.run_triangulation --config configs/default.yaml --outdir outputs --episodes 8
+========================================================================
+=== epsilon triangulation (three measured legs vs the closed form) ===
+reference spread h_ref = 1.0000 (quoting anchor / operating point)
+  analytic  epsilon (a-priori A2 state)  =   0.7636
+  analytic  epsilon (realized state, S9) =   1.7265   (rho=2.32, |g|=0.446)
+  BR-slope  epsilon_hat    =   0.5076   (m_hat=0.541 x gamma_real/beta)
+  Sinkhorn  epsilon_hat    =   4.5777   (W1 rate of induced toxic flow)
+  CKS       epsilon_hat    =   4.0105   (fitted flow-curve slope)
+  max pairwise spread across measured legs: 134.24%
+saved -> outputs\epsilon_triangulation.csv
+### [triangulation] OK (7s)
+
+========================================================================
+### [sweep] python -m experiments.run_sweep --config configs/sweep_feedback.yaml --outdir outputs
+========================================================================
+=== analytic prediction (theory 1.1, evaluated before the sweep) ===
+    at the probe spread h_ref=1.000 (overlay) and at h*(f) (context)
+  f=  0.00: m_pred(h_ref)=0.000   m(h*)=0.000 (h*=1.520)
+  f=  1.00: m_pred(h_ref)=0.213   m(h*)=0.124 (h*=1.611)
+  f=  2.00: m_pred(h_ref)=0.426   m(h*)=0.225 (h*=1.684)
+  f=  3.00: m_pred(h_ref)=0.639   m(h*)=0.310 (h*=1.746)
+  f=  4.00: m_pred(h_ref)=0.852   m(h*)=0.384 (h*=1.799)
+  f=  6.00: m_pred(h_ref)=1.277   m(h*)=0.507 (h*=1.889)
+  f=  8.00: m_pred(h_ref)=1.703   m(h*)=0.607 (h*=1.962)
+predicted boundary crossing at h_ref: f* ~ 4.697
+fixed-point curve m(h*(f)) does not cross 1 on this grid (defensive-widening saturation, 1.1 Section 6.3)
+
+=== measured sweep over 'toxicity_feedback' ===
+  toxicity_feedback=  0.00: median m=0.067 [0.04,0.09] frac_unstable=0.00 (48s)
+  toxicity_feedback=  1.00: median m=0.159 [0.08,0.28] frac_unstable=0.00 (45s)
+  toxicity_feedback=  2.00: median m=0.390 [0.21,0.48] frac_unstable=0.00 (45s)
+  toxicity_feedback=  3.00: median m=0.856 [0.61,1.07] frac_unstable=0.50 (45s)
+  toxicity_feedback=  4.00: median m=1.707 [1.42,2.16] frac_unstable=0.88 (45s)
+  toxicity_feedback=  6.00: median m=1.180 [0.83,1.41] frac_unstable=0.75 (45s)
+  toxicity_feedback=  8.00: median m=1.357 [0.89,1.84] frac_unstable=0.75 (45s)
+
+measured critical toxicity_feedback* ~ 3.169
+predicted vs measured crossing: 4.697 vs 3.169
+saved results -> outputs\sweep_toxicity_feedback_results.csv
+saved phase diagram -> outputs\phase_diagram_toxicity_feedback.png
+### [sweep] OK (319s)
+
+========================================================================
+### [lazy_deploy] python -m experiments.run_lazy_deploy --config configs/default.yaml --outdir outputs
+========================================================================
+=== lazy-deploy sweep at h_ref=1.000 (delta=0.250, lr=0.08) ===
+full-BR anchor (K -> infinity):
+  seed 0: m_hat = 0.5408 (7s)
+  seed 1: m_hat = 1.9070 (6s)
+  seed 2: m_hat = 1.2045 (6s)
+  median m_hat = 1.2045
+  K=  1: median mu_hat = +0.0206 (seeds: -0.106, +0.021, +0.894) (12s)
+  K=  2: median mu_hat = -0.0637 (seeds: +0.023, -0.228, -0.064) (12s)
+  K=  3: median mu_hat = -0.2575 (seeds: -0.016, -1.371, -0.257) (12s)
+  K=  5: median mu_hat = -0.6950 (seeds: -0.078, -3.715, -0.695) (12s)
+  K=  8: median mu_hat = -1.5414 (seeds: -0.551, -4.811, -1.541) (12s)
+  K= 12: median mu_hat = -4.4700 (seeds: -0.922, -5.018, -4.470) (13s)
+  K= 20: median mu_hat = -4.8083 (seeds: -6.794, -4.808, -4.693) (13s)
+
+fitted inner contraction c = 0.6612 (lam_1 = 0.339 of the exact cobweb per deployment)
+closed-form m at h_ref (a-priori state): 1.0645; measured anchor: 1.2045
+deadbeat K (measured anchor): 1.46; max stable K: 5.75
+
+  K   mu_pred   mu_meas   gamma_eff/gamma
+    1  +0.2532  +0.0206      4.758
+    2  -0.2407  -0.0637      5.005
+    3  -0.5672  -0.2575      2.124
+    5  -0.9259  -0.6950      1.301
+    8  -1.1240  -1.5414      1.072
+   12  -1.1891  -4.4700      1.013
+   20  -1.2040  -4.8083      1.000
+saved sweep -> outputs\lazy_deploy_sweep.csv
+saved summary -> outputs\lazy_deploy_summary.csv
+saved figure -> outputs\lazy_deploy_gamma_eff.png
+### [lazy_deploy] OK (105s)
+
+========================================================================
+### [tuning] python -m experiments.run_tuning --config configs/default.yaml --outdir outputs
+========================================================================
+=== Sinkhorn blur tuning (bias vs the exact 1-D quantile W1) ===
+synthetic location shift (true W1 = |mean shift| = 0.30):
+  rel_reg= 0.01: S=0.0368  rel_bias= 88.2%
+  rel_reg= 0.01: S=0.1601  rel_bias= 48.9%
+  rel_reg= 0.02: S=0.2941  rel_bias=  6.1%
+  rel_reg= 0.05: S=0.2686  rel_bias= 14.2%
+  rel_reg= 0.10: S=0.2306  rel_bias= 26.3%
+  rel_reg= 0.20: S=0.1749  rel_bias= 44.1%
+  rel_reg= 0.50: S=0.0956  rel_bias= 69.5%
+  rel_reg= 1.00: S=0.0563  rel_bias= 82.0%
+  rel_reg= 2.00: S=0.0386  rel_bias= 87.7%
+  exact W1 = 0.3131; best rel_reg = 0.02 (bias 6.1%)
+
+config CRN toxic samples at h_ref=1.000 (8 episodes/side):
+  rel_reg= 0.01: S=2.2839  rel_bias=  0.2%
+  rel_reg= 0.01: S=2.2769  rel_bias=  0.5%
+  rel_reg= 0.02: S=2.2622  rel_bias=  1.2%
+  rel_reg= 0.05: S=2.2178  rel_bias=  3.1%
+  rel_reg= 0.10: S=2.1499  rel_bias=  6.1%
+  rel_reg= 0.20: S=2.0400  rel_bias= 10.9%
+  rel_reg= 0.50: S=1.8292  rel_bias= 20.1%
+  rel_reg= 1.00: S=1.6375  rel_bias= 28.5%
+  rel_reg= 2.00: S=1.4838  rel_bias= 35.2%
+  exact W1 = 2.2889; best rel_reg = 0.005 (bias 0.2%) (11s)
+  baked-in default TUNED_REL_REG = 0.02 (reg='auto' in estimate_epsilon_sinkhorn)
+saved -> outputs\sinkhorn_tuning.csv
+
+=== Robust-radius calibration (one-sided coverage at 95% nominal) ===
+  normal          : coverage z*s = 0.993, calibrated = 0.993 (median multiplier 0.73)
+  student_t(2.5)  : coverage z*s = 1.000, calibrated = 1.000 (median multiplier 0.72)
+  lognormal       : coverage z*s = 0.990, calibrated = 0.990 (median multiplier 0.80)
+  contaminated(6%): coverage z*s = 0.938, calibrated = 0.938 (median multiplier 0.77)
+
+probe-based calibration (6 CRN modulus probes):
+  estimates: 0.541, 1.907, 1.205, 1.781, 1.866, 1.496 (34s)
+  z*s radius = 0.8639; quantile radius = 0.4309 (multiplier 0.50)
+  bootstrap coverage: z*s = 0.999, calibrated = 0.999
+  -> z*s is adequately calibrated for the CRN probe
+saved -> outputs\radius_calibration.csv
+saved figure -> outputs\estimator_tuning.png
+### [tuning] OK (398s)
+
+========================================================================
+### [single] python -m experiments.run_single --config configs/default.yaml --outdir outputs --mode perfgd_analytic
+========================================================================
+=== single perfgd_analytic run: alpha=0.5, epsilon(toxicity_feedback)=5.0, seed=0 ===
+[perfgd_analytic s=0] iter  0 | h=0.8000 step=1.2773 PR=-1.693 slope(learned=-0.484, analytic=-0.373) win=1 [rgd+delta]
+[perfgd_analytic s=0] iter  1 | h=0.5082 step=1.0823 PR=13.075 slope(learned=0.544, analytic=-0.578) win=2 [rgd+delta]
+[perfgd_analytic s=0] iter  2 | h=0.7141 step=1.3413 PR=14.731 slope(learned=0.324, analytic=-0.424) win=3 [rgd+delta]
+[perfgd_analytic s=0] iter  3 | h=0.9420 step=1.1347 PR=-1.027 slope(learned=0.063, analytic=-0.302) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  4 | h=1.0590 step=1.1498 PR=9.729 slope(learned=0.060, analytic=-0.253) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  5 | h=1.0402 step=1.2669 PR=5.810 slope(learned=0.070, analytic=-0.260) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  6 | h=1.0250 step=1.0425 PR=-2.314 slope(learned=0.145, analytic=-0.266) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  7 | h=0.7496 step=0.8686 PR=-8.948 slope(learned=0.152, analytic=-0.402) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  8 | h=0.7487 step=0.9694 PR=-12.503 slope(learned=0.057, analytic=-0.403) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter  9 | h=0.7624 step=1.4013 PR=-5.356 slope(learned=0.227, analytic=-0.395) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter 10 | h=0.5526 step=1.5181 PR=-21.450 slope(learned=0.116, analytic=-0.541) win=4 [rgd+delta]
+[perfgd_analytic s=0] iter 11 | h=0.5190 step=1.0370 PR=-13.052 slope(learned=0.186, analytic=-0.569) win=4 [rgd+delta]
+seam diagnostics (final iter): learned d[adv]/dh=0.1855  analytic -psi*eps(h)=-0.5687  window=4
+
+trajectory: stop=max_iters  trajectory-L_hat=0.811  class=converged
+best-response modulus m_hat=0.541  (BR(h+d)=0.955, BR(h-d)=0.685)  => stable (contracts)
+market metrics: realized_h=1.546  toxicity_share=0.795  fill_rate=1.988  adverse/step=5.534  HHI=0.173
+saved trajectory plot -> outputs\rrm_trajectory_a0.5_eps5.0_s0.png
+### [single] OK (89s)
+
+========================================================================
+### suite done in 25.1 min -- 11/11 passed

@@ -29,11 +29,12 @@ under repeated interaction with that same policy.
 </p>
 
 <!--- Language, config & testing --->
-<p align="center"><sub><b>Language, Config & Testing:</b></sub></p>
+<p align="center"><sub><b>Language, Config, Testing & Verification:</b></sub></p>
 <p align="center">
   <img src="https://img.shields.io/badge/python%203.11+-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
   <img src="https://img.shields.io/badge/yaml-%23ffffff.svg?style=for-the-badge&logo=yaml&logoColor=151515">
   <img src="https://img.shields.io/badge/pytest-%230A9EDC.svg?style=for-the-badge&logo=pytest&logoColor=white">
+  <img src="https://img.shields.io/badge/Lean%204-blueviolet?style=for-the-badge">
 </p>
 
 <!--- Tooling & docs --->
@@ -49,7 +50,7 @@ under repeated interaction with that same policy.
 </p>
 
 <!--- Initial prototype (edl_simulator_v1) --->
-<p align="center"><sub><b>Initial Prototype (edl_simulator_v1):</b></sub></p>
+<p align="center"><sub><b>Initial Prototype (archive/edl_simulator_v1):</b></sub></p>
 <p align="center">
   <img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white">
   <img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white">
@@ -63,15 +64,21 @@ under repeated interaction with that same policy.
   with a policy-dependent system `D_{t+1} = T(D_t, π_θ)`.
 - **Learned market response operator** `T_θ`: a differentiable, trainable
   operator over stochastic market transitions, replacing hand-built simulators.
+- **Structurally-anchored performative correction:** the learned loop fits the
+  market model's own response families to its deployment history and ascends
+  the estimated corrected gradient - stable where blind retraining diverges.
 - **Fixed-point objective:** solve `(π*, D*) = argmin_π E_D[R(π)] s.t. D = T(D, π)`.
 - **Stability-aware training:** penalizes distribution collapse, liquidity
   fragmentation, and instability under self-induced market adaptation.
 - **Implicit liquidity modeling:** treats liquidity as a latent dynamical field
   induced by interaction, not an observed variable.
+- **Machine-checked theory:** every load-bearing identity of the six
+  closed-form results is re-derived numerically (66 proof certificates), with
+  the logical skeletons formalised in Lean 4.
 
 ## Model lineage
 
-Four generations of the same idea, *an endogenous market whose stability is
+Five generations of the same idea, *an endogenous market whose stability is
 governed by a single feedback parameter*, each more structural than the last:
 
 ```mermaid
@@ -79,62 +86,71 @@ flowchart LR
     A["edl_simulator_v1<br/>(HTML/JS mockup)<br/>analytical LQ model"]
       --> B["endo_market_v1<br/>(Python / PyTorch)<br/>learned operator + RRM"]
       --> C["endo_market_v2<br/>(Python / PyTorch)<br/>refined, result reproduced"]
-      --> D["endo_market_v3 / reflex<br/>(Python / PyTorch + real data)<br/>un-blinded ML + closed-form theory"]
+      --> D["endo_market_v3<br/>(+ real data)<br/>un-blinded ML + closed-form theory"]
+      --> E["endo_market_v4 / reflex<br/>(FINAL)<br/>structural PerfGD + theory 1.6 + tuning + verification"]
 ```
 
-|                       | **edl_simulator_v1** | **endo_market_v1** | **endo_market_v2** | **endo_market_v3 (`reflex`)** |
-|-----------------------|----------------------|-----------------|--------------------|-------------------------------|
-| **Role**              | Earliest prototype   | Legacy iteration | Superseded | **Current** |
-| **Implementation**    | HTML/JS browser mockup | Python (PyTorch, CPU) | Python (PyTorch, CPU) | Python (PyTorch + pandas, CPU), real-data calibrated |
-| **Market model**      | Analytical linear-quadratic OTC bond | Structural multi-bond simulator (uninformed + toxic flow) | Structural OTC simulator + latent liquidity field | Same + genuine `N`-dealer shared informed pool |
-| **Learner**           | Closed-form fixed point | Learned operator `T_θ` + RRM loop | Same, refined | **Un-blinded `T_θ`** (windowed fit learns `dD/dφ`) + PerfGD-corrected loops (analytic & learned) |
-| **Control parameter** | Adversarialness `α`  | Adversariality `α ∈ [0,1]` | Feedback gain `ε` (`α` found to be confounded) | `ε`, dealer count `N`, universe size `d`, market regime |
-| **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` | Closed-form `ε < γ/β`, `ε < γ/(N_eff·β)`, `ρ(M) < 1` - predicted a-priori, then verified |
-| **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | Result reproduced (measured crossing later shown protocol-inflated; see its README) | Theory+ML+data unified; **real-data fragility index** (headroom collapses ~4.4× calm→crisis, HY >10× below IG, plateauing through the GFC & COVID) |
-| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests + phase-diagram PNG & sweep CSV | **110 tests** + 9 experiments, **full-profile verified 8/8** (curated in `research/results/`) |
+|                       | **edl_simulator_v1** | **endo_market_v1** | **endo_market_v2** | **endo_market_v3** | **endo_market_v4 (`reflex`)** |
+|-----------------------|----------------------|-----------------|--------------------|--------------------|-------------------------------|
+| **Role**              | Earliest prototype   | Legacy iteration | Superseded | Superseded (produced the 07-10-2026 run) | **Current — FINAL** |
+| **Implementation**    | HTML/JS browser mockup | Python (PyTorch, CPU) | Python (PyTorch, CPU) | Python (PyTorch + pandas, CPU), real-data calibrated | Same, + verification layer (numerical certificates + Lean 4 skeletons) |
+| **Market model**      | Analytical linear-quadratic OTC bond | Structural multi-bond simulator (uninformed + toxic flow) | Structural OTC simulator + latent liquidity field | Same + genuine `N`-dealer shared informed pool | Same |
+| **Learner**           | Closed-form fixed point | Learned operator `T_θ` + RRM loop | Same, refined | **Un-blinded `T_θ`** (windowed fit learns `dD/dφ`) + PerfGD-corrected loops (analytic & free-form learned) | + **`perfgd_structural`**: GLFT-anchored fits of the loop's own data; the learned loop that *stabilises beyond the boundary* |
+| **Control parameter** | Adversarialness `α`  | Adversariality `α ∈ [0,1]` | Feedback gain `ε` (`α` found to be confounded) | `ε`, dealer count `N`, universe size `d`, market regime | + inner steps per deployment `K` (lazy deployment, theory 1.6) |
+| **Stability law**     | Stable iff `α < α_c = 1`; rate `α^t` | `m = K·α`, boundary `α* = 1/K` | `m ≈ εβ/γ`, boundary `ε < γ/β` | Closed-form `ε < γ/β`, `ε < γ/(N_eff·β)`, `ρ(M) < 1` - predicted a-priori, then verified | + `mu(K) = −m + c^K(1+m)` (deadbeat / max-stable `K`; two-branch `γ_eff`) |
+| **Headline status**   | Validated at `α = 0.45` | Scaffolding done; **`α*` result not reproduced** | Result reproduced (measured crossing later shown protocol-inflated; see its README) | Theory+ML+data unified; real-data fragility index; loop-level gap honestly documented | **The gap closed**: the structural learned loop settles at the realized performative optimum where blind RRM diverges; estimators tuned; theory machine-verified |
+| **Tests / artifacts** | Sample run screenshot | 18 unit tests | 63 tests + phase-diagram PNG & sweep CSV | 110 tests + 9 experiments, full-profile verified 8/8 (curated in `research/results/07-10-2026/`) | **152 tests** + 12 experiment entry points, full-profile verified 11/11 (curated in `research/results/07-12-2026/`) |
 
 The progression: `edl_simulator_v1` proved the *concept* (one parameter flips a
 market between convergence and chaos) analytically; `endo_market_v1` rebuilt it as a
 learned-operator performative-prediction loop but couldn't cleanly tune the
 transition; `endo_market_v2` identified `ε` (not `α`) as the clean control and
-reproduced the `ε < γ/β` stability boundary; `endo_market_v3` unifies the ML,
-the five closed-form theory results, and the real-data calibration in one
-self-contained package (`reflex`) - and un-blinds the learned operator so the
-loop that theory says must diverge can be stabilised in closed form
-(loop-level stabilisation *by learning* remains a documented open gap; see
-`research/analysis/`).
+reproduced the `ε < γ/β` stability boundary; `endo_market_v3` unified the ML,
+the closed-form theory and the real-data calibration and un-blinded the learned
+operator - leaving one honestly-documented gap: the corrected *learned* loop
+did not stabilise. `endo_market_v4` closes that gap by **anchoring the learned
+response to the GLFT structural form** (fit the theory's own response families
+to the loop's deployment history, ascend the estimated corrected gradient),
+adds the lazy-deployment theory (1.6), tunes the estimators, and wraps the
+whole theory in a verification layer. The four prior generations are frozen in
+[`archive/`](archive/).
 
 ## Repository layout
 
     REFLEX/
-    |- README.md                    ← this file
-    |- CLAUDE.md                    ← orientation and conventions for AI coding agents
-    |- LICENSE                      ← Apache License 2.0
-    |- archive/endo_market_v3/              ← CURRENT: the self-contained `reflex` package (see Experiments)
-    |  |- README.md                 ← methodology, the five pillars, quickstart, honest caveats
-    |  |- theory/                   ← the five derivations (shipped copies) + code map
-    |  |- data/                     ← calibration CSVs + daily master panel (provenance notes)
-    |  |- configs/                  ← default | smoke | sweep specs
-    |  |- reflex/                   ← the package: env (incl. N-dealer), policy (+GLFT baseline),
-    |  |                              operator (un-blinded T_θ), theory (1.1–1.5), equilibrium
-    |  |                              (3-mode loops + joint loop), estimators (ε triangulation),
-    |  |                              calibration, objective, analysis (incl. fragility), utils
-    |  |- experiments/              ← 9 entry points incl. run_all --profile smoke|full
-    |  |- outputs/                  ← CSVs + PNGs from the latest full-profile run
-    |  \- tests/                    ← 110 tests (103 fast + 7 slow)
-    |- literature/                  ← two curated literature collections
-    |  |- literature-vignesh/       ← 10 foundational papers + reading map (PDFs downloaded)
-    |  \- literature-raghav/        ← same core + 8 extension papers + research roadmap
-    |- research/                    ← the research program around endo_market_v3: theory, data, runs, analyses
-    |  |- README.md                 ← full methodology write-up and the To-Do checklist
-    |  |- math-theory/              ← canonical derivations 1.1–1.5 (.md + .tex + PDFs)
-    |  |- data_collection/          ← real macro + bond-factor dataset (raw/processed/master) + verification
-    |  |- preprocessing/            ← cleaning, calibration fit (A,k), episode splits
-    |  |- results/                  ← executed paper-grade runs (07-10-2026: artifacts + REPORT)
-    |  \- analysis/                 ← written analyses of those runs (tables, figures, breakdowns)
-    |- archive/endo_market_v2/              ← superseded second generation (result absorbed into v3)
-    |- archive/endo_market_v1/              ← earliest Python iteration (formerly endo_market/)
-    \- archive/edl_simulator_v1/            ← earliest prototype (HTML/JS mockup)
+    |- README.md                    <- this file
+    |- CLAUDE.md                    <- orientation and conventions for AI coding agents
+    |- LICENSE                      <- Apache License 2.0
+    |- endo_market_v4/              <- CURRENT (FINAL): the self-contained `reflex` package
+    |  |- README.md                 <- methodology, the six pillars, quickstart, honest caveats
+    |  |- theory/                   <- the six derivations (shipped copies) + code map
+    |  |- lean/                     <- Lean 4 formal skeletons of 1.1-1.6 (+ honest status)
+    |  |- data/                     <- calibration CSVs + daily master panel (provenance notes)
+    |  |- configs/                  <- default | smoke | sweep specs
+    |  |- reflex/                   <- the package: env (incl. N-dealer), policy (+GLFT baseline),
+    |  |                              operator (un-blinded T_θ), theory (1.1–1.6), equilibrium
+    |  |                              (4-mode loops incl. perfgd_structural + joint loop),
+    |  |                              estimators (tuned ε triangulation + K-step probe),
+    |  |                              calibration, objective, analysis (incl. fragility),
+    |  |                              verification (proof certificates), utils
+    |  |- experiments/              <- 12 entry points incl. run_all --profile smoke|full
+    |  |- outputs/                  <- CSVs + PNGs from the latest full-profile run
+    |  \- tests/                    <- 152 tests (142 fast + 10 slow)
+    |- literature/                  <- two curated literature collections
+    |  |- literature-vignesh/       <- 10 foundational papers + reading map (PDFs downloaded)
+    |  \- literature-raghav/        <- same core + 8 extension papers + research roadmap
+    |- research/                    <- the research program around endo_market_v4: theory, data, runs, analyses
+    |  |- README.md                 <- full methodology write-up and the To-Do checklist
+    |  |- math-theory/              <- canonical derivations 1.1–1.6 (.md + .tex + PDFs)
+    |  |- data_collection/          <- real macro + bond-factor dataset (raw/processed/master) + verification
+    |  |- preprocessing/            <- cleaning, calibration fit (A,k), episode splits
+    |  |- results/                  <- executed paper-grade runs (07-10-2026 v3; 07-12-2026 v4)
+    |  \- analysis/                 <- written analyses of those runs (tables, figures, breakdowns)
+    \- archive/                     <- the four frozen prior generations (see archive/README.md)
+       |- edl_simulator_v1/         <- earliest prototype (HTML/JS mockup)
+       |- endo_market_v1/           <- earliest Python iteration
+       |- endo_market_v2/           <- second generation (result absorbed into v3)
+       \- endo_market_v3/           <- third generation (produced the 07-10-2026 run)
 
 ## Experiments
 
@@ -142,15 +158,14 @@ A dealer's quoting policy `φ` induces the data distribution `D(φ)`: tighter
 quotes summon more informed ("toxic") flow that picks the dealer off. Under
 **repeated retraining (RRM)**, when does the policy↔distribution loop converge
 vs. diverge - and can the loop be *stabilised* by un-blinding it, analytically
-(closed-form PerfGD) or by learning (`dD/dφ` learned by the operator)?
+(closed-form PerfGD) or by learning (the v4 structural mode)?
 
-### Executive summary of endo_market_v3's results (paper-grade run, July 10, 2026)
+### Executive summary of the v3 paper-grade results (July 10, 2026)
 
 The full-profile suite ran 8/8 in ~10 min CPU after a measurement-layer audit
 fixed six probe/protocol defects; every number below is from the curated run
 in [`research/results/07-10-2026/`](research/results/07-10-2026/) (complete
-illustrated report:
-[`REPORT.md`](research/results/07-10-2026/REPORT.md)).
+illustrated report: [`REPORT.md`](research/results/07-10-2026/REPORT.md)).
 
 - **Real-data fragility (1.1 on 36 years of data):** the closed-form
   stability headroom `ε* = γ/β` collapses **~4.4× (IG) / ~4.3× (HY)** from
@@ -176,15 +191,36 @@ illustrated report:
 - **Factor scaling (1.5):** `ρ(M) ≈ 0.50` flat from 8 to 128 bonds on
   data-calibrated per-bond dispersion; the truncation bound holds with orders
   of magnitude of slack; 0.07 s at `d = 128` via Woodbury.
-- **PerfGD un-blinding (1.2):** verified in closed form (the blind cobweb
-  diverges in the genuinely unstable regime while the corrected 1-D ascent
-  converges to `h_PO`; echo-chamber gaps `O(ε)`/`O(ε²)` confirmed). The
-  *learned* loop does not yet reproduce the stabilisation - an honestly
-  documented open gap with the mechanism identified via the ML↔math seam
-  diagnostics.
 - **The `α` confound (appendix):** the adversariality sweep shows its full
   non-monotone hump (0.08 → 1.83 → 0.67), the quantitative case for the
   feedback gain `ε` as the headline control variable.
+
+### What v4 adds (paper-grade run, July 12, 2026; `research/results/07-12-2026/`)
+
+- **The loop-level gap is closed (1.2, v4):** in the genuinely RRM-unstable
+  regime the blind loop fails to converge while **`perfgd_structural`** - the
+  learned loop with its response anchored to the GLFT structural families and
+  fitted to its own deployment history - settles at the *realized*
+  performative optimum, verified against independent structural fits (and
+  strictly inside their blind stable point: the realized echo-chamber gap,
+  closed). The free-form learned mode remains a documented negative result -
+  anchoring, not capacity, is what closes the gap.
+- **Lazy deployment (1.6):** the K-step outer map `mu(K) = −m + c^K(1+m)`
+  fits the measured signed CRN K-probe curve with one parameter; laziness
+  reads as a two-branch effective curvature `γ_eff(K)` (inertia below the
+  equal-modulus count, stiffness above), with deadbeat and max-stable step
+  counts in closed form.
+- **Estimator tuning:** the Sinkhorn blur is tuned scale-relatively against
+  the exact 1-D quantile `W1` (U-shaped bias curve, minimum at
+  `0.02 × sample std`, baked in as `reg="auto"`); the robust ambiguity radius
+  gets a distribution-free coverage calibration (`z*s` measured conservative;
+  the quantile radius matters for contaminated/railed-probe patterns).
+- **Machine-checked theory:** 66 numerical proof certificates re-derive every
+  load-bearing identity of 1.1–1.6 on raw *and* calibrated real-unit configs
+  (catching, en route, a real `λ_q` bookkeeping subtlety in the 1-D helpers);
+  the logical skeletons are formalised in Lean 4
+  ([`endo_market_v4/lean/`](endo_market_v4/lean/); reviewed statements,
+  compile pending a toolchain - honest status in its README).
 
 <table>
   <tr>
@@ -199,35 +235,39 @@ illustrated report:
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="research/analysis/figures/dealer_amplification.png" width="100%" alt="Multi-dealer common-mode amplification"><br>
-      <sub><b>Competition manufactures fragility:</b> measured common-mode moduli vs the predicted N_eff amplification</sub>
+      <img src="research/results/07-12-2026/perfgd/perfgd_ml_loops.png" width="100%" alt="Four-mode ML loops incl. the structural mode"><br>
+      <sub><b>The v4 gap closure:</b> blind RRM vs analytic vs free-form learned vs the structural learned loop, with the three-way seam</sub>
     </td>
     <td width="50%" align="center">
-      <img src="research/results/07-10-2026/perfgd/perfgd_vs_rrm.png" width="100%" alt="RRM diverges, PerfGD converges"><br>
-      <sub><b>Beyond the boundary (closed form):</b> the blind cobweb fails to settle while corrected PerfGD converges to h_PO</sub>
+      <img src="research/results/07-12-2026/lazy_deploy/lazy_deploy_gamma_eff.png" width="100%" alt="Lazy deployment K-sweep"><br>
+      <sub><b>Theory 1.6:</b> the measured K-step map vs the one-parameter closed form, and the two-branch effective curvature</sub>
     </td>
   </tr>
 </table>
 
-### The nine experiments
+### The experiment suite (11 experiments + the run_all driver)
 
 Run everything with `python -m experiments.run_all --profile smoke|full`
-(full profile: ~10-15 min CPU, deterministic from `(config, seed)`):
+(full profile: ~15-25 min CPU, deterministic from `(config, seed)`):
 
 | Experiment | What it shows | Theory |
 |---|---|---|
+| `run_certificates` | 66 numerical proof checks of every 1.1–1.6 identity (raw + calibrated) | all |
 | `run_fragility` | The daily 1990–2026 fragility index on real data | 1.1 on data |
 | `run_calibrated` | A-priori boundary per (rating × regime) from fitted `(A, k, σ, h)` | 1.1 + data |
 | `run_sweep` | Predict-then-verify phase diagram: analytic overlay + measured median/IQR + robust bands | 1.1 + 1.4 |
-| `run_perfgd` | Closed-form beyond-boundary demo + echo-chamber gaps + the three-mode ML seam diagnostic | 1.2 |
+| `run_perfgd` | Closed-form beyond-boundary demo + echo-chamber gaps + the four-mode ML loops (incl. the structural gap closure) | 1.2 |
 | `run_dealers` | `(N, ε)` systemic surface `m_N = N_eff·m₁`; genuine shared-pool market probes | 1.3 |
 | `run_universe` | `ρ(M)` at 128 correlated bonds via `O(d·k²)` Woodbury; truncation bound verified | 1.5 |
 | `run_triangulation` | Three independent `ε` estimators (BR-slope / Sinkhorn / CKS) vs the closed form | 1.1 |
+| `run_lazy_deploy` | The signed K-step map vs `mu(K) = −m + c^K(1+m)`; `γ_eff(K)` | 1.6 |
+| `run_tuning` | Sinkhorn blur bias curve + robust-radius coverage calibration | 1.1 + 1.4 |
 | `run_single` | One outer loop in any mode with seam diagnostics | - |
 
-See [`archive/endo_market_v3/README.md`](archive/endo_market_v3/README.md) for methodology,
-layout, install/run and honest caveats. Prior generations: `endo_market_v2`'s
-historical headline result (and its post-audit correction) lives in
+See [`endo_market_v4/README.md`](endo_market_v4/README.md) for methodology,
+layout, install/run and honest caveats. Prior generations:
+[`archive/README.md`](archive/README.md); `endo_market_v2`'s historical
+headline result (and its post-audit correction) lives in
 [`archive/endo_market_v2/README.md`](archive/endo_market_v2/README.md).
 
 ## Literature
@@ -261,25 +301,27 @@ bond market. Full per-paper notes and BibTeX live in each collection's
 Where the simulator *measures* the stability boundary by sweeping, the
 [`research/math-theory/`](research/math-theory/) program **derives it
 in closed form** from the simulator's own microstructure primitives - then verifies
-each derivation against the code. All five priorities are **derived *and*
+each derivation against the code. All six results are **derived *and*
 implemented** as dependency-light closed-form modules - authoritative versions in
-[`archive/endo_market_v3/reflex/theory/`](archive/endo_market_v3/reflex/theory/) (originals frozen
-in `endo_market_v2`), each with tests:
+[`endo_market_v4/reflex/theory/`](endo_market_v4/reflex/theory/) (originals frozen
+in `archive/endo_market_v2`), each with tests *and* numerical proof certificates:
 
 | # | Result | Key object | Novelty |
 |---|--------|-----------|---------|
 | **1.1** | Analytic boundary | `m = εβ/γ`, stable iff `ε < γ/β` | `γ`, `β`, `ε` are *computed* from GLFT fill-curve curvature + the toxic-flow slope `dτ/dh`, not treated as tuned Lipschitz constants - an *a-priori* boundary you can evaluate before running the loop. |
-| **1.2** | PerfGD un-blinding | `Δ = −β(h−ψ)ε`, `γ_PO` | The distribution response `dD/dφ` is supplied in *closed form* (no estimation), so the corrected loop is governed by the objective curvature `γ_PO` and converges where blind RRM diverges - past the boundary `ε*`. |
+| **1.2** | PerfGD un-blinding | `Δ = −β(h−ψ)ε(h)`, `γ_PO` | The distribution response `dD/dφ` is supplied in *closed form* (no estimation), so the corrected loop is governed by the objective curvature `γ_PO` and converges where blind RRM diverges - past the boundary `ε*`. **v4 addendum:** the same correction with every ingredient *estimated* from deployment data (`perfgd_structural`) stabilises the actual learned loop. |
 | **1.3** | Multi-dealer systemic risk | `ε < γ/(N_eff·β)`, `N_c = 1/m₁` | A shared toxic pool makes competition a *synchronised common-mode cobweb*: the market destabilises a factor `N_eff` **before** any single dealer would - competition manufactures systemic fragility. |
-| **1.4** | Robust boundary | `ε̂_n + δ_n < γ/β`, `δ_n = O(1/√n)` | The parametric `1/√n` radius is *bought by the common-random-numbers probe* (a naive difference gives only `n^{−1/3}`); the crossing is statistically hard to pin (`n_req = O(Δ^{−2})`), separating statistical from structural uncertainty. |
+| **1.4** | Robust boundary | `ε̂_n + δ_n < γ/β`, `δ_n = O(1/√n)` | The parametric `1/√n` radius is *bought by the common-random-numbers probe* (a naive difference gives only `n^{−1/3}`); the crossing is statistically hard to pin (`n_req = O(Δ^{−2})`), separating statistical from structural uncertainty. **v4 addendum:** a distribution-free coverage calibration of the radius. |
 | **1.5** | Factor-model scaling | modulus matrix `M = βΓ⁻¹E`, `ρ(M)<1` | The curse of dimensionality is defused by the *same* factor structure that causes it - `Γ` is diagonal-plus-low-rank, so `ρ(M)` is `O(d·k²)` via Woodbury with a truncation error linear in the residual factor variance `λ_{k+1}(C)`. |
+| **1.6** | Lazy deployment (v4) | `mu(K) = −m + c^K(1+m)`, `γ_eff(K)` | The outer loop between the greedy-RGD and exact-RRM idealisations in one closed form: laziness interpolates the cobweb, can deadbeat it at finite `K`, keeps an `m > 1` market stable up to `K_max`, and masquerades as a two-branch effective curvature. |
 
 **The novelty in one line.** Performative-prediction theory (Perdomo et al., ICML
 2020) proves repeated retraining converges iff `ε < γ/β` but treats `γ`, `β`, `ε` as
 abstract constants of an unspecified loss. REFLEX pins them to a *structural* OTC
 market-making model and turns that single point boundary into a **predictive,
-un-blindable, multi-dealer, statistically-robust, 100+-bond** one - every claim
-stated as a closed form and made falsifiable against the simulator. See
+un-blindable, multi-dealer, statistically-robust, 100+-bond, lazily-deployed**
+one - every claim stated as a closed form, made falsifiable against the
+simulator, and machine-checked by the verification layer. See
 [`research/README.md`](research/README.md) for the full methodology and
 [`research/math-theory/`](research/math-theory/) for the derivations
 (each with a compilable LaTeX companion) and the module-by-module code map.
@@ -307,8 +349,8 @@ trade-level TRACE - dealer-side prints, per-dealer inventory `q`, and per-bond
 proxied from the closest free sources. See
 [`data_collection/docs/REJECTED_SOURCES.md`](research/data_collection/docs/REJECTED_SOURCES.md).
 
-`endo_market_v3` **ships copies** of the artifacts it consumes
-([`archive/endo_market_v3/data/`](archive/endo_market_v3/data/)) so the package is
+`endo_market_v4` **ships copies** of the artifacts it consumes
+([`endo_market_v4/data/`](endo_market_v4/data/)) so the package is
 self-contained; regenerate everything from public sources with the pipeline's
 four scripts.
 
@@ -320,21 +362,24 @@ Every document in the project and where it lives:
 |----------|----------------|
 | [`README.md`](README.md) | This file: the project overview |
 | [`CLAUDE.md`](CLAUDE.md) | Orientation and conventions for AI coding agents (layout, gotchas, build/test/run) |
-| [`archive/endo_market_v3/README.md`](archive/endo_market_v3/README.md) | The current package: methodology, the five pillars, quickstart, honest caveats |
-| [`archive/endo_market_v3/theory/README.md`](archive/endo_market_v3/theory/README.md) | Code map from the five derivations to `reflex.theory` (+ shipped derivation copies) |
-| [`archive/endo_market_v3/data/README.md`](archive/endo_market_v3/data/README.md) | Provenance of the shipped calibration artifacts |
+| [`endo_market_v4/README.md`](endo_market_v4/README.md) | The current package: methodology, the six pillars, quickstart, honest caveats |
+| [`endo_market_v4/theory/README.md`](endo_market_v4/theory/README.md) | Code map from the six derivations to `reflex.theory` (+ shipped derivation copies) |
+| [`endo_market_v4/lean/README.md`](endo_market_v4/lean/README.md) | The Lean 4 formal skeletons: scope, build instructions, honest compile status |
+| [`endo_market_v4/data/README.md`](endo_market_v4/data/README.md) | Provenance of the shipped calibration artifacts |
 | [`research/README.md`](research/README.md) | The full research-program methodology and the To-Do checklist (incl. ICAIF requirements) |
-| [`research/math-theory/README.md`](research/math-theory/README.md) | The five canonical derivations 1.1–1.5 (each `.md` + compilable `.tex` + PDF) |
+| [`research/math-theory/README.md`](research/math-theory/README.md) | The six canonical derivations 1.1–1.6 (each `.md` + compilable `.tex`; PDFs for 1.1–1.5) |
 | [`research/data_collection/README.md`](research/data_collection/README.md) | Dataset sources and construction; `docs/` holds `DATA_CATALOGUE.md`, `VERIFICATION_LOG.md`, `REJECTED_SOURCES.md` |
 | [`research/preprocessing/README.md`](research/preprocessing/README.md) | Cleaning, enrichment, intensity fits, episode splits |
 | [`research/results/README.md`](research/results/README.md) | Conventions for the dated run folders |
-| [`research/results/07-10-2026/REPORT.md`](research/results/07-10-2026/REPORT.md) | **The complete illustrated report** of the paper-grade run (all figures + findings) |
-| [`research/results/07-10-2026/README.md`](research/results/07-10-2026/README.md) | Run provenance: commands, commit, timings, environment (+ per-experiment `notes.md`) |
+| [`research/results/07-10-2026/REPORT.md`](research/results/07-10-2026/REPORT.md) | The complete illustrated report of the v3 paper-grade run |
+| [`research/results/07-12-2026/REPORT.md`](research/results/07-12-2026/REPORT.md) | The illustrated report of the v4 paper-grade run (11 experiments, incl. the gap closure) |
 | [`research/analysis/README.md`](research/analysis/README.md) | Index of the analysis layer |
-| [`research/analysis/ANALYSIS-full-2026-07.md`](research/analysis/ANALYSIS-full-2026-07.md) | The master per-experiment analysis: tables, breakdowns, limitations |
+| [`research/analysis/ANALYSIS-full-2026-07.md`](research/analysis/ANALYSIS-full-2026-07.md) | The master per-experiment analysis of the v3 run: tables, breakdowns, limitations |
 | [`research/analysis/pre-run-audit-2026-07.md`](research/analysis/pre-run-audit-2026-07.md) | The measurement-layer audit: six defects, root causes, fixes, reframings |
 | [`literature/literature-vignesh/README.md`](literature/literature-vignesh/README.md) | 10 foundational papers, reading map, per-paper notes (+ `references.bib`) |
 | [`literature/literature-raghav/README.md`](literature/literature-raghav/README.md) | 18 papers with critical reading notes + research roadmap (+ `references.bib`) |
+| [`archive/README.md`](archive/README.md) | The four frozen prior generations: what each was, why superseded, provenance notes |
+| [`archive/endo_market_v3/README.md`](archive/endo_market_v3/README.md) | The superseded third generation (produced the 07-10-2026 run) |
 | [`archive/endo_market_v2/README.md`](archive/endo_market_v2/README.md) | The superseded second generation: mechanism, historical headline result + post-audit note |
 | [`archive/endo_market_v1/README.md`](archive/endo_market_v1/README.md) | The legacy first Python iteration |
 | [`archive/edl_simulator_v1/README.md`](archive/edl_simulator_v1/README.md) | The earliest analytical prototype (HTML/JS) |
@@ -345,22 +390,25 @@ The research program targets one novelty claim: derive the performativity
 stability boundary analytically from microstructure primitives instead of
 sweeping it by hand.
 
-**Where things stand (July 2026):** theory (1.1–1.5) derived + coded; the ML
-un-blinded and integrated with the math; real-data calibration wired in; the
-measurement layer audited against the theory (six probe/protocol defects
-found and fixed; 110/110 tests); the paper-grade full-profile suite executed
-(8/8, ~10 min CPU) and curated + analyzed in
-[`research/results/07-10-2026/`](research/results/07-10-2026/) and
-[`research/analysis/`](research/analysis/).
+**Where things stand (July 2026, v4 - the repo side is complete):** theory
+(1.1–1.6) derived + coded; the ML un-blinded and the loop-level gap **closed**
+by the structural mode; the estimators tuned; the theory machine-verified (66
+numerical certificates + Lean 4 skeletons); real-data calibration wired in;
+the measurement layer audited (six probe/protocol defects found and fixed;
+152/152 tests); paper-grade full-profile suites executed and curated
+([`research/results/07-10-2026/`](research/results/07-10-2026/) for v3,
+[`research/results/07-12-2026/`](research/results/07-12-2026/) for v4).
 
-- [x] **Analytic boundary (P1):** `γ`, `β`, `dτ/dh` in closed form ([`reflex/theory/analytic_boundary.py`](archive/endo_market_v3/reflex/theory/analytic_boundary.py)); the three-way `ε` triangulation built and verified against the realized-state closed form ([`reflex/estimators/`](archive/endo_market_v3/reflex/estimators/)).
-- [x] **Un-blind the operator (P2):** PerfGD-corrected loops with the analytic **and** learned `dD/dφ` ([`reflex/theory/perfgd.py`](archive/endo_market_v3/reflex/theory/perfgd.py), [`reflex/equilibrium/loops.py`](archive/endo_market_v3/reflex/equilibrium/loops.py)); closed form verified, loop-level stabilisation an open gap.
-- [x] **Multi-dealer / systemic risk (P3):** PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, and a genuine `N`-dealer market with amplification verified ([`reflex/theory/multi_dealer.py`](archive/endo_market_v3/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](archive/endo_market_v3/reflex/env/multi_dealer.py)).
-- [x] **Robust uncertainty (P4):** robust `ε*` with `O(1/√n)` radius; bands + certificates on every sweep ([`reflex/theory/robust.py`](archive/endo_market_v3/reflex/theory/robust.py)).
-- [x] **Scale and calibrate (P5):** 128 correlated bonds via `O(d·k²)` Woodbury with data-calibrated per-bond σ; regime-calibrated microstructure ([`reflex/theory/factor_scaling.py`](archive/endo_market_v3/reflex/theory/factor_scaling.py), [`reflex/calibration/`](archive/endo_market_v3/reflex/calibration/)); trade-level TRACE calibration pending WRDS access.
-- [x] **Paper-grade full-profile runs → curated results:** executed July 10, 2026 after the measurement-layer audit; artifacts + [`REPORT.md`](research/results/07-10-2026/REPORT.md) in [`research/results/07-10-2026/`](research/results/07-10-2026/), analysis in [`research/analysis/`](research/analysis/).
-- [ ] **Write the ICAIF 2026 paper** (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026). Scoping is settled in the analysis: closed forms + real-data fragility + probe-level verifications are the headline; loop-level PerfGD stabilisation is reported as a diagnosed open gap, not a claim.
-- [ ] **(Stretch) close the loop-level gap:** make the corrected *learned* loop find `h_PO` (operator architectures anchored to the GLFT structural form; bias-compensating corrections; stability-penalty regularisation against the echo-chamber collapse).
+- [x] **Analytic boundary (P1):** `γ`, `β`, `dτ/dh` in closed form ([`reflex/theory/analytic_boundary.py`](endo_market_v4/reflex/theory/analytic_boundary.py)); the three-way `ε` triangulation built, tuned and verified against the realized-state closed form ([`reflex/estimators/`](endo_market_v4/reflex/estimators/)).
+- [x] **Un-blind the operator (P2):** PerfGD-corrected loops with the analytic, free-form learned **and structural** `dD/dφ` ([`reflex/theory/perfgd.py`](endo_market_v4/reflex/theory/perfgd.py), [`reflex/equilibrium/loops.py`](endo_market_v4/reflex/equilibrium/loops.py), [`reflex/equilibrium/structural_response.py`](endo_market_v4/reflex/equilibrium/structural_response.py)); closed form verified **and the loop-level stabilisation demonstrated** (the structural mode settles at the realized optimum beyond the boundary; the free-form mode remains the documented negative result).
+- [x] **Multi-dealer / systemic risk (P3):** PSNE boundary `ε < γ/(N_eff·β)`, mean-field limit, and a genuine `N`-dealer market with amplification verified ([`reflex/theory/multi_dealer.py`](endo_market_v4/reflex/theory/multi_dealer.py), [`reflex/env/multi_dealer.py`](endo_market_v4/reflex/env/multi_dealer.py)).
+- [x] **Robust uncertainty (P4):** robust `ε*` with `O(1/√n)` radius; bands + certificates on every sweep; the v4 coverage-calibrated radius ([`reflex/theory/robust.py`](endo_market_v4/reflex/theory/robust.py)).
+- [x] **Scale and calibrate (P5):** 128 correlated bonds via `O(d·k²)` Woodbury with data-calibrated per-bond σ; regime-calibrated microstructure ([`reflex/theory/factor_scaling.py`](endo_market_v4/reflex/theory/factor_scaling.py), [`reflex/calibration/`](endo_market_v4/reflex/calibration/)); trade-level TRACE calibration pending WRDS access.
+- [x] **Lazy deployment (1.6, v4):** the K-step map, `γ_eff`, and the swept verification ([`reflex/theory/lazy_deploy.py`](endo_market_v4/reflex/theory/lazy_deploy.py), [`experiments/run_lazy_deploy.py`](endo_market_v4/experiments/run_lazy_deploy.py)).
+- [x] **Estimator tuning (v4):** the Sinkhorn blur (scale-relative, `0.02×std`) and the robust ambiguity radius (coverage-calibrated) ([`experiments/run_tuning.py`](endo_market_v4/experiments/run_tuning.py)).
+- [x] **Verification layer (v4):** 66 numerical proof certificates (raw + calibrated configs) + the Lean 4 skeletons ([`reflex/verification/`](endo_market_v4/reflex/verification/), [`lean/`](endo_market_v4/lean/); Lean compile pending a toolchain — honest status in its README).
+- [x] **Paper-grade full-profile runs → curated results:** v3 (July 10, 8/8) and v4 (July 12, 11/11) in [`research/results/`](research/results/).
+- [ ] **Write the ICAIF 2026 paper** (ACM `sigconf`, 8 pages, double-blind; deadline Aug 2, 2026). Scoping is settled in the analysis: closed forms + real-data fragility + probe-level verifications are the headline; the v4 structural stabilisation is reported against the realized-market benchmark with the A2-gap channels named.
 - [ ] Secure a research placement at a top AI lab (with affiliation).
 - [ ] Submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track venue.
 
