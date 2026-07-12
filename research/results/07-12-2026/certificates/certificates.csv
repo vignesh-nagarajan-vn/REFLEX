@@ -1,0 +1,67 @@
+config,certificate,check,value,tolerance,passed
+configs/default.yaml,1.1 analytic boundary,fixed_point_zeroes_blind_gradient,-1.4731122747049536e-15,1e-06,True
+configs/default.yaml,1.1 analytic boundary,modulus_identity_m_eq_eps_beta_over_gamma,0.0,1e-12,True
+configs/default.yaml,1.1 analytic boundary,gamma_positive_at_fixed_point,0.0,0.5,True
+configs/default.yaml,1.1 analytic boundary,br_slope_numeric_vs_minus_m_lq0,-1.2913494937659392e-06,0.03,True
+configs/default.yaml,1.1 analytic boundary,cobweb_step_linearisation,-0.06786196195533423,0.08,True
+configs/default.yaml,1.2 PerfGD identities,optimum_zeroes_corrected_gradient,-8.70189334280856e-14,1e-06,True
+configs/default.yaml,1.2 PerfGD identities,correction_vanishes_at_psi,-0.0,1e-09,True
+configs/default.yaml,1.2 PerfGD identities,correction_pulls_tighter_above_psi,0.0,0.5,True
+configs/default.yaml,1.2 PerfGD identities,gamma_po_curvature_identity_lq0,1.2915251033913751e-06,0.02,True
+configs/default.yaml,1.2 PerfGD dynamics (raw-unit demo),demo_regime_is_beyond_boundary,0.0,0.5,True
+configs/default.yaml,1.2 PerfGD dynamics (raw-unit demo),cobweb_diverges_beyond_boundary,0.0,0.5,True
+configs/default.yaml,1.2 PerfGD dynamics (raw-unit demo),corrected_ascent_reaches_h_po,1.4202933921567216e-11,0.001,True
+configs/default.yaml,1.2 PerfGD dynamics (raw-unit demo),echo_chamber_direction,0.0,0.5,True
+configs/default.yaml,1.3 multi-dealer,n_eff_formula,0.0,1e-12,True
+configs/default.yaml,1.3 multi-dealer,jacobian_common_mode_eigenvalue,1.1102230246251565e-16,1e-12,True
+configs/default.yaml,1.3 multi-dealer,spectral_radius_is_common_mode,-2.220446049250313e-16,1e-09,True
+configs/default.yaml,1.3 multi-dealer,single_dealer_reduction,0.0,1e-09,True
+configs/default.yaml,1.3 multi-dealer,boundary_identity_eps_star,0.0,1e-09,True
+configs/default.yaml,1.3 multi-dealer,amplification_identity_mN,0.0,1e-09,True
+configs/default.yaml,1.4 robust boundary,radius_formula_z_times_s,0.0,1e-12,True
+configs/default.yaml,1.4 robust boundary,parametric_rate_slope_minus_half,-0.03163099339100384,0.1,True
+configs/default.yaml,1.4 robust boundary,trichotomy_stable,0.0,0.5,True
+configs/default.yaml,1.4 robust boundary,trichotomy_undecided,0.0,0.5,True
+configs/default.yaml,1.4 robust boundary,trichotomy_unstable,0.0,0.5,True
+configs/default.yaml,1.4 robust boundary,sample_complexity_diverges,0.0,0.5,True
+configs/default.yaml,1.4 robust boundary,calibrated_radius_never_tighter_than_z_s,0.0,0.5,True
+configs/default.yaml,1.5 factor scaling,assembled_rho_equals_dense_eigensolve,0.0,1e-09,True
+configs/default.yaml,1.5 factor scaling,truncation_bound_dominates_measured_error,0.0,0.5,True
+configs/default.yaml,1.5 factor scaling,residual_variance_monotone_in_k,0.0,0.5,True
+configs/default.yaml,1.6 lazy deployment,mu_at_zero_is_one,0.0,1e-12,True
+configs/default.yaml,1.6 lazy deployment,mu_limit_is_minus_m,0.0,1e-09,True
+configs/default.yaml,1.6 lazy deployment,interpolation_identity,0.0,1e-12,True
+configs/default.yaml,1.6 lazy deployment,deadbeat_zeroes_mu,-1.1102230246251565e-16,1e-12,True
+configs/default.yaml,1.6 lazy deployment,max_stable_k_boundary,0.0,0.5,True
+configs/default.yaml,1.6 lazy deployment,gamma_eff_two_branches,0.0,0.5,True
+calibrated IG/normal (real units),1.1 analytic boundary,fixed_point_zeroes_blind_gradient,-1.29867304627333e-16,1e-06,True
+calibrated IG/normal (real units),1.1 analytic boundary,modulus_identity_m_eq_eps_beta_over_gamma,0.0,1e-12,True
+calibrated IG/normal (real units),1.1 analytic boundary,gamma_positive_at_fixed_point,0.0,0.5,True
+calibrated IG/normal (real units),1.1 analytic boundary,br_slope_numeric_vs_minus_m_lq0,-1.0550643009688231e-06,0.03,True
+calibrated IG/normal (real units),1.1 analytic boundary,cobweb_step_linearisation,-0.06031118526354451,0.08,True
+calibrated IG/normal (real units),1.2 PerfGD identities,optimum_zeroes_corrected_gradient,-3.127591593964983e-16,1e-06,True
+calibrated IG/normal (real units),1.2 PerfGD identities,correction_vanishes_at_psi,-0.0,1e-09,True
+calibrated IG/normal (real units),1.2 PerfGD identities,correction_pulls_tighter_above_psi,0.0,0.5,True
+calibrated IG/normal (real units),1.2 PerfGD identities,gamma_po_curvature_identity_lq0,2.279696184068207e-07,0.02,True
+calibrated IG/normal (real units),1.3 multi-dealer,n_eff_formula,0.0,1e-12,True
+calibrated IG/normal (real units),1.3 multi-dealer,jacobian_common_mode_eigenvalue,1.1102230246251565e-16,1e-12,True
+calibrated IG/normal (real units),1.3 multi-dealer,spectral_radius_is_common_mode,-2.220446049250313e-16,1e-09,True
+calibrated IG/normal (real units),1.3 multi-dealer,single_dealer_reduction,0.0,1e-09,True
+calibrated IG/normal (real units),1.3 multi-dealer,boundary_identity_eps_star,0.0,1e-09,True
+calibrated IG/normal (real units),1.3 multi-dealer,amplification_identity_mN,0.0,1e-09,True
+calibrated IG/normal (real units),1.4 robust boundary,radius_formula_z_times_s,0.0,1e-12,True
+calibrated IG/normal (real units),1.4 robust boundary,parametric_rate_slope_minus_half,-0.03163099339100384,0.1,True
+calibrated IG/normal (real units),1.4 robust boundary,trichotomy_stable,0.0,0.5,True
+calibrated IG/normal (real units),1.4 robust boundary,trichotomy_undecided,0.0,0.5,True
+calibrated IG/normal (real units),1.4 robust boundary,trichotomy_unstable,0.0,0.5,True
+calibrated IG/normal (real units),1.4 robust boundary,sample_complexity_diverges,0.0,0.5,True
+calibrated IG/normal (real units),1.4 robust boundary,calibrated_radius_never_tighter_than_z_s,0.0,0.5,True
+calibrated IG/normal (real units),1.5 factor scaling,assembled_rho_equals_dense_eigensolve,0.0,1e-09,True
+calibrated IG/normal (real units),1.5 factor scaling,truncation_bound_dominates_measured_error,0.0,0.5,True
+calibrated IG/normal (real units),1.5 factor scaling,residual_variance_monotone_in_k,0.0,0.5,True
+calibrated IG/normal (real units),1.6 lazy deployment,mu_at_zero_is_one,0.0,1e-12,True
+calibrated IG/normal (real units),1.6 lazy deployment,mu_limit_is_minus_m,0.0,1e-09,True
+calibrated IG/normal (real units),1.6 lazy deployment,interpolation_identity,0.0,1e-12,True
+calibrated IG/normal (real units),1.6 lazy deployment,deadbeat_zeroes_mu,-1.1102230246251565e-16,1e-12,True
+calibrated IG/normal (real units),1.6 lazy deployment,max_stable_k_boundary,0.0,0.5,True
+calibrated IG/normal (real units),1.6 lazy deployment,gamma_eff_two_branches,0.0,0.5,True
