@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reflex-market"
+version = "4.0.0"
+description = "REFLEX v4: performative prediction in an endogenous OTC bond market -- un-blinded learned operator, closed-form stability theory (1.1-1.5), real-data calibration, lazy-deploy + estimator tuning, structural PerfGD, and the verification layer."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "REFLEX Research" }]
+dependencies = [
+    "torch>=2.1",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "pyyaml>=6.0",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+logging = ["wandb>=0.16"]
+
+[project.scripts]
+reflex-run-single = "experiments.run_single:main"
+reflex-run-sweep = "experiments.run_sweep:main"
+reflex-run-all = "experiments.run_all:main"
+
+[tool.setuptools]
+packages = [
+    "reflex",
+    "reflex.analysis",
+    "reflex.calibration",
+    "reflex.env",
+    "reflex.equilibrium",
+    "reflex.estimators",
+    "reflex.objective",
+    "reflex.operator",
+    "reflex.policy",
+    "reflex.theory",
+    "reflex.utils",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "slow: end-to-end RRM/sweep tests that invoke the full pipeline (deselect with -m 'not slow')",
+]

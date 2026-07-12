@@ -1,0 +1,55 @@
+# PRIMARY phase-diagram experiment: sweep the performative-feedback gain
+# epsilon (clients.toxicity_feedback) at fixed adversariality, and locate the
+# critical epsilon* where the best-response contraction modulus crosses 1.
+# This reproduces the performative-prediction stability boundary epsilon < gamma/beta.
+#
+# epsilon is the clean control variable: it scales the toxicity-vs-spread
+# feedback directly, without changing the operating regime. (Sweeping alpha
+# instead -- see sweep_adversariality.yaml -- is confounded by best-response
+# saturation, which is itself a reported finding.)
+seed: 0
+device: cpu
+dtype: float32
+
+base:
+  bonds:
+    n_bonds: 8
+    n_sectors: 2
+  clients:
+    alpha: 0.5
+    info_intensity: 1.4
+    info_base_intensity: 0.6
+    info_spread_decay: 1.5
+    info_cap: 8.0
+    spread_ref: 0.5
+  simulator:
+    horizon: 40
+    fundamental_vol: 0.25
+    init_mispricing_vol: 0.5
+    mid_move_cap: 4.0
+  operator:
+    hidden: 64
+    head_type: gaussian
+    epochs: 50
+  policy:
+    type: linear
+    inner_steps: 60
+    rollout_horizon: 16
+    n_rollouts: 16
+    init_half_spread: 0.8
+  reward:
+    inv_risk_weight: 0.05
+    quote_anchor_weight: 0.25
+    quote_anchor_ref: 1.0
+  rrm:
+    n_episodes: 16
+    collection_jitter: 0.05  # clean probe protocol: 0.2 inflates the measured
+                             # modulus ~3x (reads ~0.5 at zero feedback)
+
+sweep:
+  variable: toxicity_feedback          # the epsilon knob (clients.toxicity_feedback)
+  grid: [0.0, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0]
+  n_seeds: 8                           # paper-grade median + IQR bands
+  seed_base: 0
+  h_ref: 1.0                           # reference spread for the BR-slope probe
+  delta: 0.25
