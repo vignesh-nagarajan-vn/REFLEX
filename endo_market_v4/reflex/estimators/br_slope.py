@@ -32,6 +32,7 @@ modulus crosses 1, reproducing the performative-prediction stability boundary
 
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 from typing import Optional
 
@@ -45,7 +46,7 @@ from ..policy.dealer_policy import LinearPolicy, _inverse_softplus
 from ..types import policy_summary
 from ..equilibrium.data_collection import collect, collect_initial_states
 from ..equilibrium.fit_operator import fit_operator
-from ..equilibrium.optimize_policy import optimize_policy
+from ..equilibrium.optimize_policy import optimize_policy, rgd_step
 
 
 @dataclass
@@ -148,4 +149,104 @@ def measure_response_modulus(
         h_ref=h_ref,
         delta=delta,
         stable=modulus < 1.0,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# The K-step (lazy-deploy) probe -- theory 1.6                                 #
+# --------------------------------------------------------------------------- #
+@dataclass
+class RGDResponseResult:
+    """Result of a CRN K-step (RGD) deployment-map probe (theory 06).
+
+    Unlike the full-BR probe the slope is reported **signed**: the K-step map
+    ``mu(K) = -m + c^K (1+m)`` crosses zero at the deadbeat step count, so its
+    sign is part of the prediction being verified.
+    """
+
+    slope: float  # signed d(out)/d(deployed h)
+    modulus: float  # |slope|
+    out_plus: float  # central half-spread after K RGD steps from the (h_ref+delta) deploy
+    out_minus: float  # ... from the (h_ref-delta) deploy
+    h_ref: float
+    delta: float
+    n_steps: int  # K
+    lr: float
+
+
+def _rgd_output_central_spread(
+    cfg: Config,
+    simulator: StructuralSimulator,
+    h_dep: float,
+    seed: int,
+    ref_state,
+    n_steps: int,
+    lr: float,
+) -> float:
+    """Deploy fixed-``h_dep``, refit the operator, take ``n_steps`` RGD steps
+    **warm-started from the deployed policy** (the lazy-deploy convention:
+    the inner gradient flow starts at the deployed spread, not a fresh init),
+    and return the resulting central half-spread.  CRN-seeded exactly like
+    :func:`_best_response_central_spread`.
+    """
+    gen_collect = torch.Generator().manual_seed(seed)
+    gen_fit = torch.Generator().manual_seed(seed + 1)
+    gen_opt = torch.Generator().manual_seed(seed + 2)
+
+    deployed = _deployed_policy_at(cfg, h_dep)
+    transitions = collect(simulator, deployed, cfg, base_seed=seed, generator=gen_collect)
+
+    torch.manual_seed(seed)  # common operator initialisation across probes
+    operator = MarketResponseOperator(cfg)
+    fit_operator(operator, transitions, deployed, cfg.operator, generator=gen_fit)
+
+    candidate = copy.deepcopy(deployed)
+    frozen = policy_summary(ref_state, deployed).detach()
+    init_states = collect_initial_states(simulator, cfg.policy.n_rollouts, base_seed=seed + 999)
+    rgd_step(
+        candidate, operator, init_states, cfg,
+        frozen_summary=frozen, n_steps=int(n_steps), lr=float(lr),
+        generator=gen_opt,
+    )
+    with torch.no_grad():
+        return float(candidate.quote(ref_state).half_spread.mean())
+
+
+def measure_rgd_response(
+    cfg: Config,
+    seed: int = 0,
+    h_ref: float = 1.0,
+    delta: float = 0.25,
+    n_steps: Optional[int] = None,
+    lr: Optional[float] = None,
+    simulator: Optional[StructuralSimulator] = None,
+) -> RGDResponseResult:
+    """Estimate the signed K-step deployment-map slope ``mu(K)`` at ``h_ref``.
+
+    The lazy-deploy counterpart of :func:`measure_response_modulus`: the same
+    deploy -> collect -> refit pipeline under common random numbers, but the
+    re-optimisation is ``K = n_steps`` RGD steps warm-started from the deployed
+    policy (defaults: ``cfg.rrm.rgd_steps`` / ``cfg.rrm.rgd_lr``).  Theory 06
+    predicts ``mu(K) = -m + c^K (1+m)`` with ``m`` the exact-BR modulus and
+    ``c`` the (fitted) inner per-step contraction.
+    """
+    k = int(cfg.rrm.rgd_steps if n_steps is None else n_steps)
+    step_lr = float(cfg.rrm.rgd_lr if lr is None else lr)
+    if simulator is None:
+        torch.manual_seed(seed)
+        simulator = StructuralSimulator(cfg)
+    ref_state = simulator.reset(seed=seed + 9991).detach()
+
+    out_plus = _rgd_output_central_spread(cfg, simulator, h_ref + delta, seed, ref_state, k, step_lr)
+    out_minus = _rgd_output_central_spread(cfg, simulator, h_ref - delta, seed, ref_state, k, step_lr)
+    slope = (out_plus - out_minus) / (2.0 * delta)
+    return RGDResponseResult(
+        slope=slope,
+        modulus=abs(slope),
+        out_plus=out_plus,
+        out_minus=out_minus,
+        h_ref=h_ref,
+        delta=delta,
+        n_steps=k,
+        lr=step_lr,
     )

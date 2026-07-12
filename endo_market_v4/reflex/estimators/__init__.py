@@ -15,7 +15,12 @@ Three independent measurement instruments (the 1.1 triangulation protocol):
 evidentiary bar for the analytic boundary theorem.
 """
 
-from .br_slope import ResponseModulusResult, measure_response_modulus
+from .br_slope import (
+    ResponseModulusResult,
+    RGDResponseResult,
+    measure_response_modulus,
+    measure_rgd_response,
+)
 from .cks import CKSEpsilonResult, estimate_epsilon_cks
 from .sinkhorn import (
     SinkhornEpsilonResult,
@@ -27,7 +32,9 @@ from .triangulate import TriangulationResult, triangulate_epsilon
 
 __all__ = [
     "ResponseModulusResult",
+    "RGDResponseResult",
     "measure_response_modulus",
+    "measure_rgd_response",
     "CKSEpsilonResult",
     "estimate_epsilon_cks",
     "SinkhornEpsilonResult",

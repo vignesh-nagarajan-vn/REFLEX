@@ -1,0 +1,157 @@
+\documentclass[11pt]{article}
+
+% ============================================================================
+% 1.6 - Lazy Deployment: the K-Step Outer Map and the Effective Curvature
+% LaTeX companion to 06-lazy-deployment.md (REFLEX / math-theory).
+% Self-contained and compilable with pdflatex.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\BR}{\mathrm{BR}}
+\newcommand{\meff}{m_{\mathrm{eff}}}
+\newcommand{\geff}{\gamma_{\mathrm{eff}}}
+
+\title{\textbf{1.6 - Lazy Deployment:\\ the $K$-Step Outer Map and the Effective Curvature}}
+\author{REFLEX project - \code{math-theory}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{STATUS: DONE (v4 addendum, derivation + code).} This document
+discharges the last open ``Training and tuning'' item of the methodology
+(``sweep lazy-deploy $K$ and report the effect on $\geff$''). It derives, from
+the linearisation of 1.1, the closed form of the outer retraining map when each
+deployment is followed by only $K$ inner gradient steps
+(\code{rrm.update\_rule = "rgd"}, $K = \code{rrm.rgd\_steps}$) instead of an
+exact best response. Companion code: \code{reflex/theory/lazy\_deploy.py}, the
+CRN probe \code{measure\_rgd\_response} in
+\code{reflex/estimators/br\_slope.py}, and
+\code{experiments/run\_lazy\_deploy.py}.
+
+\paragraph{One-line thesis.}
+One deployment of a $K$-step retrainer realises only the fraction
+$\lambda_K = 1 - c^K$ of the exact best-response cobweb ($c = 1-\eta_h\gamma$
+the inner per-step contraction), so the outer slope is the convex combination
+$\mu(K) = (1-\lambda_K)\cdot 1 + \lambda_K\cdot(-m)$. Laziness interpolates
+between ``do nothing'' and the exact cobweb: it can deadbeat the loop at finite
+$K$, it keeps an RRM-unstable market ($m>1$) stable for all $K \le K_{\max}$,
+and, read through the plain-RRM identity, it manifests as an \emph{effective
+curvature} $\geff(K) = \gamma\, m/|\mu(K)|$ with two branches: inertia
+($\geff < \gamma$) below the equal-modulus count $K_{\mathrm{eq}}$, extra
+stiffness ($\geff > \gamma$) above it, diverging at the deadbeat count and
+decaying to the true $\gamma$ as $K \to \infty$.
+
+\section{The scheme}
+
+Exact RRM redeploys the full best response, $h_{t+1} = \BR(\tau(h_t))$, with
+signed fixed-point slope $\BR'(h^*) = -\eps\beta/\gamma = -m$ (1.1 \S3.3). The
+implemented lazy scheme takes, after deploying $h_t$ and refitting on
+$D(h_t)$, $K$ gradient steps on the frozen-$T$ objective, warm-started from the
+deployed spread:
+\[
+  h^{(0)} = h_t, \qquad
+  h^{(j+1)} = h^{(j)} + \eta_h\, \partial_1 J\!\left(h^{(j)};\tau(h_t)\right),
+  \qquad h_{t+1} = h^{(K)} .
+\]
+
+\section{The $K$-step slope}
+
+\begin{lemma}[inner linearisation]
+With $B_t := \BR(\tau(h_t))$ and $\partial_1^2 J = -\gamma$,
+$h^{(j+1)} - B_t = c\,(h^{(j)} - B_t)$ where $c = 1-\eta_h\gamma \in [0,1)$;
+hence $h_{t+1} - B_t = c^K (h_t - B_t)$.
+\end{lemma}
+
+\begin{lemma}[outer linearisation]
+At the fixed point, $B_t - h^* = -m\,(h_t - h^*)$ to first order.
+\end{lemma}
+
+\begin{theorem}[$K$-step outer slope]
+\label{thm:mu}
+Combining the two lemmas,
+\begin{equation}
+  \mu(K) \;=\; -m + c^K\,(1+m).
+  \tag{6.1}
+\end{equation}
+\end{theorem}
+
+\begin{corollary}[lazy-deploy interpolation]
+With $\lambda_K = 1-c^K$: $\mu(K) = (1-\lambda_K)\cdot 1 +
+\lambda_K\cdot(-m)$; $\mu(0)=1$, $\mu$ strictly decreasing in $K$, and
+$\mu(K)\to -m$ (exact RRM) as $K\to\infty$.
+\end{corollary}
+
+\section{Consequences}
+
+\textbf{Effective modulus.} The loop contracts iff $\meff(K) := |\mu(K)| < 1$.
+For $m<1$ every $K\ge 1$ is stable; $\meff$ is \emph{not} monotone in $K$: it
+falls to zero at the deadbeat count, then rises back to $m$.
+
+\textbf{Deadbeat deployment.} $\mu(K)=0 \iff c^K = m/(1+m)$:
+\begin{equation}
+  K_{\mathrm{db}} = \frac{\ln\!\big(m/(1+m)\big)}{\ln c}.
+  \tag{6.2}
+\end{equation}
+
+\textbf{Laziness stabilises an unstable market.} For $m>1$, $\mu(K) > -1$
+while $c^K > (m-1)/(m+1)$:
+\begin{equation}
+  K < K_{\max} = \frac{\ln\!\big((m-1)/(m+1)\big)}{\ln c},
+  \tag{6.3}
+\end{equation}
+the quantitative version of RGD's wider stability range vs RRM (Perdomo et
+al.\ 2020, Thm 3.8 vs 3.5).
+
+\section{The effective curvature}
+
+Reading the measured $K$-step modulus through the plain-RRM identity
+$m = \eps\beta/\gamma$:
+\begin{equation}
+  \geff(K) \;=\; \frac{\eps\beta}{\meff(K)} \;=\; \gamma\,\frac{m}{|\mu(K)|},
+  \tag{6.4}
+\end{equation}
+with two branches separated by the \emph{equal-modulus count} where
+$\mu(K) = +m$ on the positive branch:
+\begin{equation}
+  K_{\mathrm{eq}} = \frac{\ln\!\big(2m/(1+m)\big)}{\ln c}
+  \qquad (K_{\mathrm{eq}} = 0 \text{ when } m \ge 1).
+  \tag{6.5}
+\end{equation}
+For $K < K_{\mathrm{eq}}$ the under-trained loop crawls ($\meff > m$), so
+$\geff < \gamma$: the lazy loop reads as a \emph{softer} objective, and an
+observer fitting the plain boundary \emph{over-estimates} the market's
+fragility (the inflation is under-training, not performative feedback) - at
+near-zero-$m$ markets every practical $K$ sits here. For $K > K_{\mathrm{eq}}$
+the overshoot-cancelling regime reads as extra stiffness ($\geff > \gamma$),
+$\geff \to \infty$ at $K_{\mathrm{db}}$ (no finite curvature reproduces a
+one-shot-convergent retrainer), and $\geff \downarrow \gamma$ as
+$K \to \infty$. Either way $\geff$ is reported alongside $\meff$, never
+instead of it, with the branch stated.
+
+\section{Protocol}
+
+$\eta_h$ is a step size in spread units; the implementation's
+\code{rrm.rgd\_lr} acts in parameter space, so $c$ is identified from the loop
+itself: (1) signed CRN $K$-probe at the operating spread (paired deployments
+$h_{\mathrm{ref}}\pm\delta$, $K$ RGD steps warm-started from the deployed
+policy, signed difference quotient); (2) the exact-BR modulus measured on the
+same seeds as the $K\to\infty$ anchor; (3) one-parameter least-squares fit of
+(6.1) for $c$; (4) report $\meff(K)$, $\geff(K)$, $K_{\mathrm{db}}$, and - in
+an $m>1$ regime - the window $K \le K_{\max}$. Caveats: the derivation is a
+local linearisation; the probe's inner steps act through $T_\theta$, so
+operator misfit perturbs $c$; default step sizes keep $c\in(0,1)$.
+
+\end{document}

@@ -15,6 +15,9 @@ Each module implements, as pure functions of :class:`reflex.config.Config`
   certificate, and the ``O(1/sqrt(n))`` rate machinery.
 * :mod:`.factor_scaling` -- 1.5: the ``d x d`` modulus matrix
   ``M = beta*Gamma^{-1}*E``, the Woodbury reduction, and the truncation bound.
+* :mod:`.lazy_deploy` -- 1.6 (v4): the K-step RGD deployment map
+  ``mu(K) = -m + c^K (1+m)``, the effective curvature ``gamma_eff(K)``, the
+  deadbeat / max-stable step counts, and the ``c``-fit for the CRN K-probe.
 """
 
 from .analytic_boundary import (
@@ -88,6 +91,18 @@ from .factor_scaling import (
     systemic_spectral_radius,
     truncation_error_bound,
 )
+from .lazy_deploy import (
+    LazyDeployCurve,
+    deadbeat_k,
+    effective_modulus,
+    equal_modulus_k,
+    fit_inner_contraction,
+    gamma_eff,
+    k_step_slope,
+    lazy_deploy_curve,
+    lazy_weight,
+    max_stable_k,
+)
 
 __all__ = [
     # 1.1 analytic stability boundary
@@ -156,4 +171,15 @@ __all__ = [
     "sweep_global_factor",
     "systemic_spectral_radius",
     "truncation_error_bound",
+    # 1.6 lazy deployment
+    "LazyDeployCurve",
+    "deadbeat_k",
+    "effective_modulus",
+    "equal_modulus_k",
+    "fit_inner_contraction",
+    "gamma_eff",
+    "k_step_slope",
+    "lazy_deploy_curve",
+    "lazy_weight",
+    "max_stable_k",
 ]

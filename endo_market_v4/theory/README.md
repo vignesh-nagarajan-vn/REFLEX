@@ -1,4 +1,4 @@
-# theory/ - the five closed-form derivations (shipped copies)
+# theory/ - the six closed-form derivations (shipped copies)
 
 Self-contained copies of the REFLEX math-theory derivations (canonical originals
 live in `../../research/math-theory/`, including `.tex` sources and
@@ -12,6 +12,7 @@ compiled PDFs under `latex-papers/`). Each maps to a module in
 | **1.3** | [`03-multi-dealer-systemic-risk.md`](03-multi-dealer-systemic-risk.md) | [`reflex/theory/multi_dealer.py`](../reflex/theory/multi_dealer.py) | The `N`-dealer boundary `epsilon < gamma/(N_eff*beta)` with `N_eff = 1 + kappa*(N-1)`, the joint Jacobian/spectrum, mean-field limits, and the critical dealer count `N_c = 1/m_1`. |
 | **1.4** | [`04-robust-uncertainty.md`](04-robust-uncertainty.md) | [`reflex/theory/robust.py`](../reflex/theory/robust.py) | The ambiguity radius `delta_n`, the robust certificate `epsilon_hat + delta_n < gamma/beta` (stable / unstable / undecided), `O(1/sqrt(n))` rate machinery, and `n_req = O(Delta^-2)` sample complexity. |
 | **1.5** | [`05-factor-model-scaling.md`](05-factor-model-scaling.md) | [`reflex/theory/factor_scaling.py`](../reflex/theory/factor_scaling.py) | The `d x d` modulus matrix `M = beta*Gamma^-1*E` with boundary `rho(M) < 1`, the `O(d*k^2)` Woodbury reduction, and the truncation bound `O(lambda_{k+1}(C))`. |
+| **1.6** | [`06-lazy-deployment.md`](06-lazy-deployment.md) | [`reflex/theory/lazy_deploy.py`](../reflex/theory/lazy_deploy.py) | The K-step outer map `mu(K) = -m + c^K*(1+m)` (lazy-deploy interpolation), the deadbeat / max-stable step counts, the effective curvature `gamma_eff(K) = gamma*m/\|mu(K)\|`, and the `c`-fit for the signed CRN K-probe. |
 
 The model-free measurement side (the `epsilon` triangulation: BR-slope /
 Sinkhorn / CKS) lives in [`../reflex/estimators/`](../reflex/estimators/); the
