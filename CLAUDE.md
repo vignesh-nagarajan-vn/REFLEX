@@ -254,9 +254,12 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
    double-blind; scoped as settled in the analysis — closed forms +
    real-data fragility + probe-level verifications are the headline; the v4
    structural-loop stabilisation is reported against the *realized-market*
-   benchmark with the A2-gap channels named). Remaining: Overleaf compile +
-   8-page check (trim order in `paper/README.md`), create the anonymized
-   repo mirror the placeholder footnote points at, submit via CMT.
+   benchmark with the A2-gap channels named). The working copy is
+   **de-anonymized** (real author block — co-first authors, Vignesh
+   corresponding — and the public GitHub footnote). Remaining: Overleaf
+   compile + 8-page check (trim order in `paper/README.md`); before CMT
+   submission flip the double-blind toggle documented in the `main.tex`
+   header (class option + anonymized-mirror footnote); submit.
    Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.

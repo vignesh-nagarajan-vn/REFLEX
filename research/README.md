@@ -301,8 +301,8 @@ The submission draft lives in [`paper/`](paper/) (`main.tex` +
 trim-order if the compile runs long, and the camera-ready TODOs). Status:
 
 - [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - *drafted to budget; verify the count on Overleaf (no local TeX toolchain); trim order in `paper/README.md`*
-- [x] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - `\documentclass[sigconf,anonymous,review]{acmart}`
-- [x] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - author block hidden by `anonymous`; repository link anonymized (placeholder footnote, mirror still to be created)
+- [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - drafted on `acmart`, but the working copy is currently **de-anonymized** (real author block + public repo footnote, by author decision); flip the documented toggle in `paper/main.tex` back to `[sigconf,anonymous,review]` before CMT submission
+- [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`)
 - [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices
 - [x] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope - Secs. 1.1, 5.2 (fragility index on 36y of real data), 6
 - [x] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - Sec. 4.3 + Limitations state plainly: proxy-level public data, not trade-level TRACE; degenerate crisis cell flagged
