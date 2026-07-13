@@ -10,9 +10,9 @@ deadline **Aug 2, 2026**, via CMT).
 
 | File | What it is |
 |------|-----------|
-| `main.tex` | The full paper source (ACM `sigconf`, `anonymous,review` options for double-blind submission) |
+| `main.tex` | The full paper source (ACM `sigconf`). Currently the **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment) |
-| `figures/` | The four headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/` |
+| `figures/` | The six headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/` |
 
 Content sources: the run report
 [`../results/07-12-2026/REPORT.md`](../results/07-12-2026/REPORT.md) (all
@@ -50,8 +50,8 @@ paper traces to the curated 07-12-2026 run; nothing is re-derived here.
 | Requirement (from `../README.md` § ICAIF) | Status |
 |---|---|
 | 8 pages total, ACM `sigconf`, two-column | Written to budget; **verify on Overleaf** |
-| ACM template with `anonymous` parameter | `\documentclass[sigconf,anonymous,review]{acmart}` (`review` adds line numbers; drop it if the CFP says otherwise) |
-| Double-blind: no identifying info | Author block hidden by `anonymous`; no self-citations; repo link anonymized (footnote placeholder) |
+| ACM template with `anonymous` parameter | Class line is currently `[sigconf]` (de-anonymized working version, by author decision). **Before CMT submission switch to `[sigconf,anonymous,review]`** - toggle documented in the file header |
+| Double-blind: no identifying info | Currently de-anonymized (real author block + public GitHub footnote). Before submission: re-enable `anonymous` and swap the Reproducibility footnote for an anonymized mirror |
 | No supplementary materials/appendices | Self-contained; the repository link is a reproducibility pointer, not supplementary material |
 | Real-world financial application | Secs. 1.1, 5.2 (real-data fragility index), 6 |
 | Data provenance disclosed | Sec. 4.3 + Limitations (proxy-level, not trade-level TRACE; degenerate crisis cell) |
@@ -61,13 +61,19 @@ paper traces to the curated 07-12-2026 run; nothing is re-derived here.
 | Submit via CMT before Aug 2, 2026 | `cmt3.research.microsoft.com/ICAIF2026` |
 | ORCID (camera-ready only) | `TODO(camera-ready)` marker in `main.tex` |
 
-## Camera-ready TODOs (all marked `TODO(camera-ready)` in `main.tex`)
+## Submission and camera-ready TODOs
 
-- Replace the `anonymous.4open.science` placeholder footnote with the real
-  repository URL (and create the anonymized mirror *before* submission so
-  the placeholder resolves for reviewers).
-- Remove `anonymous,review` options; restore the author block; confirm
-  affiliations; add ORCID iDs.
+Before **CMT submission** (ICAIF review is double-blind; the source is
+currently de-anonymized by author decision):
+
+- Switch the class line back to `\documentclass[sigconf,anonymous,review]{acmart}`
+  (toggle documented in the `main.tex` header).
+- Swap the Reproducibility footnote (public GitHub URL) for an anonymized
+  mirror, and create that mirror so it resolves for reviewers.
+
+At **camera-ready** (marked `TODO(camera-ready)` in `main.tex`):
+
+- Add `\orcid{}` iDs for both authors (ICAIF requires ORCID at camera-ready).
 - Remove `\settopmatter{printacmref=false}` / `\setcopyright{none}` and
   insert the rights block ACM supplies on acceptance.
 - Optional: regenerate the CCS concept XML ids with the ACM CCS tool (the

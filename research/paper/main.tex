@@ -5,13 +5,17 @@
 %% (TeX Live >= 2022). Main file: main.tex; bibliography: references.bib;
 %% figures under figures/.
 %%
-%% Submission mode: [sigconf,anonymous,review] hides the author block and
-%% adds line numbers. Camera-ready TODOs are marked "TODO(camera-ready)".
+%% This is the DE-ANONYMIZED working version (real authors + public repo
+%% link). ICAIF review is double-blind: before CMT submission, switch the
+%% class line to
+%%   \documentclass[sigconf,anonymous,review]{acmart}
+%% and swap the Reproducibility footnote for an anonymized mirror.
+%% Camera-ready TODOs are marked "TODO(camera-ready)".
 %%
-\documentclass[sigconf,anonymous,review]{acmart}
+\documentclass[sigconf]{acmart}
 
 %% Suppress the ACM reference-format block and copyright box for the
-%% double-blind submission. TODO(camera-ready): remove these two lines and
+%% pre-acceptance draft. TODO(camera-ready): remove these two lines and
 %% insert the rights block ACM supplies on acceptance.
 \settopmatter{printacmref=false}
 \setcopyright{none}
@@ -47,18 +51,30 @@
 OTC Corporate Bond Markets}
 
 %% -------------------------------------------------------------- authors --
-%% Hidden during review by the [anonymous] option.
-%% TODO(camera-ready): confirm affiliations and add ORCID iDs for all authors.
+%% Co-first authors (equal contribution); Vignesh is corresponding (the
+%% first \authornote mark renders as the asterisk).
+%% TODO(camera-ready): add \orcid{} for both authors (ICAIF requires ORCID
+%% iDs at camera-ready).
 \author{Vignesh Nagarajan}
-\email{nrvignesh08@gmail.com}
+\authornote{Corresponding author.}
+\authornote{Both authors contributed equally to this research.}
 \affiliation{%
-  \institution{Independent Researcher}% TODO(camera-ready): affiliation
-  \city{College Station}\state{TX}\country{USA}}
+  \department{Brown Foundation Scholar}
+  \institution{Texas A\&M University}
+  \city{College Station}
+  \state{TX}
+  \country{USA}}
+\email{vigneshn26@tamu.edu}
+
 \author{Shriraghav Ashok}
-\email{shriraghav.a524@gmail.com}
+\authornotemark[2]
 \affiliation{%
-  \institution{Independent Researcher}% TODO(camera-ready): affiliation
-  \city{Phoenix}\state{AZ}\country{USA}}
+  \department{Haas School of Business}
+  \institution{University of California, Berkeley}
+  \city{Berkeley}
+  \state{CA}
+  \country{USA}}
+\email{shriraghav.a524@gmail.com}
 
 %% ------------------------------------------------------------- abstract --
 \begin{abstract}
@@ -654,12 +670,25 @@ common-mode slope against the predicted $\Neff m_1$
 $3.16\times$ ($N{=}3$) against predicted $2$ and $3$ -- within $13\%$ and
 $5\%$ -- while the differential mode is dead at full spillover
 ($(1-\kappa)m_1=0$), i.e.\ the instability is purely the synchronized
-systemic channel. The analytic surface puts the critical dealer count at
+systemic channel. The analytic surface (Figure~\ref{fig:dealersurface})
+puts the critical dealer count at
 $N_c\approx7.9$ for the default single-dealer modulus, and the simulated
 three-dealer cobweb already oscillates against its cap. The governance
 reading is direct: each desk can satisfy its own stability check while the
 market as a whole violates \eqref{eq:multidealer}; fragility must be
 certified at the market level.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/dealer_phase_diagram.png}
+\caption{The R3 systemic surface: joint modulus $m_N=\Neff\,m_1$ over the
+$(f,N)$ grid at full spillover ($\kappa=1$), with the $m_N=1$ boundary
+contour. Gains that are comfortably stable for a single dealer cross the
+systemic boundary as the dealer count grows; the probes of
+Table~\ref{tab:dealers} measure the first rows of this surface on the
+simulated market.}
+\label{fig:dealersurface}
+\end{figure}
 
 \begin{table}[t]
 \caption{Measured common-mode retraining slope on the shared-pool market
@@ -783,9 +812,23 @@ through the exact-RRM line between $K=5$ and $K=8$.}
 
 \subsection{Scaling and Estimator Tuning}
 \label{sec:tuning}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/universe_scaling.png}
+\caption{Factor-model scaling (R5) with data-calibrated per-bond
+dispersion. Left: $\rho(M)$ is flat in universe size from $d=8$ to $128$
+bonds and pinned to the worst scalar modulus, far below the $\rho=1$
+boundary (dotted). Right: the truncation bound $O(\lambda_{k+1}(C))$
+versus the measured error $|\rho-\rho_k|$ at $d=128$ -- three to four
+orders of magnitude of slack at every retained-factor count $k$.}
+\label{fig:universe}
+\end{figure*}
+
 \emph{Factor scaling (R5).} With per-bond volatilities dispersed at the
 data-calibrated cross-sectional coefficient of variation, $\rho(M)$ is
-flat at ${\approx}0.50$ from $d=8$ to $128$ bonds and pinned to the worst
+flat at ${\approx}0.50$ from $d=8$ to $128$ bonds
+(Figure~\ref{fig:universe}) and pinned to the worst
 scalar modulus -- on this calibration, correlation does not manufacture
 cross-sectional instability; the fragile mode is idiosyncratic. The
 Woodbury path computes $d=128$ in $0.12$\,s and matches the dense
@@ -852,9 +895,10 @@ compilable LaTeX twin), the simulator, operator, all four loop modes, the
 estimator suite, the calibration pipeline with its data catalogue and
 rejected-sources log, the 66-certificate verification layer, the Lean
 sources, every configuration and seed, and the complete illustrated
-reports of both paper-grade runs -- is available at an anonymized
-repository.\footnote{\url{https://anonymous.4open.science/r/REFLEX}
--- TODO(camera-ready): replace with the public repository.} All results in
+reports of both paper-grade runs -- is openly
+available.\footnote{\url{https://github.com/vignesh-nagarajan-vn/REFLEX/}
+-- for double-blind review, this footnote is swapped for an anonymized
+mirror.} All results in
 this paper are regenerated by one command (\code{run\_all --profile full},
 ${\sim}25$ CPU-minutes, deterministic from configuration and seed).
 
