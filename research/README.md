@@ -300,7 +300,7 @@ The submission draft lives in [`paper/`](paper/) (`main.tex` +
 `references.bib` + `figures/`; see its README for the build steps, the
 trim-order if the compile runs long, and the camera-ready TODOs). Status:
 
-- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - *drafted to budget; verify the count on Overleaf (no local TeX toolchain); trim order in `paper/README.md`*
+- [x] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - compiled on Overleaf 2026-07-12 at **exactly 8 pages** ([`paper/REFLEX_Research_Paper.pdf`](paper/REFLEX_Research_Paper.pdf)); zero slack, so re-check after any edit (trim order in `paper/README.md`)
 - [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - drafted on `acmart`, but the working copy is currently **de-anonymized** (real author block + public repo footnote, by author decision); flip the documented toggle in `paper/main.tex` back to `[sigconf,anonymous,review]` before CMT submission
 - [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`)
 - [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices

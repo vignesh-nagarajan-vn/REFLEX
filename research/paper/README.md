@@ -13,6 +13,7 @@ deadline **Aug 2, 2026**, via CMT).
 | File | What it is |
 |------|-----------|
 | `main.tex` | The full paper source (ACM `sigconf`). Currently the **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header. |
+| `REFLEX_Research_Paper.pdf` | The compiled paper (Overleaf pdfLaTeX, 2026-07-12): **exactly 8 pages including references** - the de-anonymized working version |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment) |
 | `figures/` | The six headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/` |
 
@@ -29,11 +30,12 @@ paper traces to the curated 07-12-2026 run; nothing is re-derived here.
    and the `figures/` folder (keep the folder name).
 2. Compiler: pdfLaTeX, TeX Live 2022 or later (the `acmart` class and
    `ACM-Reference-Format.bst` ship with the standard Overleaf TeX Live).
-3. Compile. There is no LaTeX toolchain on the dev machine, so the source
-   has been machine-checked (balanced environments, cite/label/figure
-   integrity, ASCII-only) but **not compiled - verify the page count on
-   Overleaf first thing** (ICAIF limit: 8 pages *total*, including
-   references).
+3. Compile. There is no LaTeX toolchain on the dev machine (the source is
+   machine-checked locally: balanced environments, cite/label/figure
+   integrity, ASCII-only). The 2026-07-12 Overleaf compile
+   (`REFLEX_Research_Paper.pdf`, beside this README) lands at **exactly 8
+   pages including references** - i.e. at the ICAIF limit with zero slack -
+   so re-check the count after any edit; trim order below.
 
 ### If it runs over 8 pages, trim in this order
 

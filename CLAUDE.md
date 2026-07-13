@@ -256,10 +256,12 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
    structural-loop stabilisation is reported against the *realized-market*
    benchmark with the A2-gap channels named). The working copy is
    **de-anonymized** (real author block — co-first authors, Vignesh
-   corresponding — and the public GitHub footnote). Remaining: Overleaf
-   compile + 8-page check (trim order in `paper/README.md`); before CMT
-   submission flip the double-blind toggle documented in the `main.tex`
-   header (class option + anonymized-mirror footnote); submit.
+   corresponding — and the public GitHub footnote). Compiled on Overleaf
+   2026-07-12 at **exactly 8 pages** (`research/paper/REFLEX_Research_Paper.pdf`;
+   zero slack — re-check the count after any edit, trim order in
+   `paper/README.md`). Remaining: before CMT submission flip the
+   double-blind toggle documented in the `main.tex` header (class option +
+   anonymized-mirror footnote); submit.
    Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.
