@@ -231,7 +231,11 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   `anonymous,review` for double-blind), `references.bib` (arXiv IDs verified;
   two wrong IDs inherited from `literature/*/references.bib` corrected —
   don't copy entries from those bibs without checking), `figures/` (copies
-  from `results/07-12-2026/`). No local TeX toolchain — compile on Overleaf;
+  from `results/07-12-2026/`). **`main.tex` is v2** (Aug 2026, rewritten for
+  ICAIF house style: shorter sentences, its own Related Work section, an
+  R1–R6 contributions list, no dash-parenthetical asides). v1 is frozen under
+  `paper/archive/` with its 8-page compile — don't edit it. The rewrite moved
+  prose, not claims. No local TeX toolchain — compile on Overleaf;
   build/trim/camera-ready notes in `paper/README.md`. Keep every claim no
   stronger than its counterpart in `results/07-12-2026/REPORT.md`.
 
@@ -249,17 +253,22 @@ defects fixed — see `research/analysis/pre-run-audit-2026-07.md`); paper-grade
 full-profile suites executed and curated (`research/results/07-10-2026/` for
 v3, `research/results/07-12-2026/` for v4). The **live to-do**:
 
-1. **Finish and submit the ICAIF 2026 paper** (deadline Aug 2 2026). The
+1. **Finish and submit the ICAIF 2026 paper** (CFP deadline Aug 2 2026,
+   **extended to Aug 9 2026** per icaif2026.org/call-for-papers.html,
+   checked 2026-08-07). The
    submission draft is written: `research/paper/` (ACM `sigconf`, 8 pages,
    double-blind; scoped as settled in the analysis — closed forms +
    real-data fragility + probe-level verifications are the headline; the v4
    structural-loop stabilisation is reported against the *realized-market*
    benchmark with the A2-gap channels named). The working copy is
    **de-anonymized** (real author block — co-first authors, Vignesh
-   corresponding — and the public GitHub footnote). Compiled on Overleaf
-   2026-07-12 at **exactly 8 pages** (`research/paper/REFLEX_Research_Paper.pdf`;
-   zero slack — re-check the count after any edit, trim order in
-   `paper/README.md`). Remaining: before CMT submission flip the
+   corresponding — and the public GitHub footnote). **v2 (2026-08-07) is the
+   current source**: an ICAIF-house-style prose rewrite, same results and
+   floats, body prose 3776 words vs v1's 3847. v1 compiled on Overleaf
+   2026-07-12 at **exactly 8 pages** and is frozen at
+   `research/paper/archive/` (source + PDF); zero slack there, so v2 must be
+   re-compiled and the count re-checked (trim order in `paper/README.md`).
+   Remaining: compile v2 on Overleaf, then before CMT submission flip the
    double-blind toggle documented in the `main.tex` header (class option +
    anonymized-mirror footnote); submit.
    Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).

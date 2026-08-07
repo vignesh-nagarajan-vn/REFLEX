@@ -19,7 +19,7 @@ v4's.) Five pieces:
 | [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `../endo_market_v4/data/` ships copies of its outputs) |
 | [`results/`](results/) | Executed paper-grade experiment runs against those datasets (per-experiment artifacts + logs) |
 | [`analysis/`](analysis/) | Written analyses of those runs - tables, figures, predicted-vs-measured breakdowns, honest caveats |
-| [`paper/`](paper/) | **The ICAIF 2026 submission draft** (ACM `sigconf`, double-blind): `main.tex` + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
+| [`paper/`](paper/) | **The ICAIF 2026 submission draft** (ACM `sigconf`, double-blind): `main.tex` (**v2**, ICAIF-house-style rewrite; v1 frozen in `paper/archive/`) + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
 
 > **Status note (July 2026, v4).** The repo side of the program is
 > **complete**: the six analytic derivations 1.1–1.6 (derived, implemented,
@@ -298,17 +298,20 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 
 The submission draft lives in [`paper/`](paper/) (`main.tex` +
 `references.bib` + `figures/`; see its README for the build steps, the
-trim-order if the compile runs long, and the camera-ready TODOs). Status:
+trim-order if the compile runs long, and the camera-ready TODOs). `main.tex`
+is **v2** (2026-08-07), rewritten for ICAIF house style; v1 and its
+exactly-8-page compile are frozen under [`paper/archive/`](paper/archive/).
+Section numbers below refer to v2. Status:
 
-- [x] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - compiled on Overleaf 2026-07-12 at **exactly 8 pages** ([`paper/REFLEX_Research_Paper.pdf`](paper/REFLEX_Research_Paper.pdf)); zero slack, so re-check after any edit (trim order in `paper/README.md`)
+- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v1** compiled on Overleaf 2026-07-12 at **exactly 8 pages** ([`paper/archive/REFLEX_Research_Paper_v1.pdf`](paper/archive/REFLEX_Research_Paper_v1.pdf)) with zero slack. **v2 is now the source and has not been compiled**: it is 79 prose words shorter than v1 with four fewer subsection headings and an identical float/equation inventory, so it should fit, but the count must be re-checked on Overleaf (trim order in `paper/README.md`)
 - [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - drafted on `acmart`, but the working copy is currently **de-anonymized** (real author block + public repo footnote, by author decision); flip the documented toggle in `paper/main.tex` back to `[sigconf,anonymous,review]` before CMT submission
 - [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`)
 - [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices
-- [x] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope - Secs. 1.1, 5.2 (fragility index on 36y of real data), 6
-- [x] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - Sec. 4.3 + Limitations state plainly: proxy-level public data, not trade-level TRACE; degenerate crisis cell flagged
-- [x] Prepare results with **uncertainty bands across seeds** (median + IQR or confidence intervals) - the probe protocol (Sec. 4.2) and Fig. 2 carry median + IQR + 1.4 robust bands; single-seed demos labeled as such
-- [x] If claiming systemic-risk relevance (multi-dealer extension), frame it within ICAIF's **AI governance / systemic-risk / explainability** topic areas - Secs. 1.1, 3 (R3), 5.4, 6
+- [x] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope - Secs. 1, 6.2 (fragility index on 36y of real data), 7
+- [x] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - Sec. 5.3 + the Conclusion's limitations paragraph state plainly: proxy-level public data, not trade-level TRACE; degenerate crisis cell flagged
+- [x] Prepare results with **uncertainty bands across seeds** (median + IQR or confidence intervals) - the probe protocol (Sec. 5.2) and Fig. 2 carry median + IQR + 1.4 robust bands; single-seed demos labeled as such
+- [x] If claiming systemic-risk relevance (multi-dealer extension), frame it within ICAIF's **AI governance / systemic-risk / explainability** topic areas - Secs. 1, 4 (R3), 6.4, 7
 - [ ] Plan for the **light reviewing commitment** - at least one author must be willing to review other submissions if asked
 - [ ] Confirm at least one author can **attend in person** in Milan (Nov 14–17, 2026) to present - no pre-recorded presentations accepted
-- [ ] Submit via **Microsoft CMT** (`cmt3.research.microsoft.com/ICAIF2026`) before the **August 2, 2026** deadline
+- [ ] Submit via **Microsoft CMT** (`cmt3.research.microsoft.com/ICAIF2026`). The CFP lists "Paper Submission Deadline: August 2, 2026 **Extended deadline: August 9, 2026**" ([icaif2026.org/call-for-papers.html](https://icaif2026.org/call-for-papers.html), checked 2026-08-07), so the live target is **Aug 9, 2026**
 - [ ] If accepted, include **ORCID** for all authors in the camera-ready version
