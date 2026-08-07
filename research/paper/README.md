@@ -1,7 +1,7 @@
 # paper/ - the ICAIF 2026 submission
 
 The conference paper for the REFLEX research program: **"REFLEX: Reflexive
-Equilibrium Fixed-point Learning for Endogenous Financial Markets"** (with
+Equilibrium Fixed-point Learning for Endogenous eXchanges"** (with
 the subtitle *"Analytic Stability Boundaries for Performative Market Making
 in OTC Corporate Bond Markets"*), targeting
 [ICAIF 2026](https://icaif2026.org/) (7th ACM
