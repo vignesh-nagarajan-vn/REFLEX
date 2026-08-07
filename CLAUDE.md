@@ -264,13 +264,15 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
    **de-anonymized** (real author block — co-first authors, Vignesh
    corresponding — and the public GitHub footnote). **v2 (2026-08-07) is the
    current source**: an ICAIF-house-style prose rewrite, same results and
-   floats, body prose 3776 words vs v1's 3847. v1 compiled on Overleaf
-   2026-07-12 at **exactly 8 pages** and is frozen at
-   `research/paper/archive/` (source + PDF); zero slack there, so v2 must be
-   re-compiled and the count re-checked (trim order in `paper/README.md`).
-   Remaining: compile v2 on Overleaf, then before CMT submission flip the
-   double-blind toggle documented in the `main.tex` header (class option +
-   anonymized-mirror footnote); submit.
+   floats, body prose 3771 words vs v1's 3847. **v2 compiled on Overleaf
+   2026-08-07 at exactly 8 pages** including references
+   (`research/paper/REFLEX_Research_Paper.pdf`); v1's source + compile are
+   frozen at `research/paper/archive/`. Slack is still zero, so re-check the
+   count after any edit (trim order in `paper/README.md`). Every numeric
+   literal in the paper was traced back to the 07-12-2026 artifacts.
+   Remaining: before CMT submission flip the double-blind toggle (class
+   option in the `main.tex` header + the commented mirror footnote marked
+   `DOUBLE-BLIND TOGGLE`), recompile, submit.
    Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.

@@ -15,7 +15,8 @@ is via CMT; the CFP lists "Paper Submission Deadline: August 2, 2026
 
 | File | What it is |
 |------|-----------|
-| `main.tex` | **The current paper source (v2).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header. |
+| `main.tex` | **The current paper source (v2).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header (class line) and beside the Reproducibility footnote. |
+| `REFLEX_Research_Paper.pdf` | The v2 Overleaf compile (2026-08-07): **exactly 8 pages including references**. Layout evidence, not the submission artifact: it predates the `sashok24@berkeley.edu` email correction, and the submission PDF must be regenerated after the double-blind flip anyway. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by both versions. |
 | `figures/` | The six headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/`. Shared by both versions. |
 | `archive/main_v1.tex` | The superseded v1 source, kept verbatim. |
@@ -68,11 +69,16 @@ is on record. Do not edit it.
 
 There is no LaTeX toolchain on the dev machine. The source is machine-checked
 locally instead: balanced environments and braces, cite keys against
-`references.bib`, `\ref` against `\label`, `\includegraphics` paths, ASCII-only,
-and the prose word budget against v1. **v2 has not yet been compiled.** v1
-landed at exactly 8 pages with zero slack, and v2 is 71 prose words shorter
-with the same floats, so it should fit; verify on Overleaf before submitting,
-and use the trim order below if it runs over.
+`references.bib`, `\ref` against `\label`, `\includegraphics` paths,
+ASCII-only, and the prose word budget against v1.
+
+**v2 compiled on Overleaf 2026-08-07 at exactly 8 pages including
+references**, with all six figures and five tables placed and the full
+24-entry bibliography inside the limit. Slack is still effectively zero, so
+re-check the count after any edit and use the trim order below if it runs
+over. Flipping to `anonymous` frees space rather than consuming it (the
+author block is replaced by "Anonymous Author(s)"), so the double-blind
+build is not a page-count risk.
 
 ### If it runs over 8 pages, trim in this order
 
@@ -91,7 +97,7 @@ and use the trim order below if it runs over.
 
 | Requirement (from `../README.md` § ICAIF) | Status |
 |---|---|
-| 8 pages total, ACM `sigconf`, two-column | Written to budget; v1 compiled at exactly 8 pages, v2 is shorter. **Verify v2 on Overleaf** |
+| 8 pages total, ACM `sigconf`, two-column | **Confirmed**: v2 compiled at exactly 8 pages including references (Overleaf, 2026-08-07) |
 | ACM template with `anonymous` parameter | Class line is currently `[sigconf]` (de-anonymized working version, by author decision). **Before CMT submission switch to `[sigconf,anonymous,review]`** - toggle documented in the file header |
 | Double-blind: no identifying info | Currently de-anonymized (real author block + public GitHub footnote). Before submission: re-enable `anonymous` and swap the Reproducibility footnote for an anonymized mirror |
 | No supplementary materials/appendices | Self-contained; the repository link is a reproducibility pointer, not supplementary material |
@@ -108,11 +114,13 @@ and use the trim order below if it runs over.
 Before **CMT submission** (ICAIF review is double-blind; the source is
 currently de-anonymized by author decision):
 
-- Compile v2 on Overleaf and confirm the 8-page count.
-- Switch the class line back to `\documentclass[sigconf,anonymous,review]{acmart}`
-  (toggle documented in the `main.tex` header).
-- Swap the Reproducibility footnote (public GitHub URL) for an anonymized
-  mirror, and create that mirror so it resolves for reviewers.
+1. Switch the class line to `\documentclass[sigconf,anonymous,review]{acmart}`
+   (step 1 of the toggle, documented in the `main.tex` header).
+2. Create the anonymized mirror, then comment out the public-URL footnote in
+   the Reproducibility section and uncomment the mirror footnote directly
+   below it (step 2, marked `DOUBLE-BLIND TOGGLE` in the source).
+3. Recompile and re-check the 8-page count. This build is also what picks up
+   the `sashok24@berkeley.edu` correction, which postdates the committed PDF.
 
 At **camera-ready** (marked `TODO(camera-ready)` in `main.tex`):
 
