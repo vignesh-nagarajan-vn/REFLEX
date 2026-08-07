@@ -16,7 +16,7 @@ is via CMT; the CFP lists "Paper Submission Deadline: August 2, 2026
 | File | What it is |
 |------|-----------|
 | `main.tex` | **The current paper source (v2).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header (class line) and beside the Reproducibility footnote. |
-| `REFLEX_Research_Paper.pdf` | The v2 Overleaf compile (2026-08-07): **exactly 8 pages including references**. Layout evidence, not the submission artifact: it predates the `sashok24@berkeley.edu` email correction, and the submission PDF must be regenerated after the double-blind flip anyway. |
+| `REFLEX_Research_Paper.pdf` | The v2 Overleaf compile (2026-08-07): **exactly 8 pages including references**, matching the current source including the `sashok24@berkeley.edu` correction. Still the de-anonymized build, so the submission PDF is a re-compile after the double-blind flip. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by both versions. |
 | `figures/` | The six headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/`. Shared by both versions. |
 | `archive/main_v1.tex` | The superseded v1 source, kept verbatim. |
@@ -119,8 +119,8 @@ currently de-anonymized by author decision):
 2. Create the anonymized mirror, then comment out the public-URL footnote in
    the Reproducibility section and uncomment the mirror footnote directly
    below it (step 2, marked `DOUBLE-BLIND TOGGLE` in the source).
-3. Recompile and re-check the 8-page count. This build is also what picks up
-   the `sashok24@berkeley.edu` correction, which postdates the committed PDF.
+3. Recompile and re-check the 8-page count, then submit that build. The
+   committed PDF is the de-anonymized one and is not the submission artifact.
 
 At **camera-ready** (marked `TODO(camera-ready)` in `main.tex`):
 
