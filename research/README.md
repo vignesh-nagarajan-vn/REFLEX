@@ -300,11 +300,11 @@ The submission draft lives in [`paper/`](paper/) (`main.tex` +
 `references.bib` + `figures/`; see its README for the build steps, the
 trim-order if the compile runs long, and the camera-ready TODOs). `main.tex`
 is **v3** (2026-08-08), a prose rewrite in the register of the authors'
-reference paper; v1 and v2, with their exactly-8-page compiles, are frozen
-under [`paper/archive/`](paper/archive/). Section numbers below refer to v3
-(unchanged from v2). Status:
+reference paper, compiled at exactly 8 pages; v1 and v2, with their own
+8-page compiles, are frozen under [`paper/archive/`](paper/archive/). Section
+numbers below refer to v3 (unchanged from v2). Status:
 
-- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v3 is not yet compiled**. v2 compiled on Overleaf 2026-08-07 at exactly 8 pages ([`paper/archive/REFLEX_Research_Paper_v2.pdf`](paper/archive/REFLEX_Research_Paper_v2.pdf)) with page 8 filled to the bottom margin, i.e. zero slack. v3 adds ~86 body words (~8 column lines) with an unchanged author block, so the de-anonymized build may spill to 9; the `anonymous` submission build reclaims more than that. Trim order in `paper/README.md`
+- [x] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v3** compiled on Overleaf 2026-08-08 at **exactly 8 pages** ([`paper/REFLEX_Research_Paper.pdf`](paper/REFLEX_Research_Paper.pdf)), all six figures and five tables placed and the full 24-entry bibliography inside the limit; v1's and v2's compiles are kept at [`paper/archive/`](paper/archive/). Page 8 is filled to the bottom margin, i.e. zero slack, so re-check after any edit (trim order in `paper/README.md`)
 - [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - drafted on `acmart`, but the working copy is currently **de-anonymized** (real author block + public repo footnote, by author decision); flip the documented toggle in `paper/main.tex` back to `[sigconf,anonymous,review]` before CMT submission
 - [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` (which also hides the Texas A&M / Berkeley affiliations) and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`). No self-citations exist: all 24 references are third-party
 - [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices

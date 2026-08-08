@@ -250,12 +250,17 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   survive deletion ("The governance reading is direct"). Start sections on
   the claim. The `prose-guard` skill's linter catches vocabulary but not
   these; they need reading.
-- **Page budget is a hard constraint, and it is measured.** v2 compiled to
-  exactly 8 pages with page 8 filled to the bottom margin, so any prose added
-  to the de-anonymized build risks a 9th page. v3 runs +86 body words over
-  v2. Before adding anything, check `paper/README.md`'s trim order; and note
-  that the `anonymous` submission build reclaims the whole author block, so
-  it has real slack the working copy does not.
+- **Page budget is a hard constraint, and it is measured.** v1, v2 and v3 all
+  compiled to exactly 8 pages, and in each the last page is filled to the
+  bottom margin (85 pt), so slack is zero every time. Any prose added risks a
+  9th page. Before adding anything, check `paper/README.md`'s trim order; and
+  note that the `anonymous` submission build reclaims the whole author block,
+  so it has real slack the working copy does not.
+- **Verify a compiled PDF before committing it as current.** Overleaf
+  compiles arrive by hand, so a stale one can look right. Check page count
+  and per-page fill with `pypdf` (collect `tm[5]` via
+  `extract_text(visitor_text=...)`), then grep the extracted text for phrases
+  that must be present and must be absent in the current revision.
 
 ## Current phase & next steps
 
@@ -283,13 +288,14 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
    corresponding — and the public GitHub footnote).
    **v3 (2026-08-08) is the current source**: a prose rewrite in the register
    of the authors' reference paper, same results and floats, body prose 3901
-   words vs v2's 3815 and v1's 3845. **v3 is NOT yet compiled**; v1 and v2,
-   both exactly 8 pages, are frozen at `research/paper/archive/`. Every
+   words vs v2's 3815 and v1's 3845. **v3 compiled at exactly 8 pages**
+   (`research/paper/REFLEX_Research_Paper.pdf`, verified against the source);
+   v1 and v2, also 8 pages, are frozen at `research/paper/archive/`. Every
    numeric literal in the paper traces back to the 07-12-2026 artifacts and
    is unchanged across all three versions (verified by multiset diff).
    Remaining: before CMT submission flip the double-blind toggle (class
    option in the `main.tex` header + the commented mirror footnote marked
-   `DOUBLE-BLIND TOGGLE`), compile, check the page count, submit.
+   `DOUBLE-BLIND TOGGLE`), recompile, submit.
    Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.
