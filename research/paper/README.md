@@ -15,7 +15,8 @@ is via CMT; the CFP lists "Paper Submission Deadline: August 2, 2026
 
 | File | What it is |
 |------|-----------|
-| `main.tex` | **The current paper source (v3).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header (class line) and beside the Reproducibility footnote. **Not yet compiled** - see [Building](#building-overleaf). |
+| `main.tex` | **The current paper source (v3).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header (class line) and beside the Reproducibility footnote. |
+| `REFLEX_Research_Paper.pdf` | The v3 Overleaf compile (2026-08-08): **exactly 8 pages including references**, all six figures, five tables and the full 24-entry bibliography placed. De-anonymized build, so the submission PDF is a re-compile after the double-blind flip. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by all versions. |
 | `figures/` | The six headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/`. Shared by all versions. |
 | `archive/main_v2.tex` | The superseded v2 source, kept verbatim. |
@@ -88,21 +89,19 @@ locally instead: balanced environments and braces, cite keys against
 `references.bib`, `\ref` against `\label`, `\includegraphics` paths,
 ASCII-only, and the prose word budget against the previous version.
 
-**v3 is not yet compiled.** The page-count situation, measured rather than
-assumed:
+**v3 compiled on Overleaf 2026-08-08 at exactly 8 pages including
+references**, with all six figures, five tables and the full 24-entry
+bibliography placed. The +86 words fit. Verified against the PDF rather than
+assumed: 8 pages, reference markers [1]-[24] all present, and the text
+carries the current revision (no TAMIDS, no "Two mature literatures" opener,
+the de-slopped sentences in place).
 
-- v2 compiled at exactly 8 pages, and its page 8 is filled to the same bottom
-  margin (85 pt) as every other page. Slack is literally zero, not
-  "effectively" zero.
-- v3 adds 86 body-prose words (~8 column lines) with an unchanged author
-  block, so the **de-anonymized** build may run to 9 pages. If it does, apply
-  trim 1 below; it frees roughly 15 lines.
-- The **submission** build has room the working copy does not. `anonymous`
-  replaces the author block with "Anonymous Author(s)", reclaiming more space
-  than v3 added, so it should still land at 8 pages.
-
-The submission build is the one ICAIF receives, so that is the page count
-that has to be right. Compile and check both.
+Page 8 is filled to the same bottom margin (85 pt) as every other page, so
+slack is back to literally zero. Re-check the count after any edit, and use
+the trim order below if it runs over. The `anonymous` submission build
+replaces the author block with "Anonymous Author(s)" and so frees space
+rather than consuming it, which means the double-blind build is not a
+page-count risk.
 
 ### If it runs over 8 pages, trim in this order
 
@@ -125,7 +124,7 @@ on **2026-08-08**, against the v3 source.
 
 | Requirement (CFP wording) | Status in v3 |
 |---|---|
-| "no longer than eight (8) pages in total (when in two-column sigconf format), including all figures and references" | **Open until compiled.** v2 hit exactly 8 with page 8 full; v3 adds ~10 column lines plus 1 author-block line. The `anonymous` submission build reclaims more than that. Trim 1 is the lever if the de-anonymized build spills. |
+| "no longer than eight (8) pages in total (when in two-column sigconf format), including all figures and references" | **Confirmed**: v3 compiled at exactly 8 pages including references (Overleaf, 2026-08-08), all six figures and five tables placed and the full 24-entry bibliography inside the limit. Slack is zero, so re-check after any edit |
 | "Papers must use the latest ACM article template" in "sigconf two-column format" | `\documentclass[sigconf]{acmart}`; `\settopmatter{printacmref=false}` and `\setcopyright{none}` are pre-acceptance only and are removed at camera-ready |
 | Double-blind; "Submitted papers should not reveal the identity of the authors, either by citation or other obvious mention" | Working copy is de-anonymized by author decision. Two-step toggle documented in the `main.tex` header and beside the Reproducibility footnote. Under `anonymous` the author block collapses to "Anonymous Author(s)". The only other identity leak is the GitHub URL in the Reproducibility footnote, which step 2 swaps for the anonymized mirror |
 | Self-citations "in third person only" | N/A - the paper has no self-citations; all 24 references are third-party |
@@ -149,10 +148,8 @@ currently de-anonymized by author decision):
    the Reproducibility section and uncomment the mirror footnote directly
    below it (step 2, marked `DOUBLE-BLIND TOGGLE` in the source).
 3. Recompile and re-check the 8-page count, then submit that build. The
-   committed PDF is the de-anonymized one and is not the submission artifact.
-4. Compile the de-anonymized build too and save it as
-   `REFLEX_Research_Paper.pdf` beside this README, recording its page count
-   in the table above (v3 has no committed compile yet).
+   committed `REFLEX_Research_Paper.pdf` is the de-anonymized one and is not
+   the submission artifact.
 
 At **camera-ready** (marked `TODO(camera-ready)` in `main.tex`):
 
