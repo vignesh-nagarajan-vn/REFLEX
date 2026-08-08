@@ -7,25 +7,25 @@
 %%
 %% v3 (2026-08-08): prose rewrite in the register of the authors' reference
 %% paper. Same results, figures, tables, equations, citations, section
-%% structure and claim scope as v2 -- prose only. What changed: the abstract
+%% structure and claim scope as v2. Prose only. What changed: the abstract
 %% is narrative and high level rather than a notation-dense summary, and no
 %% longer bolds the system name; Related Work attributes work to named
 %% authors; results state what they mean operationally right after stating
 %% the number; semicolon-chained sentences are split; the Conclusion's
-%% limitations are enumerated First/Second/Third. The author block gains the
-%% TAMIDS affiliation.
+%% limitations are enumerated First/Second/Third. A later pass reworded the
+%% sentences that read as generated text: the mirrored "two literatures"
+%% opener of Sec. 2, the aphoristic closers ("Anchoring, not capacity,
+%% closes the gap"), and the setup sentences that survived deletion.
 %%
 %% PAGE BUDGET (measured, not guessed). v2 compiled to exactly 8 pages with
 %% page 8 filled to the bottom margin, so there is no slack. v3 body prose is
-%% 3926 words against v2's 3815 (+111, about 10 column lines), which is the
+%% 3901 words against v2's 3815 (+86, about 8 column lines), which is the
 %% register change itself; the abstract is 211 words against v2's 212. The
-%% TAMIDS line is a second \institution inside the existing \affiliation
-%% (+1 line) rather than a second \affiliation block (+4 lines). The
 %% anonymous submission build collapses the whole author block and reclaims
-%% far more than this, so the submission PDF should still fit; the
-%% DE-ANONYMIZED build is the one that may run to 9 pages. If it does, apply
-%% trim #1 from paper/README.md (fold Table 1 into two sentences of 6.1),
-%% which frees roughly 15 lines.
+%% more than this, so the submission PDF should still fit; the DE-ANONYMIZED
+%% build is the one that may run to 9 pages. If it does, apply trim #1 from
+%% paper/README.md (fold Table 1 into two sentences of 6.1), which frees
+%% roughly 15 lines.
 %%
 %% The v1 and v2 sources and their compiled PDFs are kept verbatim under
 %% archive/.
@@ -84,14 +84,6 @@ OTC Corporate Bond Markets}
 %% -------------------------------------------------------------- authors --
 %% Co-first authors (equal contribution); Vignesh is corresponding (the
 %% first \authornote mark renders as the asterisk).
-%% ACM (and therefore ICAIF) carries institutional affiliations in the
-%% author block, not in an acknowledgement, so TAMIDS goes here. It is a
-%% second \institution inside the SAME \affiliation block, because it shares
-%% the university's city and country: acmart sets each \institution on its
-%% own line, so this costs one line instead of the four a second
-%% \affiliation block would add, and page 8 has no slack. Under the
-%% \code{anonymous} submission build the whole block collapses to
-%% "Anonymous Author(s)" and costs nothing at review time.
 %% TODO(camera-ready): add \orcid{} for both authors (ACM requires ORCID
 %% iDs for all authors of accepted papers).
 \author{Vignesh Nagarajan}
@@ -99,7 +91,6 @@ OTC Corporate Bond Markets}
 \authornote{Both authors contributed equally to this research.}
 \affiliation{%
   \institution{Texas A\&M University}
-  \institution{Texas A\&M Institute of Data Science (TAMIDS)}
   \department{Brown Foundation Scholar}
   \city{College Station}
   \state{TX}
@@ -195,10 +186,9 @@ supervisor watching many dealers retrain against one shared pool of informed
 flow cannot know whether competition among learners is manufacturing systemic
 fragility. Post-trade TRACE reporting reveals the spreads that result, not
 the retraining loop that produced them. Both questions are quantitative, and
-both need the constants rather than the abstraction. What we compute is a
-market-level stability margin for algorithmic liquidity provision, which
-places the problem in the AI-governance and systemic-risk scope of AI in
-finance.
+answering either needs the constants themselves. We compute a market-level
+stability margin for algorithmic liquidity provision, which puts the problem
+in the AI-governance and systemic-risk scope of AI in finance.
 
 To address these limitations, this paper introduces REFLEX
 (\emph{Reflexive Equilibrium Fixed-point Learning for Endogenous
@@ -249,9 +239,6 @@ proxy-level data provenance are reported as such throughout.
 \section{Related Work}
 \label{sec:related}
 
-Two mature literatures approach this loop from opposite ends.
-
-The performative-prediction literature has sharpened the loop itself.
 Perdomo et al.\ \cite{perdomo2020performative} established the convergence of
 RRM and its stochastic variants \cite{mendlerdunner2020stochastic}, and later
 work estimates the distribution response $dD/d\phi$ to optimize performative
@@ -261,22 +248,22 @@ distributions that carry their own dynamics
 \cite{li2022state,brown2022stateful}, bandit feedback
 \cite{jagadeesan2022regret}, multi-agent decision-dependent games
 \cite{narang2022multiplayer}, and robust formulations; see
-\cite{hardt2023performative} for a survey. Throughout, $(\eps,\beta,\gamma)$
-remain abstract constants of an unspecified loss.
+\cite{hardt2023performative} for a survey. In all of it,
+$(\eps,\beta,\gamma)$ stay abstract constants of an unspecified loss.
 
-The market-making literature supplies the structure that is missing.
-Avellaneda and Stoikov \cite{avellaneda2008highfrequency} and Gu\'eant et
-al.\ \cite{gueant2013dealing} derived closed-form optimal quotes under
-exponential fill intensities, and later work added multi-asset dimensionality
-reduction \cite{bergault2021size}, adverse selection and price reading
+On the market-making side, Avellaneda and Stoikov
+\cite{avellaneda2008highfrequency} and Gu\'eant et al.\
+\cite{gueant2013dealing} derived closed-form optimal quotes under exponential
+fill intensities, and later work added multi-asset dimensionality reduction
+\cite{bergault2021size}, adverse selection and price reading
 \cite{barzykin2025adverse}, the stochastic-control toolkit
 \cite{cartea2015algorithmic}, and the empirical anatomy of flow--price
-interaction \cite{cont2014price}. However, these models treat the flow
-response to quoting as a fixed input. The learning loop that re-estimates the
-market from its own induced data falls outside their scope.
+interaction \cite{cont2014price}. These models take the flow response to
+quoting as a fixed input, so the learning loop that re-estimates the market
+from its own induced data falls outside their scope.
 
 To our knowledge, no prior work computes the performative constants from
-market structure, which is what makes the stability theorem operational.
+market structure.
 
 %% ========================================================================
 \section{Market Model and the Retraining Loop}
@@ -335,10 +322,10 @@ three Perdomo constants are closed forms in the configuration:
 \eps(h)&=\rho\,\gbar\,\alpha f I c_t\,e^{-c_t h}.
 \label{eq:constants}
 \end{align}
-Each constant carries a direct market reading. Curvature is fill-curve
-curvature plus quoting-cost stiffness, smoothness is the P\&L scale, and
-$\eps$ is the toxic-flow slope $|d\tau/dh|$. The implicit-function theorem
-gives $\BR'=-\eps\beta/\gamma$, an oscillatory cobweb, hence
+Curvature is fill-curve curvature plus quoting-cost stiffness, smoothness is
+the P\&L scale, and $\eps$ is the toxic-flow slope $|d\tau/dh|$. The
+implicit-function theorem gives $\BR'=-\eps\beta/\gamma$, an oscillatory
+cobweb, hence
 \begin{equation}
 m(h^*)=\frac{\eps\beta}{\gamma}
 =\frac{\rho\gbar\alpha f I c_t\,e^{-c_t h^*}}
@@ -475,8 +462,8 @@ history (per-bond, per-step samples over a 12-deployment window; a small
 quote jitter supplies the within-deployment identification the echo chamber
 cannot destroy). It then ascends $\hat\Phi'=\hat G+\hat\Delta$ with step
 $1/\hat\gPO$ under a trust region ($35\%$ relative step cap) and an anti-echo
-freeze that refuses to steer on unidentified fits. Each safeguard encodes a
-measured failure. Exponential response fits on a narrow spread window are
+freeze that refuses to steer on unidentified fits. Both safeguards come from
+failures we measured: exponential response fits on a narrow spread window are
 line-degenerate and extrapolate badly, and the unconstrained early ascent
 rails against its spread cap.
 
@@ -520,9 +507,8 @@ with the illiquidity
 add-on of \cite{friewald2012illiquidity,bao2011illiquidity}, and
 $\lambda(h)=Ae^{-kh}$ intensities are fit per cell by maximum likelihood.
 
-The provenance deserves a plain statement. This is not trade-level TRACE.
-Dealer-side prints, per-dealer inventories, and per-bond $(A,k)$ would
-require TRACE Enhanced. Only $(A,k,\sigma,h)$ are data-identified here, the
+On provenance, plainly: this is not trade-level TRACE. Dealer-side prints,
+per-dealer inventories, and per-bond $(A,k)$ would require TRACE Enhanced. Only $(A,k,\sigma,h)$ are data-identified here, the
 toxic channel is structurally scaled by documented ratios, and the
 crisis-regime intensity fit is degenerate ($k=0$, $n=74$ days) and flagged
 wherever it binds. Regime \emph{ordering} of the boundary is data-driven;
@@ -590,8 +576,9 @@ R6 lazy deployment          & 6/6 & 6/6 & $1.1{\times}10^{-16}$ & $1{\times}10^{
 Because R1 is a closed form in observables, it can be evaluated on every
 trading day of the panel. Figure~\ref{fig:fragility} plots the resulting
 index, $\mathrm{fragility}(t)=\mathrm{median}(\eps^*)/\eps^*(t)$, and
-Table~\ref{tab:fragility} gives the per-regime summary. Three facts survive
-every caveat. First, the stability headroom $\eps^*=\gamma/\beta$ collapses
+Table~\ref{tab:fragility} gives the per-regime summary. Three results hold up
+under every caveat below. First, the stability headroom
+$\eps^*=\gamma/\beta$ collapses
 ${\sim}4.4\times$ for investment grade (IG) and ${\sim}4.3\times$ for high
 yield (HY) from calm to crisis. Second, HY sits more than $10\times$ below IG
 in \emph{every} regime, which is a level effect rather than a crisis effect.
@@ -662,8 +649,8 @@ The two distribution-space instruments agree with each other within $14\%$
 and sit $2.3$--$2.7\times$ above the realized-state closed form. That residual
 is the state-feedback channel any frozen-state closed form omits by
 construction, so the analytic boundary is a \emph{lower anchor} rather than
-an unbiased point prediction. That is the operationally safe direction for a
-stability certificate.
+an unbiased point prediction. For a stability certificate, erring low is the
+safe direction.
 
 \begin{figure}[t]
 \centering
@@ -708,10 +695,10 @@ synchronized systemic channel.
 
 The analytic surface in Figure~\ref{fig:dealersurface} puts the critical
 dealer count at $N_c\approx7.9$ for the default single-dealer modulus, and
-the simulated three-dealer cobweb already oscillates against its cap. The
-governance reading is direct. Each desk can satisfy its own stability check
-while the market as a whole violates \eqref{eq:multidealer}, so fragility
-must be certified at the market level.
+the simulated three-dealer cobweb already oscillates against its cap. For a
+supervisor this matters directly: each desk can satisfy its own stability
+check while the market as a whole violates \eqref{eq:multidealer}, so
+fragility has to be certified at the market level.
 
 \begin{figure}[t]
 \centering
@@ -754,8 +741,8 @@ PerfGD-analytic and the free-form PerfGD-learned mode both fail to settle,
 because each consumes the operator's implied objective gradient. The run's
 seam diagnostics show why. The free-form learned toxic slope starts
 right-signed ($-0.84$ against analytic $-1.79$), then flips sign and hovers
-near zero. Capacity is not the problem. Identification off the deployed
-regime is. The structural mode never asks the network for a derivative.
+near zero. The network has ample capacity; what it lacks is identification
+off the deployed regime. The structural mode never asks it for a derivative.
 Fitting \eqref{eq:structfit} to its own deployment history, it climbs under
 the trust region and \emph{converges to the realized performative optimum} at
 $h=3.193$, with late steps falling $0.35\to0.02$. That is within $0.7\%$ of
@@ -773,11 +760,12 @@ fits} on fresh controlled deployments spanning the operating range. Against
 those fits the settle point (i) zeroes their corrected gradient (residual
 $<30\%$ of its start value), (ii) sits strictly inside their blind stable
 point ($<0.85\times\hat h_{\mathrm{SP}}$, the realized echo-chamber gap,
-closed), and (iii) brackets their independent optimum estimate. The scoped
-claim is this: un-blinding is proven in closed form, and the structurally
+closed), and (iii) brackets their independent optimum estimate. We claim only
+this much: un-blinding is proven in closed form, and the structurally
 anchored learned loop realizes it at loop level against the realized-market
 benchmark, while the free-form correction remains a documented negative
-result. Anchoring, not capacity, closes the gap.
+result. What closed the gap was anchoring the response model, not enlarging
+it.
 
 \begin{figure*}[t]
 \centering
@@ -887,20 +875,20 @@ contamination.
 
 %% ========================================================================
 \section{Conclusion}
-This paper proposes REFLEX, which turns the performative-prediction stability
-theorem from an abstraction into an instrument. We compute
-$(\eps,\beta,\gamma)$ from microstructure primitives, extend the boundary in
-closed form to correction, competition, finite samples, dimension, and
-cadence, verify each extension predict-then-verify against a learned loop,
-evaluate it as a daily fragility index on 36 years of real market data, and
-machine-check the identities end to end. Two findings matter beyond this
-model. Competition among retraining dealers amplifies instability by the
-effective dealer count, which makes certification of algorithmic liquidity
-provision a market-level rather than a desk-level problem. And a learned
-corrected loop stabilizes where blind retraining collapses only when its
-response model is anchored to market structure. The free-form alternative
-fails with the same data and more capacity, so a desk should spend its
-modelling budget on structural anchoring rather than on network capacity.
+This paper proposes REFLEX, which makes the performative-prediction stability
+condition something a desk can evaluate. We compute $(\eps,\beta,\gamma)$
+from microstructure primitives, extend the boundary in closed form to
+correction, competition, finite samples, dimension, and cadence, verify each
+extension predict-then-verify against a learned loop, evaluate it as a daily
+fragility index on 36 years of real market data, and machine-check the
+identities end to end. Two of the findings should carry past this model.
+Competition among retraining dealers amplifies instability by the effective
+dealer count, which makes certification of algorithmic liquidity provision a
+market-level rather than a desk-level problem. And a learned corrected loop
+stabilizes where blind retraining collapses only when its response model is
+anchored to market structure. The free-form alternative fails with the same
+data and more capacity, so a desk should spend its modelling budget on
+structural anchoring rather than on network capacity.
 
 These results hold under idealizing assumptions. First, the calibration is
 proxy-level rather than trade-level TRACE: VIX-implied

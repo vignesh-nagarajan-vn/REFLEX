@@ -15,7 +15,7 @@ is via CMT; the CFP lists "Paper Submission Deadline: August 2, 2026
 
 | File | What it is |
 |------|-----------|
-| `main.tex` | **The current paper source (v3).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding, Texas A&M + TAMIDS) + public repo footnote. The double-blind toggle for submission is documented in the file header (class line) and beside the Reproducibility footnote. **Not yet compiled** - see [Building](#building-overleaf). |
+| `main.tex` | **The current paper source (v3).** ACM `sigconf`. The **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. The double-blind toggle for submission is documented in the file header (class line) and beside the Reproducibility footnote. **Not yet compiled** - see [Building](#building-overleaf). |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by all versions. |
 | `figures/` | The six headline figures, copied verbatim from the v4 paper-grade run `research/results/07-12-2026/`. Shared by all versions. |
 | `archive/main_v2.tex` | The superseded v2 source, kept verbatim. |
@@ -52,28 +52,27 @@ The Conclusion's limitations are enumerated First / Second / Third / Finally.
 Measured: mean sentence length 18.3 words against v2's 19.7; longest
 sentence 62 words against 70.
 
-**Length.** Body prose 3926 words against v2's 3815 (+111, roughly 10 column
-lines); abstract 211 words against 212. The increase *is* the register
-change; it was held to +111 by compressing the theory section, which is
-compact in the reference paper too.
+**De-slopping.** A later pass reworded the sentences that read as generated
+text: the mirrored "Two mature literatures approach this loop from opposite
+ends" opener of Sec. 2 (deleted, the section now starts on the claim), the
+aphoristic closers ("Anchoring, not capacity, closes the gap"; "Capacity is
+not the problem. Identification off the deployed regime is."), and the setup
+sentences that would survive deletion ("Each constant carries a direct market
+reading", "The governance reading is direct", "The provenance deserves a
+plain statement"). Checked with the `prose-guard` linter, which is clean
+apart from `robust` (R4's named result and standard optimization vocabulary)
+and two dashes that are `1990--2026` and `1-D`.
 
-**Author block.** Adds the TAMIDS affiliation as a second `\institution`
-inside the existing `\affiliation` (see below).
+**Length.** Body prose 3901 words against v2's 3815 (+86, roughly 8 column
+lines); abstract 211 words against 212. The increase *is* the register
+change; it was held down by compressing the theory section, which is compact
+in the reference paper too.
+
+**Author block.** Unchanged from v2. A TAMIDS affiliation was added and then
+removed at the author's request; do not re-add it without being asked.
 
 v1 and v2 are kept under `archive/` because theirs are the 8-page compiles on
 record. Do not edit them.
-
-## The TAMIDS affiliation
-
-ACM, and therefore ICAIF, carries institutional affiliations in the author
-block rather than in an acknowledgement, so TAMIDS goes there. It is a second
-`\institution` inside the *same* `\affiliation` block as Texas A&M
-University, because it shares the university's city and country. `acmart`
-sets each `\institution` on its own line, so this costs **one** line where a
-second `\affiliation` block would have cost four - and page 8 has no slack.
-Under the `anonymous` submission build the entire author block collapses to
-"Anonymous Author(s)", so the affiliation costs nothing at review time and
-cannot leak identity.
 
 ## Building (Overleaf)
 
@@ -95,13 +94,15 @@ assumed:
 - v2 compiled at exactly 8 pages, and its page 8 is filled to the same bottom
   margin (85 pt) as every other page. Slack is literally zero, not
   "effectively" zero.
-- v3 adds 111 body-prose words (~10 column lines) and one line to the author
+- v3 adds 86 body-prose words (~8 column lines) with an unchanged author
   block, so the **de-anonymized** build may run to 9 pages. If it does, apply
-  trim 1 below; it frees roughly 15 lines, comfortably more than needed.
-- The **submission** build is a different story. Flipping to `anonymous`
-  replaces the whole author block with "Anonymous Author(s)", reclaiming more
-  vertical space than v3 added, so the double-blind PDF should still land at
-  8 pages. That is the build ICAIF actually receives.
+  trim 1 below; it frees roughly 15 lines.
+- The **submission** build has room the working copy does not. `anonymous`
+  replaces the author block with "Anonymous Author(s)", reclaiming more space
+  than v3 added, so it should still land at 8 pages.
+
+The submission build is the one ICAIF receives, so that is the page count
+that has to be right. Compile and check both.
 
 ### If it runs over 8 pages, trim in this order
 
@@ -126,7 +127,7 @@ on **2026-08-08**, against the v3 source.
 |---|---|
 | "no longer than eight (8) pages in total (when in two-column sigconf format), including all figures and references" | **Open until compiled.** v2 hit exactly 8 with page 8 full; v3 adds ~10 column lines plus 1 author-block line. The `anonymous` submission build reclaims more than that. Trim 1 is the lever if the de-anonymized build spills. |
 | "Papers must use the latest ACM article template" in "sigconf two-column format" | `\documentclass[sigconf]{acmart}`; `\settopmatter{printacmref=false}` and `\setcopyright{none}` are pre-acceptance only and are removed at camera-ready |
-| Double-blind; "Submitted papers should not reveal the identity of the authors, either by citation or other obvious mention" | Working copy is de-anonymized by author decision. Two-step toggle documented in the `main.tex` header and beside the Reproducibility footnote. Under `anonymous` the author block (including TAMIDS) collapses to "Anonymous Author(s)". The only other identity leak is the GitHub URL in the Reproducibility footnote, which step 2 swaps for the anonymized mirror |
+| Double-blind; "Submitted papers should not reveal the identity of the authors, either by citation or other obvious mention" | Working copy is de-anonymized by author decision. Two-step toggle documented in the `main.tex` header and beside the Reproducibility footnote. Under `anonymous` the author block collapses to "Anonymous Author(s)". The only other identity leak is the GitHub URL in the Reproducibility footnote, which step 2 swaps for the anonymized mirror |
 | Self-citations "in third person only" | N/A - the paper has no self-citations; all 24 references are third-party |
 | "ICAIF '26 will not accept any supplementary materials/appendices" | Self-contained. No appendix. The repository link is a reproducibility pointer, not supplementary material, and every claim is supported inside the 8 pages |
 | ORCID: "ACM requires this for all authors of accepted papers" | `TODO(camera-ready)` marker in `main.tex`; both authors need iDs before camera-ready |

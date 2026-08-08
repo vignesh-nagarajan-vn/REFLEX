@@ -234,16 +234,25 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   from `results/07-12-2026/`). **`main.tex` is v3** (2026-08-08): a prose
   rewrite in the register of the authors' reference paper (narrative
   abstract, named-author Related Work, operational reading after each
-  number, no semicolon chains, First/Second/Third limitations) plus the
-  TAMIDS affiliation. v1 and v2 are frozen under `paper/archive/` with their
+  number, no semicolon chains, First/Second/Third limitations), followed by
+  a de-slopping pass. v1 and v2 are frozen under `paper/archive/` with their
   8-page compiles — don't edit them. Both rewrites moved prose, not claims;
   every numeric literal is unchanged since v1. No local TeX toolchain —
   compile on Overleaf; build/trim/camera-ready notes in `paper/README.md`.
   Keep every claim no stronger than its counterpart in
   `results/07-12-2026/REPORT.md`.
+- **The paper's prose gets read for AI tells, so write accordingly.** The
+  user has flagged generated-sounding sentences by name. What got cut:
+  mirrored scene-setting openers ("Two mature literatures approach this loop
+  from opposite ends"), aphoristic closers ("Anchoring, not capacity, closes
+  the gap"), antithesis fragment pairs ("Capacity is not the problem.
+  Identification off the deployed regime is."), and setup sentences that
+  survive deletion ("The governance reading is direct"). Start sections on
+  the claim. The `prose-guard` skill's linter catches vocabulary but not
+  these; they need reading.
 - **Page budget is a hard constraint, and it is measured.** v2 compiled to
   exactly 8 pages with page 8 filled to the bottom margin, so any prose added
-  to the de-anonymized build risks a 9th page. v3 runs +111 body words over
+  to the de-anonymized build risks a 9th page. v3 runs +86 body words over
   v2. Before adding anything, check `paper/README.md`'s trim order; and note
   that the `anonymous` submission build reclaims the whole author block, so
   it has real slack the working copy does not.
@@ -271,9 +280,9 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
    structural-loop stabilisation is reported against the *realized-market*
    benchmark with the A2-gap channels named). The working copy is
    **de-anonymized** (real author block — co-first authors, Vignesh
-   corresponding, Texas A&M + TAMIDS — and the public GitHub footnote).
+   corresponding — and the public GitHub footnote).
    **v3 (2026-08-08) is the current source**: a prose rewrite in the register
-   of the authors' reference paper, same results and floats, body prose 3926
+   of the authors' reference paper, same results and floats, body prose 3901
    words vs v2's 3815 and v1's 3845. **v3 is NOT yet compiled**; v1 and v2,
    both exactly 8 pages, are frozen at `research/paper/archive/`. Every
    numeric literal in the paper traces back to the 07-12-2026 artifacts and

@@ -19,7 +19,7 @@ v4's.) Five pieces:
 | [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `../endo_market_v4/data/` ships copies of its outputs) |
 | [`results/`](results/) | Executed paper-grade experiment runs against those datasets (per-experiment artifacts + logs) |
 | [`analysis/`](analysis/) | Written analyses of those runs - tables, figures, predicted-vs-measured breakdowns, honest caveats |
-| [`paper/`](paper/) | **The ICAIF 2026 submission draft** (ACM `sigconf`, double-blind): `main.tex` (**v3**, narrative-register rewrite + TAMIDS affiliation; v1 and v2 frozen in `paper/archive/`) + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
+| [`paper/`](paper/) | **The ICAIF 2026 submission draft** (ACM `sigconf`, double-blind): `main.tex` (**v3**, narrative-register rewrite; v1 and v2 frozen in `paper/archive/`) + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
 
 > **Status note (July 2026, v4).** The repo side of the program is
 > **complete**: the six analytic derivations 1.1–1.6 (derived, implemented,
@@ -300,13 +300,13 @@ The submission draft lives in [`paper/`](paper/) (`main.tex` +
 `references.bib` + `figures/`; see its README for the build steps, the
 trim-order if the compile runs long, and the camera-ready TODOs). `main.tex`
 is **v3** (2026-08-08), a prose rewrite in the register of the authors'
-reference paper and carrying the TAMIDS affiliation; v1 and v2, with their
-exactly-8-page compiles, are frozen under [`paper/archive/`](paper/archive/).
-Section numbers below refer to v3 (unchanged from v2). Status:
+reference paper; v1 and v2, with their exactly-8-page compiles, are frozen
+under [`paper/archive/`](paper/archive/). Section numbers below refer to v3
+(unchanged from v2). Status:
 
-- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v3 is not yet compiled**. v2 compiled on Overleaf 2026-08-07 at exactly 8 pages ([`paper/archive/REFLEX_Research_Paper_v2.pdf`](paper/archive/REFLEX_Research_Paper_v2.pdf)) with page 8 filled to the bottom margin, i.e. zero slack. v3 adds ~111 body words (~10 column lines) plus one author-block line, so the de-anonymized build may spill to 9; the `anonymous` submission build reclaims more than that. Trim order in `paper/README.md`
+- [ ] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v3 is not yet compiled**. v2 compiled on Overleaf 2026-08-07 at exactly 8 pages ([`paper/archive/REFLEX_Research_Paper_v2.pdf`](paper/archive/REFLEX_Research_Paper_v2.pdf)) with page 8 filled to the bottom margin, i.e. zero slack. v3 adds ~86 body words (~8 column lines) with an unchanged author block, so the de-anonymized build may spill to 9; the `anonymous` submission build reclaims more than that. Trim order in `paper/README.md`
 - [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - drafted on `acmart`, but the working copy is currently **de-anonymized** (real author block + public repo footnote, by author decision); flip the documented toggle in `paper/main.tex` back to `[sigconf,anonymous,review]` before CMT submission
-- [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` (which also hides the Texas A&M / TAMIDS / Berkeley affiliations) and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`). No self-citations exist: all 24 references are third-party
+- [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` (which also hides the Texas A&M / Berkeley affiliations) and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`). No self-citations exist: all 24 references are third-party
 - [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices
 - [x] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope - Secs. 1, 6.2 (fragility index on 36y of real data), 7
 - [x] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - Sec. 5.3 + the Conclusion's limitations paragraph state plainly: proxy-level public data, not trade-level TRACE; degenerate crisis cell flagged
