@@ -231,13 +231,22 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   `anonymous,review` for double-blind), `references.bib` (arXiv IDs verified;
   two wrong IDs inherited from `literature/*/references.bib` corrected —
   don't copy entries from those bibs without checking), `figures/` (copies
-  from `results/07-12-2026/`). **`main.tex` is v2** (Aug 2026, rewritten for
-  ICAIF house style: shorter sentences, its own Related Work section, an
-  R1–R6 contributions list, no dash-parenthetical asides). v1 is frozen under
-  `paper/archive/` with its 8-page compile — don't edit it. The rewrite moved
-  prose, not claims. No local TeX toolchain — compile on Overleaf;
-  build/trim/camera-ready notes in `paper/README.md`. Keep every claim no
-  stronger than its counterpart in `results/07-12-2026/REPORT.md`.
+  from `results/07-12-2026/`). **`main.tex` is v3** (2026-08-08): a prose
+  rewrite in the register of the authors' reference paper (narrative
+  abstract, named-author Related Work, operational reading after each
+  number, no semicolon chains, First/Second/Third limitations) plus the
+  TAMIDS affiliation. v1 and v2 are frozen under `paper/archive/` with their
+  8-page compiles — don't edit them. Both rewrites moved prose, not claims;
+  every numeric literal is unchanged since v1. No local TeX toolchain —
+  compile on Overleaf; build/trim/camera-ready notes in `paper/README.md`.
+  Keep every claim no stronger than its counterpart in
+  `results/07-12-2026/REPORT.md`.
+- **Page budget is a hard constraint, and it is measured.** v2 compiled to
+  exactly 8 pages with page 8 filled to the bottom margin, so any prose added
+  to the de-anonymized build risks a 9th page. v3 runs +111 body words over
+  v2. Before adding anything, check `paper/README.md`'s trim order; and note
+  that the `anonymous` submission build reclaims the whole author block, so
+  it has real slack the working copy does not.
 
 ## Current phase & next steps
 
@@ -255,24 +264,23 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
 
 1. **Finish and submit the ICAIF 2026 paper** (CFP deadline Aug 2 2026,
    **extended to Aug 9 2026** per icaif2026.org/call-for-papers.html,
-   checked 2026-08-07). The
+   re-checked 2026-08-08). The
    submission draft is written: `research/paper/` (ACM `sigconf`, 8 pages,
    double-blind; scoped as settled in the analysis — closed forms +
    real-data fragility + probe-level verifications are the headline; the v4
    structural-loop stabilisation is reported against the *realized-market*
    benchmark with the A2-gap channels named). The working copy is
    **de-anonymized** (real author block — co-first authors, Vignesh
-   corresponding — and the public GitHub footnote). **v2 (2026-08-07) is the
-   current source**: an ICAIF-house-style prose rewrite, same results and
-   floats, body prose 3771 words vs v1's 3847. **v2 compiled on Overleaf
-   2026-08-07 at exactly 8 pages** including references
-   (`research/paper/REFLEX_Research_Paper.pdf`); v1's source + compile are
-   frozen at `research/paper/archive/`. Slack is still zero, so re-check the
-   count after any edit (trim order in `paper/README.md`). Every numeric
-   literal in the paper was traced back to the 07-12-2026 artifacts.
+   corresponding, Texas A&M + TAMIDS — and the public GitHub footnote).
+   **v3 (2026-08-08) is the current source**: a prose rewrite in the register
+   of the authors' reference paper, same results and floats, body prose 3926
+   words vs v2's 3815 and v1's 3845. **v3 is NOT yet compiled**; v1 and v2,
+   both exactly 8 pages, are frozen at `research/paper/archive/`. Every
+   numeric literal in the paper traces back to the 07-12-2026 artifacts and
+   is unchanged across all three versions (verified by multiset diff).
    Remaining: before CMT submission flip the double-blind toggle (class
    option in the `main.tex` header + the commented mirror footnote marked
-   `DOUBLE-BLIND TOGGLE`), recompile, submit.
+   `DOUBLE-BLIND TOGGLE`), compile, check the page count, submit.
    Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.
