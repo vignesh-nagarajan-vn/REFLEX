@@ -58,7 +58,11 @@ exactly one place, the Reproducibility statement.
 
 **New abstract**, supplied by the authors. It opens on the market rather than
 the notation, names the three measurable features the modulus is built from,
-and carries the headline numbers. About 90 words longer than v3's.
+and carries the headline numbers. **293 words / 1979 characters** as rendered
+plain text, trimmed from a 309-word first draft to sit under the
+2000-character cap submission portals impose. That cap counts rendered text,
+not LaTeX source, so re-measure after any rewording by stripping `\textsc{}`,
+`$...$` and collapsing whitespace.
 
 **One colour system across all six figures.** v3 drew them from five unrelated
 palettes and at 11-12 inches wide before squeezing them into a 3.33-inch

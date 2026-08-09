@@ -36,7 +36,11 @@
 %%  (4) NEW ABSTRACT, supplied by the authors. It opens on the market rather
 %%      than on the notation, names the three measurable features the modulus
 %%      is built from, and carries the headline numbers ($8\%$, 1.74x/3.16x,
-%%      modulus 1.21, 4.4x/4.3x). It is about 90 words longer than v3's.
+%%      modulus 1.21, 4.4x/4.3x). 293 words / 1979 characters as plain text,
+%%      trimmed from a 309-word first draft to sit under the 2000-character
+%%      cap that submission portals impose. Re-measure with
+%%      scripts equivalent to stripping \textsc, $...$ and whitespace if the
+%%      wording changes again; the cap counts rendered text, not LaTeX source.
 %%
 %%  (5) NOTHING WAS CUT. (2) and (4) together first overran the 8-page target
 %%      by about 11 column lines, and trim #1 from paper/README.md (folding
@@ -195,33 +199,32 @@ OTC Corporate Bond Markets}
 %% ------------------------------------------------------------- abstract --
 \begin{abstract}
 In over-the-counter corporate bond markets, dealers compete for client trades by
-quoting bid and ask prices. Tighter quotes attract more business, but they also
-attract informed customers who are more likely to trade ahead of adverse price
-moves, leaving the dealer holding the risk. As dealers increasingly use machine
+quoting bid and ask prices. Tighter quotes attract more business, but also
+informed customers more likely to trade ahead of adverse price moves, leaving
+the dealer holding the risk. As dealers increasingly use machine
 learning to set quotes, they retrain these models on the trades their own quotes
 attract, creating a feedback loop in which each model reshapes the market that
-generates its next training data. The central question is therefore not only
-whether a quoting model performs well, but whether the market it creates remains
-stable as the model learns from it. Existing performative prediction theory gives
-a sharp stability condition, yet expresses it through abstract properties of the
-learning objective that a trading desk cannot measure before deployment. We
+generates its next training data. The question is therefore not only whether a
+quoting model performs well, but whether the market it creates stays stable as
+the model learns from it. Existing performative prediction theory gives a sharp
+stability condition, yet expresses it through abstract properties of the
+learning objective a trading desk cannot measure before deployment. We
 introduce \textsc{Reflex}, a framework that replaces those unobservable
 quantities with three measurable features of dealer behavior: how strongly
 trading volume responds to tighter quotes, how sharply the dealer's objective
 bends around its optimum, and how quickly informed flow increases as spreads
 narrow. \textsc{Reflex} combines these into a single retraining modulus,
-a pre-deployment stability margin that is estimated from a desk's own quote and
-execution history and that predicts whether repeated retraining will converge or
+a pre-deployment stability margin estimated from a desk's own quote and
+execution history that predicts whether repeated retraining will converge or
 amplify itself. In simulation, predicted and measured stability agree within
-$8\%$, while adding competing dealers increases instability by $1.74\times$ with
-two dealers and $3.16\times$ with three, as predicted. Where ordinary retraining
-becomes unstable at a modulus of $1.21$, a structurally anchored correction
-converges even as blind retraining collapses. Calibrated over $36$ years of
-public market data, the available stability headroom falls roughly $4.4\times$
-for investment grade and $4.3\times$ for high yield between calm and crisis
-regimes. Ultimately, \textsc{Reflex} turns an abstract convergence theorem into
-a market-level safety margin that can be evaluated before an automated quoting
-system goes live.
+$8\%$, and competing dealers increase instability by $1.74\times$ with two and
+$3.16\times$ with three, as predicted. Where ordinary retraining becomes
+unstable at modulus $1.21$, a structurally anchored correction converges as
+blind retraining collapses. Calibrated over $36$ years of public market data,
+stability headroom falls roughly $4.4\times$ for investment grade and
+$4.3\times$ for high yield from calm to crisis regimes. Ultimately,
+\textsc{Reflex} turns an abstract convergence theorem into a market-level safety
+margin that can be evaluated before an automated quoting system goes live.
 \end{abstract}
 
 %% ------------------------------------------------------ CCS and keywords --
