@@ -1,0 +1,23 @@
+%%
+%% anon.tex -- the ANONYMOUS (double-blind) build of the REFLEX paper.
+%%
+%% ICAIF '26 review is double-blind, so this is the PDF that goes to CMT.
+%% It is not a second copy of the paper: it defines the \ANON switch and then
+%% pulls in main.tex verbatim, so there is exactly one source of truth for the
+%% text and the two builds cannot drift apart.
+%%
+%% What \ANON changes inside main.tex:
+%%   - the class line becomes \documentclass[sigconf,anonymous,review]{acmart},
+%%     so acmart collapses the author block to "Anonymous Author(s)" and adds
+%%     line numbers for reviewers;
+%%   - the Reproducibility statement drops the authors' GitHub URL.
+%%
+%% Build locally:            latexmk -pdf anon.tex
+%% Build on Overleaf:        set anon.tex as the project's main document.
+%%
+%% Output is committed as REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf.
+%% The de-anonymised working PDF is REFLEX_Research_Paper.pdf, built from
+%% main.tex directly.
+%%
+\def\ANON{}
+\input{main}

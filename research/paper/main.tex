@@ -107,14 +107,33 @@
 %% (TeX Live >= 2022). Main file: main.tex; bibliography: references.bib;
 %% figures under figures/.
 %%
-%% This is the DE-ANONYMIZED working version (real authors + public repo
-%% link). ICAIF review is double-blind: before CMT submission, switch the
-%% class line to
-%%   \documentclass[sigconf,anonymous,review]{acmart}
-%% and swap the Reproducibility footnote for an anonymized mirror.
+%% ONE SOURCE, TWO PDFs. ICAIF review is double-blind, so this file builds
+%% either way off a single switch, \ANON. It replaces the old two-step manual
+%% toggle (edit the class line, then edit the Reproducibility footnote), which
+%% could be half-applied and produce a "blind" PDF still carrying the authors'
+%% GitHub URL.
+%%
+%%   default (no \ANON)  -> DE-ANONYMIZED working version: real author block,
+%%                          public repo footnote. -> REFLEX_Research_Paper.pdf
+%%   with \ANON defined  -> ANONYMOUS submission build: acmart's `anonymous`
+%%                          collapses the author block to "Anonymous
+%%                          Author(s)", `review` adds reviewer line numbers,
+%%                          and the repo footnote loses the identifying URL.
+%%                       -> REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf
+%%
+%% Build the anonymous PDF WITHOUT editing this file:
+%%   latexmk -pdf -jobname=anon \
+%%     -pdflatex="pdflatex %O \"\def\ANON{}\input{%S}\"" main.tex
+%% or uncomment the \def\ANON line below.
+%%
 %% Camera-ready TODOs are marked "TODO(camera-ready)".
 %%
-\documentclass[sigconf]{acmart}
+%\def\ANON{}
+\ifdefined\ANON
+  \documentclass[sigconf,anonymous,review]{acmart}
+\else
+  \documentclass[sigconf]{acmart}
+\fi
 
 %% Suppress the ACM reference-format block and copyright box for the
 %% pre-acceptance draft. TODO(camera-ready): remove these two lines and
@@ -1019,12 +1038,21 @@ policy classes, and compiling the formal layer.
 
 \section*{Reproducibility}
 \label{sec:repro}
-%% DOUBLE-BLIND TOGGLE (step 2 of 2; step 1 is the \documentclass line).
-%% To anonymize: comment out the \footnote below and uncomment the one
-%% under it, after creating the anonymized mirror so the URL resolves.
+%% Driven by the same \ANON switch as the class line, so the identifying URL
+%% cannot survive into an anonymous build by accident.
+%%
+%% TODO(submission): if you want reviewers to see the code during review,
+%% create an anonymised mirror (e.g. anonymous.4open.science) and add it as a
+%% \footnote on the \ifdefined branch. It is deliberately absent rather than a
+%% dead placeholder link: no link is safer under double-blind than a URL that
+%% 404s or, worse, redirects somewhere identifying.
+\ifdefined\ANON
+The full framework accompanies this submission and is released publicly on
+acceptance:
+\else
 The full framework is openly available:\footnote{%
 \url{https://github.com/vignesh-nagarajan-vn/REFLEX/}}
-%\footnote{Anonymized mirror for review: \url{https://anonymous.4open.science/r/REFLEX/}}
+\fi
 the six derivation documents D1--D6, the simulator, the operator, all four
 loop modes, the estimator suite, the calibration pipeline with its data
 catalogue and rejected-sources log, the 66-certificate verification layer,
