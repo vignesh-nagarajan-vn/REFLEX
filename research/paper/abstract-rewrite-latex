@@ -24,7 +24,7 @@ becomes unstable at a modulus of $1.21$, a structurally anchored correction
 converges even as blind retraining collapses. Calibrated over $36$ years of
 public market data, the available stability headroom falls roughly $4.4\times$
 for investment grade and $4.3\times$ for high yield between calm and crisis
-regimes. \textsc{Reflex} thus turns an abstract convergence theorem into
+regimes. Ultimately, \textsc{Reflex}  turns an abstract convergence theorem into
 a market-level safety margin that can be evaluated before an automated quoting
 system goes live.
 \end{abstract}
