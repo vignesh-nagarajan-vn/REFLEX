@@ -7,14 +7,15 @@
 %% text and the two builds cannot drift apart.
 %%
 %% What \ANON changes inside main.tex:
-%%   - the class line becomes \documentclass[sigconf,anonymous]{acmart}, so
-%%     acmart collapses the author block to "Anonymous Author(s)" and drops the
-%%     affiliations, emails and author notes;
+%%   - the class line becomes \documentclass[sigconf,anonymous,review]{acmart},
+%%     so acmart collapses the author block to "Anonymous Author(s)", drops the
+%%     affiliations, emails and author notes, and numbers the lines;
 %%   - the Reproducibility statement drops the authors' GitHub URL.
 %%
-%% No `review` option, so no line numbers: the ICAIF '26 CFP asks for "the
-%% 'sigconf' class with the 'anonymous' parameter" and never mentions line
-%% numbering.
+%% The line numbers come from `review` and are an author choice: the ICAIF '26
+%% CFP asks only for "the 'sigconf' class with the 'anonymous' parameter" and
+%% says nothing about line numbering either way. They are kept so reviewers can
+%% point at a specific claim. The paper is 8 pages with or without them.
 %%
 %% ORCIDs are absent on purpose. An ORCID iD identifies its holder, so it
 %% cannot appear in a double-blind submission. ACM requires ORCIDs from all
