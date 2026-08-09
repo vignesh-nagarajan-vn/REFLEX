@@ -17,7 +17,7 @@ is via CMT; the CFP lists "Paper Submission Deadline: August 2, 2026
 |------|-----------|
 | `main.tex` | **The final paper source (v4).** ACM `sigconf`. Single source for both builds, switched by `\ANON` (see `anon.tex`). Built plain it is the **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. |
 | `anon.tex` | **The anonymous (double-blind) build.** Three lines: defines `\ANON`, then `\input{main}`. Not a second copy of the paper, so the two builds cannot drift. On Overleaf, set this as the main document. |
-| `REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf` | **THIS IS THE FILE TO UPLOAD TO CMT.** The v4 anonymous build: "Anonymous Author(s)", reviewer line numbers, no affiliations, no emails, no repo URL. 8 pages. Verified free of identifying strings in text, PDF metadata and link annotations. |
+| `REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf` | **THIS IS THE FILE TO UPLOAD TO CMT.** The v4 anonymous build: "Anonymous Author(s)", no affiliations, no emails, no repo URL, no ORCIDs, no line numbers. 8 pages. Verified free of identifying strings in text, PDF metadata and link annotations. |
 | `REFLEX_Research_Paper.pdf` | The v4 de-anonymized compile (local MiKTeX pdfLaTeX + BibTeX, 2026-08-09): **exactly 8 pages including references**, all six figures, five tables and the full 24-entry bibliography placed. For sharing and for the camera-ready, **not** for double-blind submission. |
 | `ACM-Reference-Format-seq.bst` | **v4.** A verbatim fork of the stock acmart bibliography style with the two BibTeX `SORT` commands commented out, which numbers references by order of first appearance instead of alphabetically by author. Every per-entry ACM Reference Format rule is untouched. See the file header, and the camera-ready caveat under *Versions*. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by all versions. |
@@ -204,12 +204,14 @@ page-count risk.
 
 Re-checked against
 [icaif2026.org/call-for-papers.html](https://icaif2026.org/call-for-papers.html)
-on **2026-08-08**, against what is now the v4 source.
+on **2026-08-09**, against the v4 source and the v4 anonymous build. The
+quoted wording below is the CFP's own.
 
 | Requirement (CFP wording) | Status in v4 |
 |---|---|
 | "no longer than eight (8) pages in total (when in two-column sigconf format), including all figures and references" | **Confirmed**: v4 compiled at exactly 8 pages including references (local MiKTeX, 2026-08-09), all six figures and five tables placed and the full 24-entry bibliography inside the limit. Slack is ~1.3 column lines, so re-check after any edit |
-| "Papers must use the latest ACM article template" in "sigconf two-column format" | `\documentclass[sigconf]{acmart}`; `\settopmatter{printacmref=false}` and `\setcopyright{none}` are pre-acceptance only and are removed at camera-ready |
+| "LaTeX submissions must use the ACM template's sigconf two-column format. When using the ACM LaTeX template, please use the 'sigconf' class with the 'anonymous' parameter" | Submission build is exactly `\documentclass[sigconf,anonymous]{acmart}`. **No `review` option**: that is what draws line numbers down both margins, the CFP never asks for line numbering, and it names only `sigconf` + `anonymous`. The de-anonymised working build is `\documentclass[sigconf]{acmart}`. `\settopmatter{printacmref=false}` and `\setcopyright{none}` are pre-acceptance only and are removed at camera-ready |
+| "Authors should register for an ORCID if they do not already have one. ACM requires this for all authors of accepted papers when preparing the camera-ready publication" | **ORCIDs are deliberately absent from the submission PDF, and must stay absent.** An ORCID iD identifies its holder, so putting one in a double-blind submission defeats the anonymisation. The CFP scopes the requirement to "accepted papers ... camera-ready", so it is a camera-ready task on the de-anonymised build. Tracked below |
 | Double-blind; "Submitted papers should not reveal the identity of the authors, either by citation or other obvious mention" | **Satisfied by `REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf`**, built from `anon.tex`. The single `\ANON` switch drives both the class line and the Reproducibility footnote, so the GitHub URL cannot survive into a blind build by half-applying a manual toggle. Verified rather than assumed: the published PDF was scanned for author names, affiliations, emails, the repo URL and `mailto:` link annotations, across extracted text, PDF metadata **and** compressed link-annotation object streams. Zero hits; the same scan on the de-anonymized PDF returns 15 text hits, 7 metadata hits and 3 leaking URIs, so the scan does discriminate |
 | Self-citations "in third person only" | N/A - the paper has no self-citations; all 24 references are third-party |
 | "ICAIF '26 will not accept any supplementary materials/appendices" | Self-contained. No appendix. The repository link is a reproducibility pointer, not supplementary material, and every claim is supported inside the 8 pages |
@@ -229,14 +231,46 @@ of v4, 8 pages, scanned clean of identifying strings. Every ICAIF requirement
 in the table above is satisfied by that file; nothing is outstanding for
 submission. Rebuild it any time with `latexmk -pdf anon.tex`.
 
-One judgement call worth knowing: the anonymous build carries **no repository
-link at all**, rather than a placeholder anonymised-mirror URL. A dead or
-redirecting link is worse under double-blind than no link, and the anonymised
-mirror does not exist yet. If you want reviewers to read the code during
-review, create an `anonymous.4open.science` mirror and add it as a `\footnote`
-on the `\ifdefined\ANON` branch of the Reproducibility section, then rebuild.
-The paper stands on its own without it: it is self-contained by design, and
-ICAIF accepts no supplementary material anyway.
+### Why the anonymous build has no repository link
+
+It says "The full framework will be released upon acceptance:" and then lists
+what that framework contains, with no URL. That is a decision, not an
+oversight.
+
+An `anonymous.4open.science` mirror was created and then **rejected after
+checking what it actually served**. That service anonymises a repository's
+*name*, not its *contents*: it mirrored this repo verbatim, and the landing
+page a reviewer lands on opened with "Built by <both authors' full names>".
+
+A scan of all 544 tracked files found **14** carrying author names, emails,
+affiliations or the real GitHub URL:
+
+- `README.md` (the mirror's landing page), `CLAUDE.md`, `research/README.md`,
+  `research/paper/README.md`, `research/paper/archive/README.md`
+- `research/paper/main.tex` and the archived `main_v1.tex`, `main_v2.tex`,
+  `main_v3.tex` - each with the full author block, both emails and both
+  institutions
+- the four de-anonymised PDFs (`REFLEX_Research_Paper.pdf` and the three
+  archived versions)
+- one literature PDF
+
+Worse, two **directory names** leak on their own:
+`literature/literature-<firstname>/` for each author. Those show in the
+mirror's file tree and survive any per-file exclusion list, so fixing this
+properly means renaming directories, not just hiding files.
+
+A link that de-anonymises in one click is strictly worse than no link. The
+paper is self-contained by design and ICAIF accepts no supplementary material,
+so nothing in it depends on the reader reaching the code.
+
+To restore the link at camera-ready, nothing needs writing: the `\else` branch
+of the Reproducibility section already carries the public URL, and the
+de-anonymised build uses it.
+
+If an anonymised mirror is ever wanted for a future double-blind submission,
+re-run the 544-file scan first and fix what it finds. Excluding files is not
+sufficient on its own, because the two `literature/literature-<firstname>/`
+directories have to be renamed.
 
 At **camera-ready** (marked `TODO(camera-ready)` in `main.tex`):
 

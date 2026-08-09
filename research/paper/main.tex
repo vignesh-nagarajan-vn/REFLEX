@@ -117,9 +117,15 @@
 %%                          public repo footnote. -> REFLEX_Research_Paper.pdf
 %%   with \ANON defined  -> ANONYMOUS submission build: acmart's `anonymous`
 %%                          collapses the author block to "Anonymous
-%%                          Author(s)", `review` adds reviewer line numbers,
-%%                          and the repo footnote loses the identifying URL.
+%%                          Author(s)" and the repo footnote loses the
+%%                          identifying URL.
 %%                       -> REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf
+%%
+%% Options are [sigconf,anonymous] and NOT [sigconf,anonymous,review]. The
+%% ICAIF '26 CFP says, verbatim, "please use the 'sigconf' class with the
+%% 'anonymous' parameter", and says nothing anywhere about line numbering.
+%% `review` is what puts the line numbers down both margins; it is an optional
+%% acmart convenience for venues that ask for them, and this one does not.
 %%
 %% Build the anonymous PDF WITHOUT editing this file:
 %%   latexmk -pdf -jobname=anon \
@@ -130,7 +136,7 @@
 %%
 %\def\ANON{}
 \ifdefined\ANON
-  \documentclass[sigconf,anonymous,review]{acmart}
+  \documentclass[sigconf,anonymous]{acmart}
 \else
   \documentclass[sigconf]{acmart}
 \fi
@@ -1041,14 +1047,19 @@ policy classes, and compiling the formal layer.
 %% Driven by the same \ANON switch as the class line, so the identifying URL
 %% cannot survive into an anonymous build by accident.
 %%
-%% TODO(submission): if you want reviewers to see the code during review,
-%% create an anonymised mirror (e.g. anonymous.4open.science) and add it as a
-%% \footnote on the \ifdefined branch. It is deliberately absent rather than a
-%% dead placeholder link: no link is safer under double-blind than a URL that
-%% 404s or, worse, redirects somewhere identifying.
+%% The anonymous build carries NO repository link, by decision. An
+%% anonymous.4open.science mirror was created and then rejected: that service
+%% anonymises the repository's NAME, not its CONTENTS, and it served this repo
+%% verbatim. Its landing page opened with "Built by <both authors' full
+%% names>", and 14 tracked files carried author names, emails, affiliations or
+%% the real GitHub URL, main.tex and the archived main_v1-v3.tex among them.
+%% Two directory names, literature/literature-<firstname>/, leak on their own
+%% and survive any per-file exclusion because the file tree still shows them.
+%% A link like that is a one-click de-anonymisation, strictly worse than no
+%% link. TODO(camera-ready): restore the public URL, which the \else branch
+%% below already carries.
 \ifdefined\ANON
-The full framework accompanies this submission and is released publicly on
-acceptance:
+The full framework will be released upon acceptance:
 \else
 The full framework is openly available:\footnote{%
 \url{https://github.com/vignesh-nagarajan-vn/REFLEX/}}
