@@ -7,10 +7,19 @@
 %% text and the two builds cannot drift apart.
 %%
 %% What \ANON changes inside main.tex:
-%%   - the class line becomes \documentclass[sigconf,anonymous,review]{acmart},
-%%     so acmart collapses the author block to "Anonymous Author(s)" and adds
-%%     line numbers for reviewers;
+%%   - the class line becomes \documentclass[sigconf,anonymous]{acmart}, so
+%%     acmart collapses the author block to "Anonymous Author(s)" and drops the
+%%     affiliations, emails and author notes;
 %%   - the Reproducibility statement drops the authors' GitHub URL.
+%%
+%% No `review` option, so no line numbers: the ICAIF '26 CFP asks for "the
+%% 'sigconf' class with the 'anonymous' parameter" and never mentions line
+%% numbering.
+%%
+%% ORCIDs are absent on purpose. An ORCID iD identifies its holder, so it
+%% cannot appear in a double-blind submission. ACM requires ORCIDs from all
+%% authors of ACCEPTED papers at camera-ready, which is the de-anonymised
+%% build's job, not this one's.
 %%
 %% Build locally:            latexmk -pdf anon.tex
 %% Build on Overleaf:        set anon.tex as the project's main document.
