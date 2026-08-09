@@ -2,70 +2,8 @@
 %% REFLEX: ICAIF 2026 submission (ACM sigconf).
 %%
 %% ############################################################
-%% ##  VERSION 4 (CURRENT).  Supersedes archive/main_v3.tex.  ##
+%% ##  VERSION 3 (CURRENT).  Supersedes archive/main_v2.tex.  ##
 %% ############################################################
-%%
-%% v4 (2026-08-09): presentation pass. No result or number changed. Six
-%% changes; only (4) touches what the paper says.
-%%
-%%  (1) REFERENCES ARE NUMBERED BY ORDER OF APPEARANCE, not alphabetically by
-%%      author. Done with ACM-Reference-Format-seq.bst, a verbatim fork of the
-%%      stock acmart style with the two BibTeX SORT commands commented out and
-%%      nothing else touched, so every per-entry ACM Reference Format rule
-%%      still applies. See that file's header. NB: ACM's TAPS pipeline
-%%      regenerates the bibliography with the stock style at camera-ready, so
-%%      an accepted paper reverts to alphabetical ordering; this governs the
-%%      submission PDF only.
-%%
-%%  (2) THE BODY IS SELF-CONTAINED. Sec. 4 no longer defers its derivations to
-%%      documents D1-D6 in the repository. The implicit-function-theorem
-%%      derivation of the modulus and its regularity conditions are now given
-%%      in the paper (the "Derivation and regularity" paragraph of Sec. 4).
-%%      The repository is cited in exactly one place, the Reproducibility
-%%      statement, which is what it is for.
-%%
-%%  (3) FIGURES SHARE ONE COLOUR SYSTEM. All six are regenerated from the
-%%      committed run CSVs by figures/make_paper_figures.py on the Okabe-Ito
-%%      colourblind-safe palette. The red-yellow-green (RdYlGn_r) surface and
-%%      the red/green stable-unstable shading of v3 are gone: both fail
-%%      red-green colour-vision deficiency, and ACM asks for figures that do
-%%      not carry meaning by hue alone. Series are now separated by dash
-%%      pattern and marker as well as colour, so the figures survive
-%%      greyscale printing.
-%%
-%%  (4) NEW ABSTRACT, supplied by the authors. It opens on the market rather
-%%      than on the notation, names the three measurable features the modulus
-%%      is built from, and carries the headline numbers ($8\%$, 1.74x/3.16x,
-%%      modulus 1.21, 4.4x/4.3x). It is about 90 words longer than v3's.
-%%
-%%  (5) NOTHING WAS CUT. (2) and (4) together first overran the 8-page target
-%%      by about 11 column lines, and trim #1 from paper/README.md (folding
-%%      Table 1 into prose) was applied and then REVERTED once it turned out
-%%      the compressed Sec. 4 derivation paragraph alone bought back enough
-%%      room. Table 1 and all five tables survive intact.
-%%
-%% v4 SLACK AT PRESS TIME: measured on the compiled page 8, both reference
-%% columns end at 89.5% of page height, about 1.3 single-column lines short of
-%% the bottom margin. That is FULL. Any further addition runs to 9 pages, so
-%% the documented trims (Sec. 6.7 to one paragraph, then the R4/R5 paragraphs
-%% of Sec. 4 to one-sentence statements) are the next lever.
-%%
-%%  (6) CAPTIONS ARE NOW UNIFORMLY BOLD, and FIGURES 1-3 CARRY TITLES. Bold
-%%      caption text with a colon separator is acmart's own sigconf default
-%%      (acmart.cls, the \else branch at "labelfont={bf}, textfont={bf},
-%%      labelsep=colon"; the sigconf arm of the format switch adds no
-%%      override), and that default is kept -- it is ACM house style. What was
-%%      wrong is that TeX math never inherits \bfseries, so every $...$ in a
-%%      caption printed light inside bold prose: Fig. 2 read "the measured
-%%      ($f^*\approx3.17$) and predicted ($4.70$)" as bold parentheses around
-%%      light numerals. The \DeclareCaptionFont{captionmath} line in the
-%%      preamble fixes it; see the comment there to revert.
-%%
-%%      Figures 4-6 already had per-panel titles. Figures 1-3 had none, and now
-%%      do. Their figsize heights were cut by the height of the title they
-%%      gained (2.05->1.90, 2.16->2.00, 2.02->1.88 inches), so all three occupy
-%%      the same column space as before to within 1% and the page geometry is
-%%      unchanged.
 %%
 %% v3 (2026-08-08): prose rewrite in the register of the authors' reference
 %% paper. Same results, figures, tables, equations, citations, section
@@ -82,21 +20,14 @@
 %% PAGE BUDGET (measured, not guessed). v3 body prose is 3901 words against
 %% v2's 3815 (+86, about 8 column lines) and the abstract is 211 against 212.
 %% That fits: v3 COMPILED AT EXACTLY 8 PAGES including references on Overleaf
-%% 2026-08-08 (REFLEX_Research_Paper.pdf).
-%%
-%% v4 SLACK, MEASURED off the v3 raster at 150 dpi rather than eyeballed: on
-%% page 8 the left reference column runs to 89.5% of page height but the right
-%% column stops at 69.2%, leaving about 19 single-column lines free above the
-%% bottom margin. v4 spends about 11 of them on the Sec. 4 derivation
-%% paragraph and holds the rest in reserve. The hard target is 8 pages for
-%% the whole PDF, references included. Re-check the page count after ANY edit -- the
-%% reference list is last, so added body text pushes it down one line for
-%% one. If it runs over, apply trim #1 from paper/README.md
+%% 2026-08-08 (REFLEX_Research_Paper.pdf). Page 8 is filled to the bottom
+%% margin, as it was in v1 and v2, so slack is zero again. Re-check the page
+%% count after ANY edit. If it runs over, apply trim #1 from paper/README.md
 %% (fold Table 1 into two sentences of 6.1), which frees roughly 15 lines.
 %% Flipping to anonymous frees space rather than consuming it, so the
 %% double-blind submission build is not a page-count risk.
 %%
-%% The v1, v2 and v3 sources and their compiled PDFs are kept verbatim under
+%% The v1 and v2 sources and their compiled PDFs are kept verbatim under
 %% archive/.
 %%
 %% Build: compiles on Overleaf with the standard acmart bundle
@@ -142,22 +73,6 @@
 \newcommand{\Wone}{W_1}
 \newcommand{\code}[1]{\texttt{#1}}
 
-%% ---------------------------------------------------------------- captions --
-%% acmart's sigconf captions are bold in BOTH label and text (acmart.cls sets
-%% labelfont={bf}, textfont={bf}, labelsep=colon; the sigconf arm of the format
-%% switch adds no override). We keep that -- it is ACM house style.
-%%
-%% But TeX math never inherits \bfseries, so every $...$ inside a caption came
-%% out light against the bold prose around it: Fig. 2 read "the measured
-%% ($f^*\approx3.17$) and predicted ($4.70$)" with bold parentheses wrapped
-%% around light numerals. Declaring \boldmath as an additional caption font
-%% makes captions uniformly bold, text and math alike. Only textfont is
-%% overridden, so acmart's labelfont, labelsep and margin still apply.
-%%
-%% To revert to stock acmart behaviour, delete these two lines.
-\DeclareCaptionFont{captionmath}{\boldmath}
-\captionsetup{textfont={bf,captionmath}}
-
 \begin{document}
 
 \title[REFLEX: Analytic Stability Boundaries for Performative Market Making]%
@@ -194,34 +109,26 @@ OTC Corporate Bond Markets}
 
 %% ------------------------------------------------------------- abstract --
 \begin{abstract}
-In over-the-counter corporate bond markets, dealers compete for client trades by
-quoting bid and ask prices. Tighter quotes attract more business, but they also
-attract informed customers who are more likely to trade ahead of adverse price
-moves, leaving the dealer holding the risk. As dealers increasingly use machine
-learning to set quotes, they retrain these models on the trades their own quotes
-attract, creating a feedback loop in which each model reshapes the market that
-generates its next training data. The central question is therefore not only
-whether a quoting model performs well, but whether the market it creates remains
-stable as the model learns from it. Existing performative prediction theory gives
-a sharp stability condition, yet expresses it through abstract properties of the
-learning objective that a trading desk cannot measure before deployment. We
-introduce \textsc{Reflex}, a framework that replaces those unobservable
-quantities with three measurable features of dealer behavior: how strongly
-trading volume responds to tighter quotes, how sharply the dealer's objective
-bends around its optimum, and how quickly informed flow increases as spreads
-narrow. \textsc{Reflex} combines these into a single retraining modulus,
-a pre-deployment stability margin that is estimated from a desk's own quote and
-execution history and that predicts whether repeated retraining will converge or
-amplify itself. In simulation, predicted and measured stability agree within
-$8\%$, while adding competing dealers increases instability by $1.74\times$ with
-two dealers and $3.16\times$ with three, as predicted. Where ordinary retraining
-becomes unstable at a modulus of $1.21$, a structurally anchored correction
-converges even as blind retraining collapses. Calibrated over $36$ years of
-public market data, the available stability headroom falls roughly $4.4\times$
-for investment grade and $4.3\times$ for high yield between calm and crisis
-regimes. Ultimately, \textsc{Reflex} turns an abstract convergence theorem into
-a market-level safety margin that can be evaluated before an automated quoting
-system goes live.
+Corporate bond dealers increasingly quote with machine-learned policies refit
+on the very flow those quotes attract. Tighter quotes win volume, but they
+also draw informed traders who trade ahead of adverse price moves, so
+retraining closes a feedback loop between model and market. Performative
+prediction says when such a loop settles, but states the condition in
+Lipschitz constants of an unspecified loss that no desk can evaluate before
+going live. To address this gap, this paper introduces REFLEX, which derives
+those constants from market microstructure: fill-curve curvature, dealer
+P\&L scale, and the response of informed flow to spread. Stability becomes a
+number a desk can compute in advance, and the boundary extends in closed form
+to gradient correction, competing dealers, finite-sample certificates, large
+bond universes, and slower retraining cadences. Tested against a learned
+simulator, measured moduli
+match the closed form within $8\%$, competition amplifies instability by the
+predicted dealer count, and a structurally anchored corrected loop converges
+where blind retraining collapses. Calibrated on 36 years of public market
+data, the boundary becomes a daily fragility index whose headroom falls
+roughly $4.4\times$ from calm to crisis, and all 66 load-bearing identities
+are machine-checked. REFLEX therefore gives desks and supervisors a stability
+margin that can be checked before a quoting model reaches the market.
 \end{abstract}
 
 %% ------------------------------------------------------ CCS and keywords --
@@ -403,9 +310,9 @@ endogenous channels, and the measurements below make them visible.
 \section{Closed-Form Stability Theory}
 \label{sec:theory}
 
-We state the objects the experiments test, each with the argument it rests on.
-All six follow from the one-deployment objective \eqref{eq:objective} by
-differentiation and the implicit-function theorem.
+Full derivations, with proofs, regularity conditions, and saturated
+corollaries, are documents D1--D6 in the repository (see the
+\emph{Reproducibility} statement). We state the objects the experiments test.
 
 \textbf{R1 (analytic boundary).} Differentiating \eqref{eq:objective}, the
 three Perdomo constants are closed forms in the configuration:
@@ -428,16 +335,6 @@ m(h^*)=\frac{\eps\beta}{\gamma}
 with $P$ cancelling and $h^*$ the self-consistent fixed point of
 \eqref{eq:cobweb}. The loop is stable if and only if $m<1$. Every term is
 evaluable before any loop is run, so the boundary is a \emph{prediction}.
-
-\emph{Derivation and regularity.} On the quoting interval the frozen-$T$
-objective is $C^2$ and strongly concave, $\partial_{11}J=-\gamma<0$, so its
-maximiser is interior and unique and $\partial_1 J(h_{t+1};\tau(h_t))=0$
-defines $\BR$ implicitly. Differentiating in $h_t$ gives
-$\BR'=-\partial_{1T}J\,\tau'/\partial_{11}J$, and
-\eqref{eq:objective}--\eqref{eq:flows} supply $\partial_{1T}J=\beta$ and
-$\tau'=-\eps$, which is \eqref{eq:modulus}; stability is then Banach
-contraction. R3, R5 and R6 reuse this step with $\partial_{1T}J$ replaced by a
-rank-one coupling, by $\Gamma^{-1}E$, and by the $K$-step warm-started map.
 
 Two structural corollaries matter for honest measurement. First, adverse
 selection ($\psi T$) is constant in $h$ within a deployment, so it sets the
@@ -1031,8 +928,7 @@ All results in this paper are regenerated by one command
 configuration and seed).
 
 %% ------------------------------------------------------------ references --
-%% Order of appearance, not alphabetical: see ACM-Reference-Format-seq.bst.
-\bibliographystyle{ACM-Reference-Format-seq}
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 
 \end{document}
