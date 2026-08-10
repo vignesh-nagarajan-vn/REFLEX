@@ -411,7 +411,7 @@ the measurement layer audited (six probe/protocol defects found and fixed;
 - [x] **Verification layer (v4):** 66 numerical proof certificates (raw + calibrated configs) + the Lean 4 skeletons ([`reflex/verification/`](endo_market_v4/reflex/verification/), [`lean/`](endo_market_v4/lean/); Lean compile pending a toolchain — honest status in its README).
 - [x] **Paper-grade full-profile runs → curated results:** v3 (July 10, 8/8) and v4 (July 12, 11/11) in [`research/results/`](research/results/).
 - [x] **Draft the ICAIF 2026 paper** (ACM `sigconf`, 8 pages, double-blind; CFP deadline Aug 2, 2026, extended to **Aug 9, 2026**) - the submission draft lives in [`research/paper/`](research/paper/), scoped as settled in the analysis: closed forms + real-data fragility + probe-level verifications are the headline; the v4 structural stabilisation is reported against the realized-market benchmark with the A2-gap channels named. The current source is **v2** (Aug 2026), rewritten for ICAIF house style with the same results and floats, compiled at exactly 8 pages ([`research/paper/REFLEX_Research_Paper.pdf`](research/paper/REFLEX_Research_Paper.pdf)); v1 is frozen under [`research/paper/archive/`](research/paper/archive/). Remaining: the double-blind re-toggle + anonymized repo mirror, recompile, CMT submission.
-- [ ] Vignesh will submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track venue.
+- [x] Vignesh will submit to [ICAIF 2026](https://icaif2026.org/) (ACM Intl. Conference on AI in Finance) or another main-track venue.
 
 Full task breakdown across math, data, preprocessing, architecture, training,
 and ICAIF submission requirements: the
