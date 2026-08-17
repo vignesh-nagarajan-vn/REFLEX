@@ -14,9 +14,11 @@ under repeated interaction with that same policy.
 
 *Built by Vignesh Nagarajan and Shriraghav Ashok.*
 
-This repo is the foundation for a growing set of derived papers.
+## Derivations
 
-* REFLEX-Branch (https://github.com/raghavashok24/REFLEX-Branch): Extensions targeting 2 NeurIPS 2026 workshops (MLxOR, EconML)
+This repo is the foundation for a growing set of derived papers:
+
+* [REFLEX-Branch](https://github.com/raghavashok24/REFLEX-Branch): Extensions targeting 2 NeurIPS 2026 workshops (MLxOR, EconML)
 
 ## Tech Stack
 
