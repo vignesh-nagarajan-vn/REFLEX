@@ -18,6 +18,12 @@ realized inside a structural market-making model. The headline object is the
 best-response contraction modulus `m ≈ εβ/γ`; the loop is stable iff `ε < γ/β`
 (equivalently `m < 1`). See the root [README.md](README.md) for the full framing.
 
+This repo is the foundation for a growing set of derived papers — planned
+follow-up repos that take REFLEX further in one direction or another. The first
+is **REFLEX-Branch** (https://github.com/raghavashok24/REFLEX-Branch):
+extensions targeting two NeurIPS 2026 workshops (MLxOR, EconML). They build on
+this work rather than living inside it; don't restructure REFLEX to house them.
+
 ## Repository layout (what's authoritative vs. archived)
 
 | Path | Status | Notes |
