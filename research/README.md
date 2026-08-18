@@ -6,6 +6,8 @@ A machine learning framework for markets where the data distribution is not fixe
 
 REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed point where the market dynamics induced by a trading policy are stable under repeated interaction with that same policy.
 
+Preprint: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
+
 **What this folder is.** The research program built *around* the
 [`endo_market_v4`](../endo_market_v4/) `reflex` package - the extension and
 application of that code, not a second implementation. (Generations v1-v3 are

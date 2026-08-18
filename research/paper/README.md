@@ -11,6 +11,8 @@ is via CMT; the CFP lists "Paper Submission Deadline: August 2, 2026
 ([call-for-papers](https://icaif2026.org/call-for-papers.html), checked
 2026-08-07), so the live target is **Aug 9, 2026**.
 
+Preprint posted: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
+
 ## Contents
 
 | File | What it is |

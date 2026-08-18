@@ -284,7 +284,8 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
 
 1. **Finish and submit the ICAIF 2026 paper** (CFP deadline Aug 2 2026,
    **extended to Aug 9 2026** per icaif2026.org/call-for-papers.html,
-   re-checked 2026-08-08). The
+   re-checked 2026-08-08). Preprinted on arXiv:
+   [2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG, 17 Aug 2026). The
    submission draft is written: `research/paper/` (ACM `sigconf`, 8 pages,
    double-blind; scoped as settled in the analysis — closed forms +
    real-data fragility + probe-level verifications are the headline; the v4

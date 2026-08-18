@@ -14,6 +14,8 @@ under repeated interaction with that same policy.
 
 *Built by Vignesh Nagarajan and Shriraghav Ashok.*
 
+Preprint: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
+
 ## Derivations
 
 This repo is the foundation for a growing set of derived papers:
