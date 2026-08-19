@@ -20,7 +20,7 @@ Preprint: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2
 
 This repo is the foundation for a growing set of derived papers:
 
-* [REFLEX-Branch](https://github.com/raghavashok24/REFLEX-Branch): Extensions targeting 2 NeurIPS 2026 workshops (MLxOR, EconML)
+* [REFLEX-Branch](https://github.com/vignesh-nagarajan-vn/REFLEX-Branch): Extensions targeting 2 NeurIPS 2026 workshops (MLxOR, EconML)
 
 ## Tech Stack
 
