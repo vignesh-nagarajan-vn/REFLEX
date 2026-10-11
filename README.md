@@ -14,16 +14,15 @@ under repeated interaction with that same policy.
 
 *Built by Vignesh Nagarajan and Shriraghav Ashok.*
 
-Preprint: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
-
-Conference: accepted to [ACM ICAIF 2026](https://icaif2026.org/) on 2 Oct 2026, to be presented in Milan, Italy, 14-17 Nov 2026.
+* **Preprint:** [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
+* **Conference:** accepted to [ACM ICAIF 2026](https://icaif2026.org/) on 2 Oct 2026, to be presented in Milan, Italy, 14-17 Nov 2026.
 
 ## Derivations
 
 This repo is the foundation for two derived papers:
 
-* **Herd Immunity and Learning Externalities in Markets of Shared Foundation Models**
-* **A Certified Exploration Framework for Pricing Models That Shape Their Own Data**
+* **Herd Immunity and Learning Externalities in Markets of Shared Foundation Models** ([repo](https://github.com/vignesh-nagarajan-vn/PRICE))
+* **A Certified Exploration Framework for Pricing Models That Shape Their Own Data** ([repo](https://github.com/vignesh-nagarajan-vn/PRICE))
 
 ## Tech Stack
 
