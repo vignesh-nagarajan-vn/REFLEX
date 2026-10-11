@@ -17,10 +17,12 @@ Preprint posted: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 1
 
 | File | What it is |
 |------|-----------|
-| `main.tex` | **The final paper source (v4).** ACM `sigconf`. Single source for both builds, switched by `\ANON` (see `anon.tex`). Built plain it is the **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. |
+| `main.tex` | **The current paper source (v5, the camera-ready revision).** ACM `sigconf`. Single source for both builds, switched by `\ANON` (see `anon.tex`). Built plain it is the **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. |
 | `anon.tex` | **The anonymous (double-blind) build.** Three lines: defines `\ANON`, then `\input{main}`. Not a second copy of the paper, so the two builds cannot drift. On Overleaf, set this as the main document. |
 | `REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf` | **THIS IS THE FILE TO UPLOAD TO CMT.** The v4 anonymous build: "Anonymous Author(s)", no affiliations, no emails, no repo URL, no ORCIDs, with reviewer line numbers. 8 pages. Verified free of identifying strings in text, PDF metadata and link annotations. |
-| `REFLEX_Research_Paper.pdf` | The v4 de-anonymized compile (local MiKTeX pdfLaTeX + BibTeX, 2026-08-09): **exactly 8 pages including references**, all six figures, five tables and the full 24-entry bibliography placed. For sharing and for the camera-ready, **not** for double-blind submission. |
+| `REFLEX_Research_Paper.pdf` | The v5 de-anonymized compile (local MiKTeX pdfLaTeX + BibTeX, 2026-10-11): **exactly 8 pages including references**, all six figures, four tables and the full 24-entry bibliography placed. Not yet the upload: ORCIDs and the ACM rights block are still to be added (see *Versions*). |
+| `archive/main_v4.tex` | The superseded v4 source (the submitted and reviewed version), kept verbatim. |
+| `archive/REFLEX_Research_Paper_v4.pdf` | The v4 de-anonymized compile (local MiKTeX, 2026-08-09): exactly 8 pages including references. |
 | `ACM-Reference-Format-seq.bst` | **v4.** A verbatim fork of the stock acmart bibliography style with the two BibTeX `SORT` commands commented out, which numbers references by order of first appearance instead of alphabetically by author. Every per-entry ACM Reference Format rule is untouched. See the file header, and the camera-ready caveat under *Versions*. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by all versions. |
 | `figures/` | The six headline figures. From v4 they are rendered by `figures/make_paper_figures.py` from the committed CSVs of the paper-grade run `research/results/07-12-2026/`; v1-v3 used the run's own PNGs verbatim. |
@@ -41,10 +43,60 @@ paper traces to the curated 07-12-2026 run; nothing is re-derived here.
 
 ## Versions
 
-**v4 (2026-08-09) is FINAL.** v1, v2 and v3 are superseded and frozen under
+**v5 (2026-10-11) is current**: the camera-ready revision answering the two
+ICAIF reviews (both weak accept). v1 to v4 are superseded and frozen under
 [`archive/`](archive/), which carries its own
 [README](archive/README.md) recording what each was and when it compiled. Do
-not edit or recompile them; corrections go into v4.
+not edit or recompile them; corrections go into v5.
+
+### v5 (2026-10-11)
+
+Wording only. No experiment was re-run and no figure or table value changed.
+The new numerals are read from the 07-12-2026 artifacts: the deep-K lazy
+medians (-4.47, -4.81), that run's 3 seeds, the default gain f=5 behind the
+triangulation table, and the operator width (64).
+
+- **Perdomo labelling (Reviewer 4, W1).** gamma, beta, eps are the cobweb's
+  local counterparts of the performative constants, not "the three Perdomo
+  constants". The "if and only if" is no longer attributed to the cited
+  theorem, and the cobweb's stability claims are stated as local.
+- **The eps instruments (W2).** Sec. 5.2 says what each instrument estimates
+  and calls the CRN probe a consistency check. Sec. 6.3 reports the full ~9x
+  spread and replaces "erring low is the safe direction" with the correct
+  reading: the a-priori form over-certifies (4.70 against 3.17) and the
+  realized-state form is the conservative one.
+- **Sec. 6 (W5).** The fragility index is stated to track headroom, not
+  proximity to m=1, with an ex-post normalizer. The crossing is flagged as
+  interpolated. The K>=12 lazy medians are reported, the R6 claim is
+  restricted to K<=8 and "parameter-free" is gone. N_c=7.9 and the probe
+  table's m_1=0.786 are separated, and the Fig. 3 caption no longer says the
+  probes measure that surface.
+- **Smaller.** Eq. (2)'s inventory term is a penalty with curvature lambda_q;
+  derivative subscripts are defined; "trust region" is "step cap";
+  "machine-checked" is "numerical certificates"; the operator architecture and
+  framework are named; "systemic" is scoped; the abstract carries the crossing
+  mismatch and drops "as predicted"; the structural loop's benchmark is stated
+  in Sec. 5.1 before the result.
+- **What paid for it.** The additions overran by about 30 column lines. Trim
+  #1 below was applied (the certificates table is folded into Sec. 6.1 prose,
+  so there are four tables), Sec. 6.7 was tightened, and a handful of
+  sentences were cut, among them the "465 -> 2.2" line whose range disagreed
+  with Table 1's.
+
+**Compiled locally 2026-10-11 at exactly 8 pages**; page 8 is full to the
+same height as v4, so slack is again effectively zero. No undefined
+references; phrase and numeral checks run against the extracted text. One
+overfull hbox (7.7pt, first line of the "system side" paragraph of Sec. 1) is
+inherited from v4.
+
+**Not done, needs the authors:** ORCID iDs, and the ACM rights block. The
+rights block prints a copyright box and a reference-format block on page 1,
+which will cost space the paper does not have, so expect another trim (next
+in order: Sec. 6.7 to one paragraph) or check whether the camera-ready
+allows an extra page. Not requested by this revision and left alone:
+a symbol table, full derivations for R3-R6, a full simulator specification.
+
+### v4 (2026-08-09)
 
 v4 is a presentation pass over v3. No result and no
 number changed, and all six figures, five tables, eleven equations, 24

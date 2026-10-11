@@ -1,6 +1,7 @@
 # Superseded paper versions - frozen, do not edit
 
-**v4 is the final version of the REFLEX ICAIF '26 paper.** It lives one level
+**v5 is the current version of the REFLEX ICAIF '26 paper** (the camera-ready
+revision; v4 is what was submitted and reviewed). It lives one level
 up, as [`../main.tex`](../main.tex), and everything in this folder is
 superseded. Nothing here is built, cited, or submitted.
 
@@ -8,14 +9,15 @@ These files are kept only as the record of what was compiled and when. Each
 `.pdf` is the exact artifact produced by the `.tex` beside it, so a claim made
 in an earlier draft can be traced back to the source that produced it. They are
 **frozen**: do not edit them, do not recompile them, and do not fix things in
-them. If something in an old version needs correcting, it is corrected in v4.
+them. If something in an old version needs correcting, it is corrected in v5.
 
 | Version | Source | Compiled PDF | Date | Pages | What it was |
 |---|---|---|---|---|---|
 | v1 | `main_v1.tex` | `REFLEX_Research_Paper_v1.pdf` | 2026-07-12 | 8 | First full submission draft: de-anonymised author block, public repo link, all six figures. |
 | v2 | `main_v2.tex` | `REFLEX_Research_Paper_v2.pdf` | 2026-08-07 | 8 | Rewritten for ICAIF house style; corrected REFLEX acronym in the title; Berkeley email. |
 | v3 | `main_v3.tex` | `REFLEX_Research_Paper_v3.pdf` | 2026-08-08 | 8 | Prose rewrite in the register of the authors' reference paper. Same results, figures, tables, equations and citations as v2. |
-| **v4** | **`../main.tex`** | **`../REFLEX_Research_Paper.pdf`** | **2026-08-09** | **8** | **FINAL.** See [`../README.md`](../README.md). |
+| v4 | `main_v4.tex` | `REFLEX_Research_Paper_v4.pdf` | 2026-08-09 | 8 | The version submitted to ICAIF '26 and reviewed (its anonymous build is `../REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf`). |
+| **v5** | **`../main.tex`** | **`../REFLEX_Research_Paper.pdf`** | **2026-10-11** | **8** | **CURRENT.** Camera-ready revision answering the two reviews; wording only. See [`../README.md`](../README.md). |
 
 Every version compiled at exactly 8 pages including references, which is the
 ICAIF limit.
