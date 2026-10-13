@@ -247,8 +247,9 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   them. v4 (2026-08-09) is the version that was submitted, reviewed and
   posted to arXiv; its anonymous build is
   `paper/REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf`. MiKTeX is
-  installed locally (`latexmk -pdf main.tex`); Overleaf also works if
-  `ACM-Reference-Format-seq.bst` is uploaded. Version history, trim order
+  installed locally (`latexmk -pdf main.tex`); Overleaf also works. The
+  order-of-appearance `ACM-Reference-Format-seq.bst` was for the v4
+  submission only and is no longer loaded. Version history, trim order
   and camera-ready notes are in `paper/README.md`. Keep every claim no
   stronger than its counterpart in `results/07-12-2026/REPORT.md`.
 - **The paper's prose gets read for AI tells, so write accordingly.** The
@@ -298,10 +299,11 @@ v3, `research/results/07-12-2026/` for v4). The **live to-do**:
    the submission: closed forms + real-data fragility + probe-level
    verifications are the headline; the structural-loop stabilisation is
    reported against the *realized-market* benchmark with the A2-gap channels
-   named. Remaining before upload: ORCID iDs for both authors and the ACM
-   rights block (which prints on page 1 and will need an offsetting trim;
-   see `research/paper/README.md`). ACM's TAPS pipeline re-sorts the
-   bibliography alphabetically whatever the local `.bst` does.
+   named. The final compile (2026-10-13) carries both ORCID iDs and the
+   stock alphabetical `ACM-Reference-Format` bibliography, as ACM's TAPS
+   pipeline produces it. Remaining before upload: the ACM rights block,
+   which only ACM can supply; it prints on page 1 and will need an
+   offsetting trim (see `research/paper/README.md`).
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.
 

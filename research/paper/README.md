@@ -20,10 +20,10 @@ Preprint posted: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 1
 | `main.tex` | **The current paper source (v5, the camera-ready revision).** ACM `sigconf`. Single source for both builds, switched by `\ANON` (see `anon.tex`). Built plain it is the **de-anonymized working version**: real author block (co-first authors, Vignesh corresponding) + public repo footnote. |
 | `anon.tex` | **The anonymous (double-blind) build.** Three lines: defines `\ANON`, then `\input{main}`. Not a second copy of the paper, so the two builds cannot drift. On Overleaf, set this as the main document. |
 | `REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf` | **THIS IS THE FILE TO UPLOAD TO CMT.** The v4 anonymous build: "Anonymous Author(s)", no affiliations, no emails, no repo URL, no ORCIDs, with reviewer line numbers. 8 pages. Verified free of identifying strings in text, PDF metadata and link annotations. |
-| `REFLEX_Research_Paper.pdf` | The v5 de-anonymized compile (local MiKTeX pdfLaTeX + BibTeX, 2026-10-11): **exactly 8 pages including references**, all six figures, four tables and the full 24-entry bibliography placed. Not yet the upload: ORCIDs and the ACM rights block are still to be added (see *Versions*). |
+| `REFLEX_Research_Paper.pdf` | The final v5 de-anonymized compile (local MiKTeX pdfLaTeX + BibTeX, 2026-10-13): **exactly 8 pages including references**, all six figures, four tables and the full 24-entry bibliography placed, with both ORCID iDs and the references in ACM's alphabetical order. The ACM rights block is the one thing not in it (see *Versions*). |
 | `archive/main_v4.tex` | The superseded v4 source (the submitted and reviewed version), kept verbatim. |
 | `archive/REFLEX_Research_Paper_v4.pdf` | The v4 de-anonymized compile (local MiKTeX, 2026-08-09): exactly 8 pages including references. |
-| `ACM-Reference-Format-seq.bst` | **v4.** A verbatim fork of the stock acmart bibliography style with the two BibTeX `SORT` commands commented out, which numbers references by order of first appearance instead of alphabetically by author. Every per-entry ACM Reference Format rule is untouched. See the file header, and the camera-ready caveat under *Versions*. |
+| `ACM-Reference-Format-seq.bst` | **v4 only; no longer loaded by `main.tex`.** A verbatim fork of the stock acmart bibliography style with the two BibTeX `SORT` commands commented out, which numbers references by order of first appearance instead of alphabetically by author. Every per-entry ACM Reference Format rule is untouched. See the file header, and the camera-ready caveat under *Versions*. |
 | `references.bib` | 24 verified references (arXiv IDs checked against arxiv.org on 2026-07-12; two wrong IDs inherited from `literature/*/references.bib` were corrected - see the header comment). Shared by all versions. |
 | `figures/` | The six headline figures. From v4 they are rendered by `figures/make_paper_figures.py` from the committed CSVs of the paper-grade run `research/results/07-12-2026/`; v1-v3 used the run's own PNGs verbatim. |
 | `figures/make_paper_figures.py` | **v4.** Re-renders all six figures from the run CSVs on one colourblind-safe palette, at the size each is actually printed at. Reads the CSVs only; runs no simulation. |
@@ -89,11 +89,21 @@ references; phrase and numeral checks run against the extracted text. One
 overfull hbox (7.7pt, first line of the "system side" paragraph of Sec. 1) is
 inherited from v4.
 
-**Not done, needs the authors:** ORCID iDs, and the ACM rights block. The
-rights block prints a copyright box and a reference-format block on page 1,
-which will cost space the paper does not have, so expect another trim (next
-in order: Sec. 6.7 to one paragraph) or check whether the camera-ready
-allows an extra page. Not requested by this revision and left alone:
+**Final camera-ready mechanics (2026-10-13).** No wording changed. Both
+authors' ORCID iDs are in the author block (each checked against its public
+orcid.org record; they render as links on the author names and take no
+space). The bibliography is back on the stock `ACM-Reference-Format` style,
+so references are alphabetical by author, matching what ACM's TAPS pipeline
+produces; Avellaneda and Stoikov is [1]. Recompiled at exactly 8 pages, no
+undefined references, the same one inherited overfull hbox. Against the
+2026-10-11 compile the extracted text differs only in citation numbers and
+the line breaks they move.
+
+**Not done, needs ACM:** the rights block (DOI, ISBN, licence), which ACM
+issues after the rights form is completed. It prints a copyright box and a
+reference-format block on page 1, which will cost space the paper does not
+have, so expect another trim (next in order: Sec. 6.7 to one paragraph) or
+check whether the camera-ready allows an extra page. Not requested by this revision and left alone:
 a symbol table, full derivations for R3-R6, a full simulator specification.
 
 ### v4 (2026-08-09)
@@ -269,7 +279,7 @@ quoted wording below is the CFP's own.
 | Double-blind; "Submitted papers should not reveal the identity of the authors, either by citation or other obvious mention" | **Satisfied by `REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf`**, built from `anon.tex`. The single `\ANON` switch drives both the class line and the Reproducibility footnote, so the GitHub URL cannot survive into a blind build by half-applying a manual toggle. Verified rather than assumed: the published PDF was scanned for author names, affiliations, emails, the repo URL and `mailto:` link annotations, across extracted text, PDF metadata **and** compressed link-annotation object streams. Zero hits; the same scan on the de-anonymized PDF returns 15 text hits, 7 metadata hits and 3 leaking URIs, so the scan does discriminate |
 | Self-citations "in third person only" | N/A - the paper has no self-citations; all 24 references are third-party |
 | "ICAIF '26 will not accept any supplementary materials/appendices" | Self-contained. No appendix. The repository link is a reproducibility pointer, not supplementary material, and every claim is supported inside the 8 pages |
-| ORCID: "ACM requires this for all authors of accepted papers" | `TODO(camera-ready)` marker in `main.tex`; both authors need iDs before camera-ready |
+| ORCID: "ACM requires this for all authors of accepted papers" | Done 2026-10-13: both iDs are in the `main.tex` author block |
 | Author limit: "no more than twelve (12) submissions" per author | N/A - one submission |
 | Topic fit (nine CFP areas) | Primary: **Trustworthy & Responsible AI** ("AI governance, computational regulation"); secondary: **Risk Management** (systemic fragility, model validation) and **Trading & Asset Management**. Framed as such in Secs. 1, 4 (R3), 6.4, 7 |
 | Real-world financial application | Secs. 1, 6.2 (real-data fragility index), 7 |
@@ -328,7 +338,7 @@ directories have to be renamed.
 
 At **camera-ready** (marked `TODO(camera-ready)` in `main.tex`):
 
-- Add `\orcid{}` iDs for both authors (ICAIF requires ORCID at camera-ready).
+- ~~Add `\orcid{}` iDs for both authors~~ Done 2026-10-13.
 - Remove `\settopmatter{printacmref=false}` / `\setcopyright{none}` and
   insert the rights block ACM supplies on acceptance.
 - Optional: regenerate the CCS concept XML ids with the ACM CCS tool (the
