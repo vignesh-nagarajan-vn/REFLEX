@@ -29,7 +29,7 @@ this work rather than living inside it; don't restructure REFLEX to house them.
 | Path | Status | Notes |
 |------|--------|-------|
 | `endo_market_v4/` | **CURRENT — work here** | The final, complete generation: package **`reflex`** v4 (un-blinded ML + theory 1.1–1.6 + real-data calibration + the structural PerfGD loop + the verification layer + all experiments). |
-| `research/` | Active — the program folder | The research roadmap, the canonical math derivations (`math-theory/`, 1.1–1.6, LaTeX twins), the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v4 ships copies of its outputs), the **executed paper-grade runs** (`results/`: v3's `07-10-2026`, v4's `07-12-2026`), their written **analyses** (`analysis/`), and the **ICAIF 2026 submission draft** (`paper/`: ACM sigconf `main.tex` + verified `references.bib` + figures; every number traced to the 07-12-2026 run). An extension/application of `endo_market_v4`, not a second implementation. |
+| `research/` | Active — the program folder | The research roadmap, the canonical math derivations (`math-theory/`, 1.1–1.6, LaTeX twins), the **canonical data pipeline** (`data_collection/`, `preprocessing/` — v4 ships copies of its outputs), the **executed paper-grade runs** (`results/`: v3's `07-10-2026`, v4's `07-12-2026`), their written **analyses** (`analysis/`), and the **ICAIF 2026 paper** (`paper/`: accepted 2 Oct 2026; ACM sigconf `main.tex`, v5 camera-ready revision + verified `references.bib` + figures; every number traced to the 07-12-2026 run). An extension/application of `endo_market_v4`, not a second implementation. |
 | `literature/literature-vignesh/` | Active reference | 10 foundational papers + reading map; PDFs downloaded. |
 | `literature/literature-raghav/` | Active reference | Superset: same 10 + 8 extension papers (18 total) + research roadmap. |
 | `archive/` | **Frozen** | The four superseded generations: `edl_simulator_v1` (HTML/JS prototype), `endo_market_v1` (first Python build), `endo_market_v2` (identified `ε`, grew the analytic modules), `endo_market_v3` (the audited generation that produced the 07-10-2026 run). Don't extend anything here; see `archive/README.md`. |
@@ -233,20 +233,24 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   measurement-layer audit. The live code/experiments themselves are inside
   `endo_market_v4/` — this folder is the *application* of that package, not a
   second implementation.
-- `paper/` — the ICAIF 2026 submission draft: `main.tex` (ACM `sigconf`,
-  `anonymous,review` for double-blind), `references.bib` (arXiv IDs verified;
-  two wrong IDs inherited from `literature/*/references.bib` corrected —
-  don't copy entries from those bibs without checking), `figures/` (copies
-  from `results/07-12-2026/`). **`main.tex` is v3** (2026-08-08): a prose
-  rewrite in the register of the authors' reference paper (narrative
-  abstract, named-author Related Work, operational reading after each
-  number, no semicolon chains, First/Second/Third limitations), followed by
-  a de-slopping pass. v1 and v2 are frozen under `paper/archive/` with their
-  8-page compiles — don't edit them. Both rewrites moved prose, not claims;
-  every numeric literal is unchanged since v1. No local TeX toolchain —
-  compile on Overleaf; build/trim/camera-ready notes in `paper/README.md`.
-  Keep every claim no stronger than its counterpart in
-  `results/07-12-2026/REPORT.md`.
+- `paper/` — the ICAIF 2026 paper, **accepted 2 Oct 2026** (two reviews,
+  both weak accept): `main.tex` (ACM `sigconf`; one source, two builds off
+  the `\ANON` switch, with `anon.tex` as the double-blind driver),
+  `references.bib` (arXiv IDs verified; two wrong IDs inherited from
+  `literature/*/references.bib` corrected — don't copy entries from those
+  bibs without checking), `figures/` (rendered by `make_paper_figures.py`
+  from the `results/07-12-2026/` CSVs). **`main.tex` is v5** (2026-10-11):
+  the camera-ready revision answering the reviews. Wording only — no
+  experiment re-run, no figure or table value changed; the certificates
+  table is folded into Sec. 6.1 prose, so there are four tables. v1–v4 are
+  frozen under `paper/archive/` with their 8-page compiles — don't edit
+  them. v4 (2026-08-09) is the version that was submitted, reviewed and
+  posted to arXiv; its anonymous build is
+  `paper/REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf`. MiKTeX is
+  installed locally (`latexmk -pdf main.tex`); Overleaf also works if
+  `ACM-Reference-Format-seq.bst` is uploaded. Version history, trim order
+  and camera-ready notes are in `paper/README.md`. Keep every claim no
+  stronger than its counterpart in `results/07-12-2026/REPORT.md`.
 - **The paper's prose gets read for AI tells, so write accordingly.** The
   user has flagged generated-sounding sentences by name. What got cut:
   mirrored scene-setting openers ("Two mature literatures approach this loop
@@ -256,9 +260,9 @@ from microstructure primitives instead of sweeping it by hand. Structure:
   survive deletion ("The governance reading is direct"). Start sections on
   the claim. The `prose-guard` skill's linter catches vocabulary but not
   these; they need reading.
-- **Page budget is a hard constraint, and it is measured.** v1, v2 and v3 all
-  compiled to exactly 8 pages, and in each the last page is filled to the
-  bottom margin (85 pt), so slack is zero every time. Any prose added risks a
+- **Page budget is a hard constraint, and it is measured.** v1 through v5 all
+  compiled to exactly 8 pages, references included, and in each the last
+  page is essentially full, so slack is zero every time. Any prose added risks a
   9th page. Before adding anything, check `paper/README.md`'s trim order; and
   note that the `anonymous` submission build reclaims the whole author block,
   so it has real slack the working copy does not.
@@ -282,28 +286,22 @@ defects fixed — see `research/analysis/pre-run-audit-2026-07.md`); paper-grade
 full-profile suites executed and curated (`research/results/07-10-2026/` for
 v3, `research/results/07-12-2026/` for v4). The **live to-do**:
 
-1. **Finish and submit the ICAIF 2026 paper** (CFP deadline Aug 2 2026,
-   **extended to Aug 9 2026** per icaif2026.org/call-for-papers.html,
-   re-checked 2026-08-08). Preprinted on arXiv:
-   [2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG, 17 Aug 2026). The
-   submission draft is written: `research/paper/` (ACM `sigconf`, 8 pages,
-   double-blind; scoped as settled in the analysis — closed forms +
-   real-data fragility + probe-level verifications are the headline; the v4
-   structural-loop stabilisation is reported against the *realized-market*
-   benchmark with the A2-gap channels named). The working copy is
-   **de-anonymized** (real author block — co-first authors, Vignesh
-   corresponding — and the public GitHub footnote).
-   **v3 (2026-08-08) is the current source**: a prose rewrite in the register
-   of the authors' reference paper, same results and floats, body prose 3901
-   words vs v2's 3815 and v1's 3845. **v3 compiled at exactly 8 pages**
-   (`research/paper/REFLEX_Research_Paper.pdf`, verified against the source);
-   v1 and v2, also 8 pages, are frozen at `research/paper/archive/`. Every
-   numeric literal in the paper traces back to the 07-12-2026 artifacts and
-   is unchanged across all three versions (verified by multiset diff).
-   Remaining: before CMT submission flip the double-blind toggle (class
-   option in the `main.tex` header + the commented mirror footnote marked
-   `DOUBLE-BLIND TOGGLE`), recompile, submit.
-   Checklist in `research/README.md` (§ To-Do → ICAIF-specific requirements).
+1. **Deliver the ICAIF 2026 camera-ready.** The paper was submitted to CMT
+   on 9 Aug 2026 (v4, anonymous build), preprinted on arXiv as
+   [2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG, 17 Aug 2026), and
+   **accepted on 2 Oct 2026**; it is presented in Milan, 14-17 Nov 2026.
+   **v5 (2026-10-11) is the current source**: the camera-ready revision
+   answering the two reviews, wording only, compiled locally at exactly
+   8 pages (`research/paper/REFLEX_Research_Paper.pdf`, de-anonymized: real
+   author block — co-first authors, Vignesh corresponding — and the public
+   GitHub link in the Reproducibility statement). Scope is unchanged from
+   the submission: closed forms + real-data fragility + probe-level
+   verifications are the headline; the structural-loop stabilisation is
+   reported against the *realized-market* benchmark with the A2-gap channels
+   named. Remaining before upload: ORCID iDs for both authors and the ACM
+   rights block (which prints on page 1 and will need an offsetting trim;
+   see `research/paper/README.md`). ACM's TAPS pipeline re-sorts the
+   bibliography alphabetically whatever the local `.bst` does.
 2. Compile the Lean skeletons once a toolchain is available (`lean/README.md`)
    and build the 1.6 PDF via Overleaf.
 
