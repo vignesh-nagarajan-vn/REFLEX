@@ -6,7 +6,8 @@ A machine learning framework for markets where the data distribution is not fixe
 
 REFLEX reframes learning as solving for a self-consistent equilibrium: a fixed point where the market dynamics induced by a trading policy are stable under repeated interaction with that same policy.
 
-Preprint: [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
+* **Preprint:** [arXiv:2608.16155](https://arxiv.org/abs/2608.16155) (cs.LG), 17 Aug 2026.
+* **Conference:** accepted to [ACM ICAIF 2026](https://icaif2026.org/) on 2 Oct 2026, to be presented in Milan, Italy, 14-17 Nov 2026.
 
 **What this folder is.** The research program built *around* the
 [`endo_market_v4`](../endo_market_v4/) `reflex` package - the extension and
@@ -21,7 +22,7 @@ v4's.) Five pieces:
 | [`data_collection/`](data_collection/) + [`preprocessing/`](preprocessing/) | The canonical real-data pipeline (public, verified sources; `../endo_market_v4/data/` ships copies of its outputs) |
 | [`results/`](results/) | Executed paper-grade experiment runs against those datasets (per-experiment artifacts + logs) |
 | [`analysis/`](analysis/) | Written analyses of those runs - tables, figures, predicted-vs-measured breakdowns, honest caveats |
-| [`paper/`](paper/) | **The ICAIF 2026 submission draft** (ACM `sigconf`, double-blind): `main.tex` (**v3**, narrative-register rewrite; v1 and v2 frozen in `paper/archive/`) + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
+| [`paper/`](paper/) | **The ICAIF 2026 paper** (accepted 2 Oct 2026; ACM `sigconf`): `main.tex` (**v5**, the camera-ready revision answering the reviews; v1-v4 frozen in `paper/archive/`) + verified `references.bib` + figures from the 07-12-2026 run; build/trim/camera-ready notes in its README |
 
 > **Status note (July 2026, v4).** The repo side of the program is
 > **complete**: the six analytic derivations 1.1–1.6 (derived, implemented,
@@ -34,11 +35,12 @@ v4's.) Five pieces:
 > (numerical proof certificates + Lean 4 skeletons) - 152 tests, 11
 > experiments. Paper-grade full-profile runs are executed and curated in
 > [`results/`](results/) (v3: `07-10-2026`; v4: `07-12-2026`) with analyses
-> in [`analysis/`](analysis/). The **submission draft is written** and lives
-> in [`paper/`](paper/) (ACM `sigconf`, double-blind, every number traced to
-> the 07-12-2026 run); what remains is the Overleaf compile + page-count
-> check, the anonymized repo mirror, and CMT submission to ICAIF 2026 (see
-> the To-Do's ICAIF section).
+> in [`analysis/`](analysis/). The **paper** lives in [`paper/`](paper/)
+> (ACM `sigconf`, every number traced to the 07-12-2026 run). It was
+> submitted to ICAIF 2026 on 9 Aug 2026 (v4) and **accepted on 2 Oct 2026**.
+> The current source is **v5**, the camera-ready revision (wording only,
+> 8 pages, ORCID iDs in); what remains is the ACM rights block and the
+> camera-ready upload (see the To-Do's ICAIF section).
 
 ## What it does
 
@@ -298,17 +300,18 @@ Real trade-level OTC data (TRACE) carries licensing and access lead time; the pr
 
 ### ICAIF-specific submission requirements
 
-The submission draft lives in [`paper/`](paper/) (`main.tex` +
-`references.bib` + `figures/`; see its README for the build steps, the
-trim-order if the compile runs long, and the camera-ready TODOs). `main.tex`
-is **v3** (2026-08-08), a prose rewrite in the register of the authors'
-reference paper, compiled at exactly 8 pages; v1 and v2, with their own
-8-page compiles, are frozen under [`paper/archive/`](paper/archive/). Section
-numbers below refer to v3 (unchanged from v2). Status:
+The paper lives in [`paper/`](paper/) (`main.tex` + `references.bib` +
+`figures/`; see its README for the build steps, the trim-order if the compile
+runs long, and the camera-ready TODOs). It was accepted on 2 Oct 2026.
+`main.tex` is **v5** (2026-10-11, finalised 2026-10-13), the camera-ready
+revision answering the two reviews: wording only, compiled at exactly
+8 pages. v1 to v4, with their own 8-page compiles, are frozen under
+[`paper/archive/`](paper/archive/); v4 is the version that was submitted.
+Section numbers below refer to v5 (unchanged since v2). Status:
 
-- [x] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v3** compiled on Overleaf 2026-08-08 at **exactly 8 pages** ([`paper/REFLEX_Research_Paper.pdf`](paper/REFLEX_Research_Paper.pdf)), all six figures and five tables placed and the full 24-entry bibliography inside the limit; v1's and v2's compiles are kept at [`paper/archive/`](paper/archive/). Page 8 is filled to the bottom margin, i.e. zero slack, so re-check after any edit (trim order in `paper/README.md`)
-- [ ] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - drafted on `acmart`, but the working copy is currently **de-anonymized** (real author block + public repo footnote, by author decision); flip the documented toggle in `paper/main.tex` back to `[sigconf,anonymous,review]` before CMT submission
-- [ ] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - currently de-anonymized; before submission re-enable `anonymous` (which also hides the Texas A&M / Berkeley affiliations) and swap the GitHub footnote for an anonymized mirror (steps in `paper/README.md`). No self-citations exist: all 24 references are third-party
+- [x] Confirm paper fits within **8 pages total** (two-column ACM `sigconf` format), including all figures and references - **v5** compiled locally 2026-10-13 at **exactly 8 pages** ([`paper/REFLEX_Research_Paper.pdf`](paper/REFLEX_Research_Paper.pdf)), all six figures and four tables placed and the full 24-entry bibliography inside the limit; the v1-v4 compiles are kept at [`paper/archive/`](paper/archive/). Page 8 is filled to the bottom margin, i.e. zero slack, so re-check after any edit (trim order in `paper/README.md`)
+- [x] Format using the **ACM `sigconf` LaTeX template** with the `anonymous` parameter (or ACM Word template) - one source, two builds off the `\ANON` switch in `paper/main.tex`: the submission was the `[sigconf,anonymous,review]` build ([`paper/REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf`](paper/REFLEX_Research_Paper_v4_ANONYMOUS_submission.pdf)); the camera-ready is the de-anonymized `[sigconf]` build
+- [x] Remove all author-identifying information for **double-blind review**; self-citations phrased in third person - the submitted anonymous build carried no names, affiliations, emails or repository URL (no anonymized mirror was used; the reasons are in `paper/README.md`). No self-citations exist: all 24 references are third-party
 - [x] **No supplementary materials or appendices accepted** - self-contained; overflow derivations referenced as repository documents D1-D6, not appendices
 - [x] Connect the contribution explicitly to a **real-world financial application** (OTC corporate bond market making), not just abstract ML theory, per ICAIF's applied-finance scope - Secs. 1, 6.2 (fragility index on 36y of real data), 7
 - [x] Decide and disclose data provenance clearly: real TRACE-calibrated results vs. synthetic/simulated results - Sec. 5.3 + the Conclusion's limitations paragraph state plainly: proxy-level public data, not trade-level TRACE; degenerate crisis cell flagged
@@ -316,5 +319,6 @@ numbers below refer to v3 (unchanged from v2). Status:
 - [x] If claiming systemic-risk relevance (multi-dealer extension), frame it within ICAIF's **AI governance / systemic-risk / explainability** topic areas - Secs. 1, 4 (R3), 6.4, 7
 - [ ] Plan for the **light reviewing commitment** - at least one author must be willing to review other submissions if asked
 - [ ] Confirm at least one author can **attend in person** in Milan (Nov 14–17, 2026) to present - no pre-recorded presentations accepted
-- [ ] Submit via **Microsoft CMT** (`cmt3.research.microsoft.com/ICAIF2026`). The CFP lists "Paper Submission Deadline: August 2, 2026 **Extended deadline: August 9, 2026**" ([icaif2026.org/call-for-papers.html](https://icaif2026.org/call-for-papers.html), checked 2026-08-07), so the live target is **Aug 9, 2026**
-- [ ] If accepted, include **ORCID** for all authors in the camera-ready version
+- [x] Submit via **Microsoft CMT** (`cmt3.research.microsoft.com/ICAIF2026`) - submitted Aug 9, 2026; accepted Oct 2, 2026. The CFP lists "Paper Submission Deadline: August 2, 2026 **Extended deadline: August 9, 2026**" ([icaif2026.org/call-for-papers.html](https://icaif2026.org/call-for-papers.html), checked 2026-08-07), so the deadline was **Aug 9, 2026**
+- [x] If accepted, include **ORCID** for all authors in the camera-ready version - both iDs are in the v5 author block (2026-10-13)
+- [ ] Insert the **ACM rights block** (DOI, ISBN, licence) once ACM supplies it, re-check the 8-page count, and upload the camera-ready
