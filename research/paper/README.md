@@ -99,6 +99,14 @@ undefined references, the same one inherited overfull hbox. Against the
 2026-10-11 compile the extracted text differs only in citation numbers and
 the line breaks they move.
 
+**Abstract trimmed to fit CMT's 2000-character field (2026-10-13).** The v5
+abstract had grown to 2058 characters as rendered plain text. Its closing
+sentence ("Reflex gives a market-level stability margin ...") is removed,
+which leaves **287 words / 1945 characters**; every other sentence is
+unchanged, including the review-driven ones (the 4.70 against 3.17 threshold
+mismatch, and "against predicted 2x and 3x" in place of "as predicted").
+Still exactly 8 pages.
+
 **Not done, needs ACM:** the rights block (DOI, ISBN, licence), which ACM
 issues after the rights form is completed. It prints a copyright box and a
 reference-format block on page 1, which will cost space the paper does not
